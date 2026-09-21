@@ -9,9 +9,14 @@
     "validate": "node tools/validate.mjs",
     "test": "node --test tools/*.test.mjs",
     "sources": "node tools/fetch-sources.mjs",
-    "prepare-source": "node tools/prepare-source.mjs"
+    "prepare-source": "node tools/prepare-source.mjs",
+    "publish:staging": "node tools/publish.mjs staging",
+    "publish:production": "node tools/publish.mjs production"
   },
   "devDependencies": {
-    "ajv": "8.17.1"
+    "@aws-sdk/client-s3": "3.1136.0",
+    "ajv": "8.17.1",
+    "yauzl": "3.4.0",
+    "yazl": "3.3.1"
   }
 }

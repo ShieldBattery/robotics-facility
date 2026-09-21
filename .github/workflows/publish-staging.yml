@@ -1,0 +1,19 @@
+name: Publish staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Positive staging catalog revision to publish.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    uses: ./.github/workflows/publish.yml
+    with:
+      environment: staging
+      revision: ${{ inputs.revision }}

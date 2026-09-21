@@ -169,10 +169,12 @@ See [GitHub deployment configuration](github-deployment.md) for the environment
 variables and new access-key secrets to configure. The local `origin` points there;
 this does not imply the branch has been pushed or environments provisioned.
 
-Wiring is not implemented yet: the release-bundle producer and signing/publishing
-tools still need implementation, along with the Actions that invoke them. Do not
-label a validation-only workflow as a successful publication. These are deployment
-requirements, not existing Actions.
+The [manual Actions](github-actions.md) and [publisher](publisher.md) implement
+archive preparation, signing, immutable uploads, and exact-byte promotion. They
+consume approved catalog records and prebuilt artifact URLs; producing the first
+license-complete bot archive remains separate work. The empty initial catalog is
+rejected for publication. Real Spaces delivery still requires environment credentials
+and end-to-end verification.
 
 ## Hosting and publication
 
@@ -188,11 +190,12 @@ revalidation. DigitalOcean supports per-file cache TTLs and cache purges; public
 must account for edge caching rather than assuming an overwritten catalog is visible
 immediately. [Spaces CDN cache documentation](https://docs.digitalocean.com/products/spaces/how-to/manage-cdn-cache/).
 
-Before public delivery, define and implement a signed catalog envelope, pinned
-verification keys and key rotation, bounded schema parsing, and catalog revision
-rollback handling. The checked-in JSON is the unsigned payload, not that envelope.
-Artifact hashes provide integrity relative to the catalog, not publisher identity.
-Do not put signing keys, upload credentials, or machine-specific paths in the repo.
+The publisher implements an Ed25519 envelope binding the catalog, channel, and key
+ID, with bounded parsing and monotonic catalog revisions. The checked-in JSON is the
+unsigned input. Configure pinned public trust and distinct private signing keys per
+environment. Client signature verification and managed key rotation remain to be
+implemented; changing the current configured key cannot silently bypass verification
+of an existing catalog. Do not put private keys or upload credentials in the repo.
 
 ## Next checkpoints
 
@@ -205,9 +208,9 @@ Do not put signing keys, upload credentials, or machine-specific paths in the re
    and update/removal tests.
 4. Connect installed packages to the managed local match runner. Offline readiness
    requires both package installation and the socket-free local game launch path.
-5. Add a publisher/signing workflow and choose the real delivery endpoints when
-   the first release is ready. Keep author outreach and local/ladder eligibility
-   records separate throughout.
+5. Configure and exercise the publishing workflows against the actual Spaces targets
+   when the first approved archive is ready. Keep author outreach and local/ladder
+   eligibility records separate throughout.
 
 Source-review approval is an additional publication requirement, independent of
 license eligibility. See [source review and reset policy](source-review-and-state.md)

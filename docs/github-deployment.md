@@ -1,8 +1,8 @@
 # GitHub deployment configuration
 
 Repository: [ShieldBattery/robotics-facility](https://github.com/ShieldBattery/robotics-facility).
-This records the agreed configuration; publisher workflows, uploads, and GitHub
-environment provisioning are not implemented by this document.
+The separate manual publishing workflows and publisher CLI are implemented. This
+reference describes their configuration; no catalog or package has been uploaded.
 
 ## Environments and credentials
 
@@ -50,11 +50,17 @@ public/robotics-facility/packages/<sha256>.zip
 ```
 
 Package archives and revisioned catalog snapshots are immutable; `catalog.json`
-is the environment's current signed catalog. The exact signed envelope and durable
-promotion-bundle layout remain to be implemented before any public release.
+is the environment's current signed catalog. Successful publication also writes `published/<revision>.json`, a signed promotion
+receipt, only after current-catalog activation is verified. See the
+[publisher contract](publisher.md) for the exact signed envelope and bounds.
 Public access must be established using the bucket's existing access conventions;
 a prefix by itself does not grant anonymous reads. A missing catalog during initial
 setup is expected and should not break already-installed offline bots.
+
+Also set `CATALOG_KEY_ID` and `CATALOG_PUBLIC_KEY` (PEM Ed25519) as environment
+variables. Production needs `STAGING_PUBLIC_BASE_URL`, `STAGING_CATALOG_KEY_ID`, and
+`STAGING_CATALOG_PUBLIC_KEY` to verify the successful staging publication receipt.
+The signing private key must match the configured public key before any upload.
 
 ## Publication behavior
 
@@ -66,7 +72,13 @@ ref/deployment protections distinct from staging. No workflow is dispatched mere
 because these credentials are configured.
 
 Spaces access keys authorize uploads; they are not catalog signing keys. Configure
-separate signing identities/verification trust for the two channels when implementing
-the signed envelope. Do not substitute upload credentials for catalog signatures.
+separate signing identities/verification trust for the two channels. Do not substitute upload credentials for catalog signatures.
 See [catalog and offline behavior](catalog-and-offline.md) for promotion, cache,
 rollback, signing, and installed-state requirements.
+
+Restrict both GitHub environments to deployments from branch `main` only; workflow
+checks alone cannot protect against a modified workflow on another branch. All
+bucket writers for this prefix must use these serialized workflows. External/manual
+concurrent uploads are unsupported: S3 read-then-write checks are not an atomic
+compare-and-swap, and this implementation does not assume Spaces supports conditional
+PUTs. Never share these prefix-publishing credentials with another concurrent writer.

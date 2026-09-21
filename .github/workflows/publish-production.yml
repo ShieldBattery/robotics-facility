@@ -1,0 +1,24 @@
+name: Publish production
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Positive production catalog revision to publish.
+        required: true
+        type: string
+      staging_revision:
+        description: Immutable positive staging catalog revision to promote.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    uses: ./.github/workflows/publish.yml
+    with:
+      environment: production
+      revision: ${{ inputs.revision }}
+      staging_revision: ${{ inputs.staging_revision }}

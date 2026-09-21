@@ -3,10 +3,12 @@
 Pinned bot sources, build metadata, and the downloadable bot catalog for ShieldBattery.
 Each bot retains its upstream license; this repository does not relicense bot code.
 
-This is a local development scaffold. ZZZKBot and UAlbertaBot have prototype-tested
-candidate records, not approved downloadable releases. The public-format catalog is
-intentionally empty. No uploader, signing service, installer, or offline app integration
-is implemented here yet.
+ZZZKBot and UAlbertaBot have prototype-tested candidate records, not approved
+downloadable releases. The catalog is intentionally empty. Separate staging and
+production publishing Actions validate archives, sign catalogs, and publish to Spaces;
+they refuse empty/unapproved releases. The installer and offline app integration
+are not implemented yet. See [publishing Actions](docs/github-actions.md) and the
+[publisher contract](docs/publisher.md).
 
 ## Want your bot included?
 
