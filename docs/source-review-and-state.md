@@ -5,6 +5,11 @@ Neither seed bot has completed a release review. `sourceReview.status` remains
 `pending`; catalog validation requires `approved` independently of distribution
 permission. No OS sandbox, runtime tracing, or reset UI is implemented by these docs.
 
+Local-distribution approval must also satisfy the
+[licensing and modification-disclosure policy](licensing-and-attribution.md),
+including packaged notices, exact modified-source delivery where required, and the
+release-specific disclosures intended for the bot detail display.
+
 ## Admission and update review
 
 Review the exact upstream revisions, downstream patches, configuration, assets,

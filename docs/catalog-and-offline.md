@@ -217,3 +217,12 @@ license eligibility. See [source review and reset policy](source-review-and-stat
 and [the source-patch workflow](source-patches.md). Reset learning restores both read
 inputs and write outputs to the packaged baseline, after active workers release the
 profile. Removing a package must not silently delete those user-owned profiles.
+
+## Attribution for the selected release
+
+The bot detail display must follow the [licensing and modification-disclosure
+policy](licensing-and-attribution.md). Preserve upstream authorship and show downstream
+modifications, full packaged license/notice texts, and exact source/build-material
+links for the selected release. Installed notices and modification summaries remain
+available offline, independently of catalog refresh or removal. Complete the draft
+release metadata for this display before shipping app catalog installation.

@@ -2,6 +2,8 @@
 
 Pinned bot sources, build metadata, and the downloadable bot catalog for ShieldBattery.
 Each bot retains its upstream license; this repository does not relicense bot code.
+See [licensing and modification disclosure](docs/licensing-and-attribution.md) for
+package notices, modified-source delivery, and the bot detail display requirements.
 
 ZZZKBot and UAlbertaBot have prototype-tested candidate records, not approved
 downloadable releases. The catalog is intentionally empty. Separate staging and

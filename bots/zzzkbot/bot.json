@@ -53,10 +53,10 @@
     }
   },
   "license": {
-    "name": "LGPL-3.0-only",
+    "name": "LGPL-3.0-or-later",
     "sourceId": "zzzkbot",
     "path": "LICENSE.txt",
-    "notes": "Top-level upstream license only. Dependency, notice, and redistributable package audit remains open."
+    "notes": "Pinned LICENSE.txt grants LGPL version 3 or any later version and refers to COPYING.txt and COPYING.LESSER.txt. Dependency, notice, and redistributable package audit remains open."
   },
   "permissions": {
     "localDistribution": {

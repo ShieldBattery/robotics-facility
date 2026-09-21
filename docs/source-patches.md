@@ -48,3 +48,9 @@ Preparation refuses output outside `.build`, linked source/output/patch director
 invalid paths, bad hashes, and mismatched patch context. It is development tooling,
 not a sandbox for running untrusted builds or protection against concurrent malicious
 filesystem changes. Review build scripts before executing them.
+
+Patch review must also follow the [licensing and attribution policy](licensing-and-attribution.md).
+Record who changed what and when, preserve upstream notices, and add notices in
+changed files where required. The exact modified source/build materials and user-visible
+modification disclosure belong to the released package, not just the patch authoring
+checkout or a moving upstream link.
