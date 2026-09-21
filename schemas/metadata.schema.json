@@ -18,6 +18,24 @@
         "revision": {
           "type": "string",
           "pattern": "^[a-f0-9]{40}$"
+        },
+        "patches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^patches/[a-z][a-z0-9-]*/[a-z0-9][a-z0-9-]*\\.patch$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": ["path", "sha256"]
+          }
         }
       },
       "required": ["id", "repository", "revision"]
@@ -341,6 +359,9 @@
             }
           },
           "required": ["status", "repository", "revision", "instructions"]
+        },
+        "sourceReview": {
+          "$ref": "#/$defs/sourceReview"
         }
       },
       "required": [
@@ -351,7 +372,8 @@
         "license",
         "permissions",
         "compatibility",
-        "build"
+        "build",
+        "sourceReview"
       ]
     },
     "runtime": {
@@ -525,6 +547,9 @@
             }
           },
           "required": ["recipeSource", "recipePath", "toolchain"]
+        },
+        "sourceReview": {
+          "$ref": "#/$defs/sourceReview"
         }
       },
       "required": [
@@ -541,7 +566,8 @@
         "licenses",
         "permissions",
         "writableDirectories",
-        "build"
+        "build",
+        "sourceReview"
       ]
     },
     "artifact": {
@@ -631,6 +657,20 @@
         }
       },
       "required": ["schemaVersion", "sources"]
+    },
+    "sourceReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["status", "evidence"]
     }
   }
 }

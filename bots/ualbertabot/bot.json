@@ -48,8 +48,8 @@
     ],
     "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
     "learning": {
-      "mode": "unknown",
-      "notes": "Inventory stock configuration and writable assets before packaging."
+      "mode": "none",
+      "notes": "Pinned StrategyManager::setLearnedStrategy returns immediately. Stock config still reads/writes per-opponent result counters in bwapi-data/read and write; reset must restore both inputs and outputs."
     }
   },
   "license": {
@@ -86,5 +86,9 @@
     "repository": "https://github.com/ShieldBattery/ShieldBattery.git",
     "revision": "980037a028c78a9c0285d34337b6fbd8ddeb9ff0",
     "instructions": "tools/bwapi/README.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "docs/source-review-and-state.md records a scoped persistence review, unresolved filename handling, and remaining dependency/runtime review. Not approved for catalog distribution."
   }
 }

@@ -51,6 +51,8 @@ export function validate(kind, value) {
           throw new Error('Artifact URL must be HTTPS without credentials or fragment')
         }
         if (pkg.botId !== bot.id) throw new Error('Package bot ID does not match catalog entry')
+        if (pkg.sourceReview.status !== 'approved')
+          throw new Error('Catalog releases require approved source review')
         if (pkg.permissions.localDistribution.status !== 'approved') {
           throw new Error('Catalog releases require approved local distribution')
         }

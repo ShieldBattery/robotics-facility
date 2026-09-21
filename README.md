@@ -8,6 +8,20 @@ candidate records, not approved downloadable releases. The public-format catalog
 intentionally empty. No uploader, signing service, installer, or offline app integration
 is implemented here yet.
 
+## Want your bot included?
+
+Bot authors are welcome! Open an issue in this repository using the **Add a bot**
+template. Tell us about your bot, link its source and license, and mention the
+version, races, and game formats you recommend. Java/runtime requirements, build
+instructions, and notes about saved data are helpful too. You do not need to have
+a ShieldBattery package or your own storage bucket ready before getting in touch.
+
+See the [inclusion request template](.github/ISSUE_TEMPLATE/add-bot.md) for details.
+We review the pinned source, dependencies, build steps, file/network access, and
+runtime behavior before distribution. Local-play inclusion and public competition
+eligibility are considered separately. An issue is an invitation to collaborate,
+not an automatic release approval.
+
 ## Working locally
 
 Requires Node.js 24+, pnpm, and Git. Native builds additionally require Visual Studio
@@ -39,7 +53,8 @@ the lock and clone origin. No hosted GitHub repository is needed for this workfl
 
 ## Layout
 
-- `source-lock.json`: full upstream commit pins shared by build recipes.
+- `source-lock.json`: full upstream commit pins and ordered, hashed source patches.
+- `patches/<source-id>/`: reviewed downstream changes, kept separate from pristine upstream sources.
 - `bots/<id>/bot.json`: candidate identity, attribution, capabilities, permissions,
   ratings provenance, and existing build evidence.
 - `schemas/metadata.schema.json`: draft versioned candidate, package, and catalog contracts.
@@ -54,3 +69,8 @@ does not create a redistributable package.
 
 See [catalog and offline installation design](docs/catalog-and-offline.md) for
 refresh behavior, installed-state ownership, packaging, and hosting decisions.
+
+See [source review and saved-state policy](docs/source-review-and-state.md) for
+admission requirements, current persistence findings, and the planned reset controls.
+[Source patches](docs/source-patches.md) explains how to prepare a patched build tree
+without editing `.sources/`.

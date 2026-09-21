@@ -35,6 +35,7 @@ test('catalog validates a complete release and rejects invalid publication', () 
     botId: bot.bot.id,
     releaseId: 'fixture-1',
     version: 'test-only',
+    sourceReview: { status: 'approved', evidence: 'Test fixture only; no artifact approval' },
     build: {
       recipeSource: {
         id: 'recipe',
@@ -104,6 +105,12 @@ test('catalog validates a complete release and rejects invalid publication', () 
   }
   bad((r) => {
     r.package.permissions.localDistribution.status = 'unreviewed'
+  })
+  bad((r) => {
+    r.package.sourceReview.status = 'pending'
+  })
+  bad((r) => {
+    delete r.package.sourceReview
   })
   bad((r) => {
     r.package.botId = 'other-bot'

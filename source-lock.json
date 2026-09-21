@@ -4,17 +4,20 @@
     {
       "id": "bwapi",
       "repository": "https://github.com/bwapi/bwapi.git",
-      "revision": "7687da8abc4726f8366401f11ab648d421385793"
+      "revision": "7687da8abc4726f8366401f11ab648d421385793",
+      "patches": []
     },
     {
       "id": "zzzkbot",
       "repository": "https://github.com/chriscoxe/ZZZKBot.git",
-      "revision": "7183e37b6b416ea53c1040c83e639a3a3c395eed"
+      "revision": "7183e37b6b416ea53c1040c83e639a3a3c395eed",
+      "patches": []
     },
     {
       "id": "ualbertabot",
       "repository": "https://github.com/davechurchill/ualbertabot.git",
-      "revision": "558899d8793456f4a6ec4196efbb5235552e24db"
+      "revision": "558899d8793456f4a6ec4196efbb5235552e24db",
+      "patches": []
     }
   ]
 }

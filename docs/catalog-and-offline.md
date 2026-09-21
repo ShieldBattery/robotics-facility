@@ -101,6 +101,21 @@ clear local provenance marker. They do not need a catalog entry, upload, or cata
 signing identity. Arbitrary native AIModule DLL loading is not supplied by the
 existing source-built external-client recipes.
 
+## Shared development and production catalogs
+
+Development app builds default to one shared staging catalog; production releases
+default to a separate production catalog. Developers only need public HTTPS read
+access and do not configure personal Spaces buckets or upload credentials. Keep
+publishing credentials in the publishing workflow. No real endpoints are configured
+yet; add them when shared hosting exists.
+
+Allow an explicit development catalog URL override, including a locally served
+catalog, while keeping production signing/trust rules intact. Use separate endpoint
+identities for caches, revisions, signing trust, and installed provenance so switching
+channels cannot mix their catalogs. A URL override alone must not silently trust
+unsigned catalogs. Installed packages retain their exact version and source and stay
+available offline. Local bring-your-own builds need no catalog upload at all.
+
 ## Hosting and publication
 
 Prefer DigitalOcean Spaces as the canonical delivery location for the small catalog
@@ -135,3 +150,9 @@ Do not put signing keys, upload credentials, or machine-specific paths in the re
 5. Add a publisher/signing workflow and choose the real delivery endpoints when
    the first release is ready. Keep author outreach and local/ladder eligibility
    records separate throughout.
+
+Source-review approval is an additional publication requirement, independent of
+license eligibility. See [source review and reset policy](source-review-and-state.md)
+and [the source-patch workflow](source-patches.md). Reset learning restores both read
+inputs and write outputs to the packaged baseline, after active workers release the
+profile. Removing a package must not silently delete those user-owned profiles.

@@ -19,7 +19,7 @@ function formatGitCommand(args) {
   return ['git', ...args].map((arg) => JSON.stringify(arg)).join(' ')
 }
 
-async function runGit(args, options = {}) {
+export async function runGit(args, options = {}) {
   return await new Promise((resolve, reject) => {
     const child = spawn('git', args, {
       cwd: options.cwd,
@@ -29,6 +29,10 @@ async function runGit(args, options = {}) {
     let stdout = ''
     let stderr = ''
 
+    child.stdin.on('error', (error) => {
+      if (error.code !== 'EPIPE') reject(error)
+    })
+    child.stdin.end(options.input)
     child.stdout.setEncoding('utf8')
     child.stderr.setEncoding('utf8')
     child.stdout.on('data', (data) => {
@@ -66,7 +70,7 @@ async function lstatIfExists(target) {
   }
 }
 
-async function assertSafeDirectory(target, description) {
+export async function assertSafeDirectory(target, description) {
   const stats = await lstatIfExists(target)
   if (!stats) {
     return false
@@ -122,15 +126,13 @@ export function validateSourceLock(lock) {
     if (!source || typeof source !== 'object' || Array.isArray(source)) {
       throw new SourceFetchError('Every source must be an object')
     }
-    const sourceKeys = Object.keys(source).sort()
+    const sourceKeys = Object.keys(source)
     if (
-      sourceKeys.length !== 3 ||
-      sourceKeys[0] !== 'id' ||
-      sourceKeys[1] !== 'repository' ||
-      sourceKeys[2] !== 'revision'
+      !['id', 'repository', 'revision'].every((key) => sourceKeys.includes(key)) ||
+      sourceKeys.some((key) => !['id', 'repository', 'revision', 'patches'].includes(key))
     ) {
       throw new SourceFetchError(
-        'Every source must have exactly id, repository, and revision fields',
+        'Every source requires id, repository, revision and optional patches',
       )
     }
     if (
@@ -144,6 +146,35 @@ export function validateSourceLock(lock) {
       throw new SourceFetchError(`Duplicate source id: ${source.id}`)
     }
     sourceIds.add(source.id)
+    if (source.patches !== undefined) {
+      if (!Array.isArray(source.patches)) throw new SourceFetchError('patches must be an array')
+      const paths = new Set()
+      for (const patch of source.patches) {
+        if (
+          !patch ||
+          typeof patch !== 'object' ||
+          Array.isArray(patch) ||
+          Object.keys(patch).sort().join(',') !== 'path,sha256' ||
+          typeof patch.path !== 'string' ||
+          typeof patch.sha256 !== 'string' ||
+          !/^[a-f0-9]{64}$/.test(patch.sha256)
+        ) {
+          throw new SourceFetchError('Each patch requires a relative path and SHA-256')
+        }
+        const prefix = `patches/${source.id}/`
+        const name = patch.path.slice(prefix.length)
+        if (
+          !patch.path.startsWith(prefix) ||
+          !/^[a-z0-9][a-z0-9-]*\.patch$/.test(name) ||
+          reservedWindowsDeviceNames.test(name.slice(0, -6))
+        ) {
+          throw new SourceFetchError(`Patch path must be patches/${source.id}/<name>.patch`)
+        }
+        if (paths.has(patch.path)) throw new SourceFetchError('Duplicate patch path')
+        paths.add(patch.path)
+      }
+    }
+
     if (typeof source.repository !== 'string') {
       throw new SourceFetchError(`Source '${source.id}' repository must be a string`)
     }
@@ -228,7 +259,7 @@ async function validateLocalCloneSource(sourceId, localPath) {
   }
 }
 
-async function inspectExistingDestination(destination, source) {
+export async function inspectExistingDestination(destination, source) {
   const exists = await assertSafeDirectory(destination, `Source destination for '${source.id}'`)
   if (!exists) {
     return false
