@@ -3,7 +3,7 @@
 The repository provides three workflows:
 
 - **Validate** runs the metadata validation and publisher tests on Linux and Windows
-  for pull requests and pushes to `main`.
+  for pull requests, pushes to `main`, and manual dispatches.
 - **Publish staging** manually publishes an approved catalog revision to the `staging`
   environment.
 - **Publish production** manually promotes one immutable staging revision into the
