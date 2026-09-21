@@ -40,11 +40,38 @@ bots remain explicitly user-supplied code rather than inheriting catalog review 
 
 Use app-owned storage rooted below Electron's `userData` directory, never the user's
 StarCraft install, Documents, or the catalog package directory by accident. Proposed
-layout: `bots/state/<package-origin-id>/<bot-id>/<release-id>/<profile-id>/`. These
+layout: `bots/state/<package-origin-id>/<bot-id>/<profile-id>/`. These
 components are generated/validated identifiers, not raw player names or URLs. Keep
 packages immutable and separate learning/results, rebuildable caches, logs, and user
 configuration. Profiles isolate learning across users; per-match workspaces prevent
 concurrent bots from writing the same files.
+
+A profile ID identifies a persistent learning history, not an SB user ID or a login/
+match session. Its local metadata can associate an owner with an SB user ID without
+requiring an online lookup. Start with a default profile per local owner and bot;
+match IDs identify temporary workspaces. The profile survives executable updates.
+
+Track a state-format identifier/version, last writer release, and current state
+snapshot in profile metadata. Each package declares verified readable/writable state
+formats and any supported migration. Release IDs identify executable packages, not
+state directories. This compatibility metadata and migration behavior are proposed
+requirements for the installer/runner; they are not implemented in the draft schemas.
+
+- **Compatible update:** reuse the profile history after verifying the new package
+  supports its format. Do not silently reset learning because the release changed.
+- **Migration:** preserve a snapshot, migrate a copy with the reviewed migrator,
+  validate it, then atomically adopt the result and its metadata. Failure leaves the
+  original state usable. Migration needs an exclusive profile lease with no workers
+  or pending match outputs able to overwrite the result.
+- **Unknown or incompatible format:** retain the history and offer a fresh profile
+  or continued use of a compatible installed release. Never infer migration support
+  from a newer version number or discard old state automatically.
+- **Downgrade:** verify compatibility again. If necessary, offer a pre-migration
+  snapshot or separate profile; retain newer history rather than overwriting it.
+
+Retain required baseline/migration resources locally so supported updates and resets
+can complete offline after installation. Compatibility is based on the actual pinned
+source, configuration, and patches, including storage changes introduced here.
 
 A package declares exactly which paths are inputs, mutable learning/results, caches,
 logs, and configuration, including whether they are active by default. Stage each
@@ -56,7 +83,8 @@ validation policy. Bound retained data and rotate logs. No gameplay-time downloa
 
 Offer **Reset learning** for adaptive bots and **Clear saved results** for bots that
 only persist counters. Both restore the profile's read inputs and write outputs to
-the immutable packaged baseline. That baseline may include author-provided seed data;
+the selected compatible release's immutable packaged baseline, updating state-format
+metadata together with the data. That baseline may include author-provided seed data;
 if so, identify it in metadata. Never delete all of `bwapi-data` indiscriminately:
 `AI` can hold config/assets and other subdirectories can contain required files.
 Caches, logs, settings, and learned state need separate reset/removal semantics.

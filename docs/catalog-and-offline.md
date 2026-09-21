@@ -91,10 +91,18 @@ previous installations usable. Serialize installation/removal of the same releas
 hold a usage lease while a match runs. Package directories remain immutable.
 
 Create separate per-match working copies/overlays for bots that require writable
-relative paths. Store learning separately per bot/release/profile, then define
-explicit read/write promotion between games. Never let simultaneous instances share
-an unsynchronized learning directory. Updating binaries must not overwrite learned
-state; resetting learning and removing a package are separate actions.
+relative paths. Store learning per origin/bot/persistent profile, independently of
+release ID, and track state-format compatibility and the last writer release in
+local metadata. A profile can be associated with an SB user; it is not a user ID or
+session ID itself. Define explicit read/write promotion between games, and never
+let simultaneous instances share an unsynchronized learning directory.
+
+Compatible updates retain history. Migrate a copy under an exclusive profile lease,
+preserving a snapshot and adopting it only after validation; failed migrations leave
+the original usable. Unknown/incompatible updates offer a fresh profile without
+removing the old one. Downgrades require compatible state or a retained snapshot,
+without overwriting newer history. See the [state policy](source-review-and-state.md)
+for details. Resetting learning and removing an executable package are separate actions.
 
 Bring-your-own bots use the same local descriptor/capability checks but retain a
 clear local provenance marker. They do not need a catalog entry, upload, or catalog
