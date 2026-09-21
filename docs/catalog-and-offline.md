@@ -114,8 +114,16 @@ existing source-built external-client recipes.
 Development app builds default to one shared staging catalog; production releases
 default to a separate production catalog. Developers only need public HTTPS read
 access and do not configure personal Spaces buckets or upload credentials. Keep
-publishing credentials in the publishing workflow. No real endpoints are configured
-yet; add them when shared hosting exists.
+publishing credentials in the publishing workflow. Reuse ShieldBattery's existing
+staging and production Spaces buckets, each under `public/robotics-facility/`.
+The proposed catalog URLs follow the existing CDN hosts:
+
+- Staging: `https://staging-cdn.shieldbattery.net/public/robotics-facility/catalog.json`
+- Production: `https://cdn.shieldbattery.net/public/robotics-facility/catalog.json`
+
+These are publication targets, not already uploaded catalogs. Exact bucket names
+and S3 API endpoints come from the corresponding deployment configuration, not from
+assuming the CDN hostname is the bucket endpoint.
 
 Allow an explicit development catalog URL override, including a locally served
 catalog, while keeping production signing/trust rules intact. Use separate endpoint
@@ -156,16 +164,21 @@ See [GitHub environments](https://docs.github.com/en/actions/how-tos/deploy/conf
 [reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows),
 and [manual dispatch](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow).
 
-Wiring is not implemented yet: the local repository has no GitHub remote, real Spaces
-endpoints are not configured, and the release-bundle producer and signing/publishing
-tools still need implementation. Do not label a validation-only workflow as a
-successful publication. These are deployment requirements, not existing Actions.
+The GitHub destination is `https://github.com/ShieldBattery/robotics-facility`.
+See [GitHub deployment configuration](github-deployment.md) for the environment
+variables and new access-key secrets to configure. The local `origin` points there;
+this does not imply the branch has been pushed or environments provisioned.
+
+Wiring is not implemented yet: the release-bundle producer and signing/publishing
+tools still need implementation, along with the Actions that invoke them. Do not
+label a validation-only workflow as a successful publication. These are deployment
+requirements, not existing Actions.
 
 ## Hosting and publication
 
-Prefer DigitalOcean Spaces as the canonical delivery location for the small catalog
-and immutable package archives; GitHub releases can be a mirror or a build artifact
-source. The client uses HTTPS artifact URLs and hashes, not a dependency on GitHub's
+Use the existing staging/production ShieldBattery Spaces buckets under the dedicated
+`public/robotics-facility/` prefix for the small catalog and immutable package archives.
+GitHub releases can be a mirror or a build artifact source. The client uses HTTPS artifact URLs and hashes, not a dependency on GitHub's
 release API or a particular storage provider. No bucket or repository publication
 is needed to validate local metadata, source retrieval, or builds.
 

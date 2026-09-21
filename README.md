@@ -10,8 +10,8 @@ is implemented here yet.
 
 ## Want your bot included?
 
-Bot authors are welcome! Open an issue in this repository using the **Add a bot**
-template. Tell us about your bot, link its source and license, and mention the
+Bot authors are welcome! [Open an issue](https://github.com/ShieldBattery/robotics-facility/issues/new?template=add-bot.md)
+using the **Add a bot** template. Tell us about your bot, link its source and license, and mention the
 version, races, and game formats you recommend. Java/runtime requirements, build
 instructions, and notes about saved data are helpful too. You do not need to have
 a ShieldBattery package or your own storage bucket ready before getting in touch.
@@ -74,3 +74,8 @@ See [source review and saved-state policy](docs/source-review-and-state.md) for
 admission requirements, current persistence findings, and the planned reset controls.
 [Source patches](docs/source-patches.md) explains how to prepare a patched build tree
 without editing `.sources/`.
+
+[GitHub deployment configuration](docs/github-deployment.md) lists the staging and
+production environment secrets and variables. Both targets reuse ShieldBattery's
+existing Spaces buckets under `public/robotics-facility/`; contributors do not need
+their own bucket or upload credentials.
