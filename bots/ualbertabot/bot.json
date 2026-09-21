@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "ualbertabot",
+    "name": "UAlbertaBot",
+    "description": "The stock configuration uses a Terran marine rush.",
+    "authors": [
+      {
+        "name": "David Churchill"
+      }
+    ],
+    "homepage": "https://github.com/davechurchill/ualbertabot",
+    "sourceUrl": "https://github.com/davechurchill/ualbertabot",
+    "playStyleTags": ["marine-rush"],
+    "humanSkill": "uncalibrated",
+    "externalRatings": [
+      {
+        "provider": "SSCAIT",
+        "entry": "Dave Churchill",
+        "rating": 2551,
+        "observedOn": "2026-09-21",
+        "ratedVersion": null,
+        "sourceUrl": "https://sscaitournament.com/index.php?action=scores",
+        "notes": "User-supplied saved standings; exact rated build and server measurement date unknown. Not a rating for this pinned source build."
+      }
+    ]
+  },
+  "sourceIds": ["ualbertabot", "bwapi"],
+  "profile": {
+    "selectableRaces": ["terran"],
+    "randomRace": "unsupported",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "verified",
+        "notes": "Only the bridge prototype scenarios in ShieldBattery tools/bwapi/README.md."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Not tested."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Not tested."
+      }
+    ],
+    "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
+    "learning": {
+      "mode": "unknown",
+      "notes": "Inventory stock configuration and writable assets before packaging."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "ualbertabot",
+    "path": "License.md",
+    "notes": "Top-level upstream license only. Dependency, notice, and redistributable package audit remains open."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "Package-level license obligations and source/notice bundle are not yet reviewed."
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Track separately from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "prototype-tested",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86",
+    "gameArchitectures": ["x86_64"],
+    "evidence": "ShieldBattery docs/bwapi-compatibility-research.md and tools/bwapi/README.md at build.revision.",
+    "limitations": [
+      "Debug-only opt-in bridge; partial BWAPI semantics.",
+      "No managed hidden local-match runner yet.",
+      "Fresh bot process per match."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-shieldbattery",
+    "repository": "https://github.com/ShieldBattery/ShieldBattery.git",
+    "revision": "980037a028c78a9c0285d34337b6fbd8ddeb9ff0",
+    "instructions": "tools/bwapi/README.md"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@shieldbattery/robotics-facility",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "validate": "node tools/validate.mjs",
+    "test": "node --test tools/*.test.mjs",
+    "sources": "node tools/fetch-sources.mjs"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1"
+  }
+}
