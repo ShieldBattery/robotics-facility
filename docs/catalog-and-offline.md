@@ -124,6 +124,43 @@ channels cannot mix their catalogs. A URL override alone must not silently trust
 unsigned catalogs. Installed packages retain their exact version and source and stay
 available offline. Local bring-your-own builds need no catalog upload at all.
 
+## Separate staging and production actions
+
+Provide two manually triggered entry points: **Publish staging** and **Publish
+production**. They can call one reusable publishing workflow, with the deployment
+job bound to the corresponding GitHub environment. Environment configuration owns
+the Spaces endpoint, bucket, public base URL, signing identity, and upload secrets;
+developers downloading bots do not need any of those credentials.
+
+Staging publishes a specific reviewed release bundle. Production promotes the same
+verified package bytes and source/build provenance from an identified successful
+staging publication, rather than rebuilding from a moving branch. Retain those
+immutable bundles durably so promotion does not depend on temporary Actions artifact
+retention. Generate/sign the environment-specific catalog with the appropriate URLs
+and a monotonically increasing revision for that environment.
+
+Both entry points validate metadata, review/distribution eligibility, archive and
+manifest digests, and the complete release set before uploading. Upload and verify
+immutable package objects before switching the catalog. Serialize publications per
+environment and do not cancel an in-progress publication merely because a newer one
+starts. A retry can reuse matching immutable objects but cannot overwrite a release
+with different bytes. Rollback publishes a new catalog revision selecting retained
+older packages; it does not decrement revisions or delete newer artifacts/state.
+
+Restrict publishing to trusted refs and keep credentials out of pull-request jobs
+and bot build steps. Configure production environment protection separately from
+staging according to the repository's deployment policy. Shared workflow jobs must
+reference the environment themselves to access its secrets. Manual dispatch entry
+points must be present on the default branch to appear in GitHub's workflow UI.
+See [GitHub environments](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments),
+[reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows),
+and [manual dispatch](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow).
+
+Wiring is not implemented yet: the local repository has no GitHub remote, real Spaces
+endpoints are not configured, and the release-bundle producer and signing/publishing
+tools still need implementation. Do not label a validation-only workflow as a
+successful publication. These are deployment requirements, not existing Actions.
+
 ## Hosting and publication
 
 Prefer DigitalOcean Spaces as the canonical delivery location for the small catalog
