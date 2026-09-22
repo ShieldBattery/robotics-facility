@@ -382,6 +382,23 @@ async function cachedDependency(directory, artifact) {
   return { artifact, file, bytes }
 }
 
+export function sanitizeJavaProperties(output) {
+  const properties = {}
+  const fields = {
+    'java.version': 'javaVersion',
+    'java.vendor': 'javaVendor',
+    'java.vm.name': 'javaVmName',
+    'java.vm.version': 'javaVmVersion',
+    'os.arch': 'osArchitecture',
+    'sun.arch.data.model': 'dataModel',
+  }
+  for (const line of output.split(/\r?\n/)) {
+    const match = /^\s*([^=]+?)\s*=\s*(.*?)\s*$/.exec(line)
+    if (match && Object.hasOwn(fields, match[1])) properties[fields[match[1]]] = match[2]
+  }
+  return properties
+}
+
 async function javaToolchain(javaHome) {
   const javac = path.join(javaHome, 'bin', 'javac.exe')
   const java = path.join(javaHome, 'bin', 'java.exe')
@@ -394,15 +411,19 @@ async function javaToolchain(javaHome) {
     run(javac, ['-version'], true),
     run(java, ['-XshowSettings:properties', '-version'], true),
   ])
+  const javaProperties = sanitizeJavaProperties(javaVersion)
   if (
     !/(?:^|\s)javac 21(?:[.\s]|$)/m.test(javacVersion) ||
-    !/java\.version\s*=\s*21(?:[.\s]|$)/.test(javaVersion) ||
-    !/sun\.arch\.data\.model\s*=\s*64/.test(javaVersion) ||
-    !/(?:os\.arch\s*=\s*(?:amd64|x86_64)|64-Bit)/i.test(javaVersion)
+    !/^21(?:[.]|$)/.test(javaProperties.javaVersion ?? '') ||
+    javaProperties.dataModel !== '64' ||
+    !/^(?:amd64|x86_64)$/i.test(javaProperties.osArchitecture ?? '') ||
+    !javaProperties.javaVendor ||
+    !javaProperties.javaVmName ||
+    !javaProperties.javaVmVersion
   ) {
     throw new Error('PurpleWave requires JDK 21 x64')
   }
-  return { javaHome, javac, java, javacVersion, javaVersion }
+  return { javac, java, javacVersion, javaProperties }
 }
 
 export function makeBuildInfo({ recipeRevision, recipeSha256, toolchain, sources, files }) {
@@ -575,9 +596,8 @@ export async function buildPurpleWave({
     recipeRevision: recipe.revision,
     recipeSha256: recipe.sha256,
     toolchain: {
-      javaHome: tools.javaHome,
       javacVersion: tools.javacVersion,
-      javaVersion: tools.javaVersion,
+      java: tools.javaProperties,
       scalaVersion: '2.12.20',
     },
     sources: verified.map((item) => ({ ...item, directory: relativeTo(output, item.directory) })),

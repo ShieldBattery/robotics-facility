@@ -7,6 +7,7 @@ import {
   makeJar,
   makeManifest,
   parseBuildArguments,
+  sanitizeJavaProperties,
   validateDependencyLock,
   validateOutputDirectory,
   verifyDependencyBytes,
@@ -16,6 +17,33 @@ import {
 const lock = JSON.parse(
   await readFile(new URL('../jvm/dependencies.json', import.meta.url), 'utf8'),
 )
+
+test('records only safe Java toolchain properties', () => {
+  const properties = sanitizeJavaProperties(
+    [
+      'Property settings:',
+      '    java.version = 21.0.11',
+      '    java.vendor = Eclipse Adoptium',
+      '    java.vm.name = OpenJDK 64-Bit Server VM',
+      '    java.vm.version = 21.0.11+9',
+      '    os.arch = amd64',
+      '    sun.arch.data.model = 64',
+      '    user.home = C:\\Users\\Travis',
+      '    user.name = Travis',
+      '    user.dir = C:\\Users\\Travis\\Documents\\Projects\\robotics-facility',
+      '    PATH = C:\\Users\\Travis\\bin',
+    ].join('\n'),
+  )
+  assert.deepEqual(properties, {
+    javaVersion: '21.0.11',
+    javaVendor: 'Eclipse Adoptium',
+    javaVmName: 'OpenJDK 64-Bit Server VM',
+    javaVmVersion: '21.0.11+9',
+    osArchitecture: 'amd64',
+    dataModel: '64',
+  })
+  assert.doesNotMatch(JSON.stringify(properties), /Travis|robotics-facility|PATH/)
+})
 
 test('accepts the locked Maven Central dependency set', () => {
   assert.strictEqual(validateDependencyLock(lock), lock)
