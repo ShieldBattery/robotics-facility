@@ -46,7 +46,7 @@ The `production` environment also needs the staging trust variables:
 - `STAGING_CATALOG_KEY_ID`
 - `STAGING_CATALOG_PUBLIC_KEY`
 
-The publisher fixes all object keys below `public/robotics-facility/`. Do not provide
+The publisher fixes all object keys below `robotics-facility/`. Do not provide
 prefixes through workflow inputs.
 
 ## Publication boundary

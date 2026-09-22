@@ -36,17 +36,17 @@ No developer needs these keys to download bots or build local candidates.
 | `SPACES_BUCKET`             | Existing ShieldBattery bucket name for this environment; use the real deployment value.                                                            |
 | `SPACES_ENDPOINT`           | Existing bucket's HTTPS S3 API endpoint, not its CDN hostname.                                                                                     |
 | `SPACES_REGION`             | Region required by the configured S3-compatible client for that endpoint.                                                                          |
-| `BOT_PUBLIC_BASE_URL`       | Staging: `https://staging-cdn.shieldbattery.net/public/robotics-facility/`; production: `https://cdn.shieldbattery.net/public/robotics-facility/`. |
+| `BOT_PUBLIC_BASE_URL`       | Staging: `https://staging-cdn.shieldbattery.net/robotics-facility/`; production: `https://cdn.shieldbattery.net/robotics-facility/`. |
 
-Use the fixed object prefix `public/robotics-facility/` in both buckets. Publishing
+Use the fixed object prefix `robotics-facility/` in both buckets. Publishing
 must reject keys outside it, never synchronize/delete the bucket root, and never
 alter unrelated ShieldBattery objects. The public URL already includes the prefix:
 append relative artifact keys exactly once. For example:
 
 ```text
-public/robotics-facility/catalog.json
-public/robotics-facility/catalogs/<revision>.json
-public/robotics-facility/packages/<sha256>.zip
+robotics-facility/catalog.json
+robotics-facility/catalogs/<revision>.json
+robotics-facility/packages/<sha256>.zip
 ```
 
 Package archives and revisioned catalog snapshots are immutable; `catalog.json`

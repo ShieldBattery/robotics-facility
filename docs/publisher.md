@@ -64,7 +64,7 @@ A mismatch between the private key and configured public key fails before upload
 
 ## Publication and recovery
 
-Every object is confined to `public/robotics-facility/`:
+Every object is confined to `robotics-facility/`:
 
 - `packages/<sha256>.zip`: immutable archive bytes.
 - `releases/<bot-id>/<release-id>.json`: immutable package identity/digest record,
