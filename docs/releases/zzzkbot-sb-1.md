@@ -130,3 +130,23 @@ no cross-process file lock or bounded-history reader: the launcher must isolate
 writers and keep imported/retained state under its control. Production app rollout
 still needs the UI/installer owner's signature-verification and profile-boundary
 checks. Catalog/archive schema checks do not substitute for those boundaries.
+
+## Staging publication
+
+Published staging catalog revision 1 through
+[Actions run 35689104271](https://github.com/ShieldBattery/robotics-facility/actions/runs/35689104271).
+The prior attempt stopped before upload because the reusable workflow received no
+secrets; both caller workflows now explicitly inherit secrets. Windows and Linux
+validation jobs passed, as did all 34 Node tool tests and the native persistence
+regression test.
+
+Independent readback checked the configured staging Ed25519 public key against
+`catalog.json`, `catalogs/1.json`, and `published/1.json`; all three describe the
+same revision. The CDN archive passed descriptor/path/CRC/SHA-256 validation and
+matched the locally reviewed ZIP byte for byte.
+
+- [Signed staging catalog](https://staging-cdn.shieldbattery.net/robotics-facility/catalog.json)
+- [GitHub prerelease with binary and corresponding source](https://github.com/ShieldBattery/robotics-facility/releases/tag/zzzkbot-sb-1)
+
+Production promotion was not run. The UI/installer must verify the signed catalog
+using its separately configured trusted public key before accepting package hashes.
