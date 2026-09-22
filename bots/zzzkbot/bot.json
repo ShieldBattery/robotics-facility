@@ -33,7 +33,7 @@
       {
         "id": "one-v-one",
         "support": "verified",
-        "notes": "Only the bridge prototype scenarios in ShieldBattery tools/bwapi/README.md."
+        "notes": "Pinned sb.1 client won a complete local x64 match; x86 instance/sync smoke verified. https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
       },
       {
         "id": "teams",
@@ -49,19 +49,19 @@
     "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
     "learning": {
       "mode": "persistent",
-      "notes": "Learns from per-opponent .dat history in bwapi-data/read and write, relative to process working directory. Isolate instances and reset both to the packaged baseline; filename handling needs remediation before release."
+      "notes": "Per-opponent history in bwapi-data/read and write under an isolated working profile. Encodes unsafe names; reset both folders to the empty baseline. Preserve compatible history across updates."
     }
   },
   "license": {
     "name": "LGPL-3.0-or-later",
     "sourceId": "zzzkbot",
     "path": "LICENSE.txt",
-    "notes": "Pinned LICENSE.txt grants LGPL version 3 or any later version and refers to COPYING.txt and COPYING.LESSER.txt. Dependency, notice, and redistributable package audit remains open."
+    "notes": "LGPL-3.0-or-later for ZZZKBot. Package contains corresponding source/build materials, LGPL/GPL texts, BWAPI, smallsha1 BSD, and ShieldBattery host MIT notices."
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "Package-level license obligations and source/notice bundle are not yet reviewed."
+      "status": "approved",
+      "evidence": "LGPL source/relink materials and complete LGPL/GPL/MIT/BSD notices included in this staging package. https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -74,21 +74,21 @@
     "protocol": 10003,
     "botArchitecture": "x86",
     "gameArchitectures": ["x86", "x86_64"],
-    "evidence": "ShieldBattery docs/bwapi-compatibility-research.md and tools/bwapi/README.md at build.revision.",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md",
     "limitations": [
-      "Debug-only opt-in bridge; partial BWAPI semantics.",
-      "No managed hidden local-match runner yet.",
-      "Fresh bot process per match."
+      "Experimental partial BWAPI semantics; currently requires ShieldBattery debug game DLL.",
+      "Zerg 1v1 tested; other formats are unverified.",
+      "Fresh bot process and isolated working profile for each match."
     ]
   },
   "build": {
-    "status": "recipe-in-shieldbattery",
-    "repository": "https://github.com/ShieldBattery/ShieldBattery.git",
-    "revision": "980037a028c78a9c0285d34337b6fbd8ddeb9ff0",
-    "instructions": "tools/bwapi/README.md"
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "9e53ceaa09c55f00618548f1c74ab362fc091645",
+    "instructions": "bots/zzzkbot/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "docs/source-review-and-state.md records a scoped persistence review, unresolved filename handling, and remaining dependency/runtime review. Not approved for catalog distribution."
+    "status": "approved",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
   }
 }

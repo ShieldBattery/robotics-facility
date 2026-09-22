@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFile, writeFile, mkdir, lstat } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -49,14 +50,20 @@ export async function indexedFiles(directory, prefixes) {
   return entries
 }
 
-export async function packageBot({ root = process.cwd(), buildDirectory, releaseId }) {
+export async function packageBot({
+  root = process.cwd(),
+  buildDirectory,
+  releaseId,
+  review = false,
+}) {
   if (!/^[a-z][a-z0-9-]*$/.test(releaseId)) throw new Error('Invalid release ID')
   const build = path.resolve(root, buildDirectory)
   const info = await json(path.join(build, 'build-info.json'))
   const candidate = await json(path.join(root, 'bots/zzzkbot/bot.json'))
   if (
-    candidate.sourceReview.status !== 'approved' ||
-    candidate.permissions.localDistribution.status !== 'approved'
+    !review &&
+    (candidate.sourceReview.status !== 'approved' ||
+      candidate.permissions.localDistribution.status !== 'approved')
   )
     throw new Error('Source and distribution review must be approved before packaging')
   const lock = await json(path.join(root, 'source-lock.json'))
@@ -91,6 +98,7 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
           ]
         : [
             'ZZZKBot/Source',
+            'ZZZKBot/Configs',
             'LICENSE.txt',
             'COPYING.txt',
             'COPYING.LESSER.txt',
@@ -107,17 +115,35 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
   }
   const recipeRevision = info.recipeRevision
   if (!/^[a-f0-9]{40}$/.test(recipeRevision)) throw new Error('Invalid recipe revision')
-  for (const name of ['native/CMakeLists.txt', 'native/host.cpp', 'native/LICENSE']) {
+  const recipeHash = createHash('sha256')
+  for (const name of [
+    'native/CMakeLists.txt',
+    'native/host.cpp',
+    'native/LICENSE',
+    'source-lock.json',
+  ]) {
     const bytes = execFileSync('git', ['-C', root, 'show', `${recipeRevision}:${name}`])
-    if (!bytes.equals(await readFile(path.join(root, name))))
+    const actual = await readFile(path.join(root, name))
+    if (
+      bytes.toString('utf8').replaceAll('\r\n', '\n') !==
+      actual.toString('utf8').replaceAll('\r\n', '\n')
+    )
       throw new Error(`Recipe changed: ${name}`)
-    entries.push([`source/${name}`, bytes])
+    recipeHash.update(name).update('\0').update(actual).update('\0')
+    entries.push([`source/${name}`, actual])
   }
+  if (recipeHash.digest('hex') !== info.recipeSha256)
+    throw new Error('Recipe bytes changed since build')
   const notices = [
     ['LGPL-3.0-or-later (ZZZKBot)', 'notices/ZZZKBot-LICENSE.txt', '.sources/zzzkbot/LICENSE.txt'],
     ['GPL-3.0 license text', 'notices/GPL-3.0.txt', '.sources/zzzkbot/COPYING.txt'],
     ['LGPL-3.0 license text', 'notices/LGPL-3.0.txt', '.sources/zzzkbot/COPYING.LESSER.txt'],
     ['LGPL-3.0 (BWAPI)', 'notices/BWAPI-LICENSE.txt', '.sources/bwapi/LICENSE'],
+    [
+      'BSD-3-Clause (smallsha1)',
+      'notices/SMALLSHA1-LICENSE.txt',
+      'bots/zzzkbot/SMALLSHA1-LICENSE.txt',
+    ],
     ['MIT (ShieldBattery host)', 'notices/ShieldBattery-MIT.txt', 'native/LICENSE'],
     ['Attribution, modifications, and source', 'notices/RELEASE.txt', 'bots/zzzkbot/RELEASE.txt'],
   ]
@@ -125,10 +151,6 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
     entries.push([target, await readFile(path.join(root, file))])
   entries.push(['source/BUILD.md', await readFile(path.join(root, 'bots/zzzkbot/BUILD.md'))])
   entries.push(['source/build-info.json', Buffer.from(JSON.stringify(info, null, 2) + '\n')])
-  entries.push([
-    'source/source-lock.json',
-    Buffer.from(JSON.stringify({ schemaVersion: 1, sources }, null, 2) + '\n'),
-  ])
   for (const dir of [
     'work/',
     'work/bwapi-data/',
@@ -150,7 +172,9 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
     sources,
     licenses: notices.map(([name, noticePath]) => ({ name, noticePath })),
     permissions: candidate.permissions,
-    sourceReview: candidate.sourceReview,
+    sourceReview: review
+      ? { status: 'pending', evidence: 'Review-only archive; publication is not approved.' }
+      : candidate.sourceReview,
     writableDirectories: ['work/bwapi-data/read', 'work/bwapi-data/write'],
     build: {
       recipeSource: {
@@ -167,7 +191,7 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
   const manifest = Buffer.from(JSON.stringify(pkg, null, 2) + '\n')
   entries.push(['package.json', manifest])
   const bytes = await makeArchive(entries)
-  const file = `zzzkbot-${releaseId}.zip`
+  const file = `${releaseId}.zip`
   const release = {
     package: pkg,
     artifact: {
@@ -184,8 +208,8 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
     revision: 0,
     bots: [{ bot: candidate.bot, releases: [release] }],
   }
-  validate('catalog', catalog)
-  const destination = path.join(root, 'dist', releaseId)
+  if (!review) validate('catalog', catalog)
+  const destination = path.join(root, 'dist', review ? `${releaseId}-review` : releaseId)
   await mkdir(destination, { recursive: true })
   await writeFile(path.join(destination, file), bytes, { flag: 'wx' })
   await writeFile(path.join(destination, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', {
@@ -201,9 +225,11 @@ export async function packageBot({ root = process.cwd(), buildDirectory, release
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   const [buildDirectory, releaseId, ...rest] = process.argv.slice(2)
-  if (!buildDirectory || !releaseId || rest.length)
-    throw new Error('Usage: node tools/package-zzzkbot.mjs <build-directory> <release-id>')
-  packageBot({ buildDirectory, releaseId })
+  if (!buildDirectory || !releaseId || rest.length > 1 || (rest.length && rest[0] !== '--review'))
+    throw new Error(
+      'Usage: node tools/package-zzzkbot.mjs <build-directory> <release-id> [--review]',
+    )
+  packageBot({ buildDirectory, releaseId, review: rest[0] === '--review' })
     .then(console.log)
     .catch((error) => {
       console.error(error)

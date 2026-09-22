@@ -19,7 +19,9 @@ node tools/package-zzzkbot.mjs .build/zzzkbot-release zzzkbot-sb-1
 The build directory must not exist. The builder prepares independent copies of
 both pinned source trees, applies the ordered hashed patches, verifies the index
 and working trees, and records the source trees and executable hash in
-`build-info.json`. Packaging requires completed source and license review; it
+`build-info.json`. Use `--review` on the packaging command to produce an unapproved review ZIP
+before completing review; the publisher rejects its pending metadata. Normal
+packaging requires completed source and license review; it
 produces a ZIP and candidate catalog in `dist/<release-id>/`. Build and packaging
 commands never upload anything. Never reuse a release ID for different bytes.
 

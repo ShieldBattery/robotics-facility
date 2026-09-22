@@ -5,12 +5,15 @@ Each bot retains its upstream license; this repository does not relicense bot co
 See [licensing and modification disclosure](docs/licensing-and-attribution.md) for
 package notices, modified-source delivery, and the bot detail display requirements.
 
-ZZZKBot and UAlbertaBot have prototype-tested candidate records, not approved
-downloadable releases. The catalog is intentionally empty. Separate staging and
-production publishing Actions validate archives, sign catalogs, and publish to Spaces;
-they refuse empty/unapproved releases. The installer and offline app integration
-are not implemented yet. See [publishing Actions](docs/github-actions.md) and the
-[publisher contract](docs/publisher.md).
+ZZZKBot has a reviewed experimental staging package, including patched source,
+build instructions, and offline license/modification notices. UAlbertaBot remains
+a prototype candidate. See the [ZZZKBot release review](docs/releases/zzzkbot-sb-1.md).
+The game bridge currently requires a ShieldBattery debug build; production app
+installation and UI integration are separate work.
+
+Separate staging and production publishing Actions validate archives, sign catalogs,
+and publish to Spaces; they refuse empty/unapproved releases. See
+[publishing Actions](docs/github-actions.md) and the [publisher contract](docs/publisher.md).
 
 ## Want your bot included?
 
@@ -66,10 +69,10 @@ the lock and clone origin. No hosted GitHub repository is needed for this workfl
 - `tools/`: source fetching and metadata checks, with network-free tests.
 - `.sources/`, `.build/`, `dist/`: ignored local sources and build artifacts.
 
-The initial build recipes still live in ShieldBattery at the exact revision listed
-in each candidate. See each bot's `BUILD.md`. Move those recipes and any required
-host code here with their notices in a later checkpoint; fetching sources alone
-does not create a redistributable package.
+The ZZZKBot recipe and MIT external host live in `native/`. See
+[bots/zzzkbot/BUILD.md](bots/zzzkbot/BUILD.md) for a pinned Windows build or an
+offline rebuild from the source included with every release. UAlbertaBot still
+uses the prototype recipe recorded in its candidate metadata.
 
 See [catalog and offline installation design](docs/catalog-and-offline.md) for
 refresh behavior, installed-state ownership, packaging, and hosting decisions.

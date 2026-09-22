@@ -68,3 +68,24 @@ a reachable archive whose bytes and embedded descriptor match its catalog record
 
 See [deployment configuration](github-deployment.md) for bucket/secret settings and
 the [publisher contract](publisher.md) for envelopes, limits, and recovery.
+
+## Preparing a ZZZKBot release
+
+1. Build pinned sources using `pnpm build:zzzkbot <new-build-name>` on Windows.
+2. Produce a review ZIP with `pnpm package:zzzkbot .build/<build-name> <release-id> --review`.
+   Rebuild its included source, test the executable through ShieldBattery, and record
+   input hashes, notices, runtime evidence, and limitations in `docs/releases/`.
+3. Complete the candidate's source/distribution reviews, then package without `--review`.
+   The resulting `dist/<release-id>/catalog.json` contains the exact archive/descriptor hashes.
+4. Commit the reviewed recipe, metadata, and evidence; push the branch. Create a versioned
+   GitHub prerelease at that commit and upload the ZIP without replacing existing assets.
+   The ZIP includes corresponding source and relinking materials; keep it available.
+5. Copy the generated catalog into `catalog/catalog.json`, validate/test, and merge it to main.
+6. Run **Publish staging** from main with the next revision. Verify the signed CDN catalog,
+   archive hash and `published/<revision>.json` receipt before considering promotion.
+7. **Publish production** independently promotes the exact successful staging revision.
+   An experimental staging artifact does not establish production app readiness.
+
+The first native binary can be built locally; publication still runs in GitHub Actions
+using environment secrets. No developer Spaces credentials or hardware signing token
+are needed. The build and package commands themselves never upload anything.

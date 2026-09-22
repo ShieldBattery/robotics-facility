@@ -23,6 +23,8 @@ This executable uses ZZZKBot and BWAPI under GNU LGPL version 3; ZZZKBot also
 permits any later version. The GNU GPL version 3 and LGPL version 3 texts are
 included here. Preserve original notices in the source files. The ShieldBattery
 host is MIT-licensed; its complete copyright and license notice is included.
+The bundled smallsha1 source by Micael Hildenborg is BSD-3-Clause; its complete
+notice is included as SMALLSHA1-LICENSE.txt.
 
 The complete applied source used by this executable, local patches, and CMake
 build recipe are included in this same download under source/. See

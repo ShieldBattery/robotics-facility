@@ -343,7 +343,7 @@
           "additionalProperties": false,
           "properties": {
             "status": {
-              "const": "recipe-in-shieldbattery"
+              "enum": ["recipe-in-shieldbattery", "recipe-in-robotics-facility"]
             },
             "repository": {
               "type": "string",
