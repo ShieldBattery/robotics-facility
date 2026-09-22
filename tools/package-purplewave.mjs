@@ -57,7 +57,8 @@ export async function packagePurpleWave({
   releaseId,
   review = false,
 }) {
-  if (!/^[a-z][a-z0-9-]*$/.test(releaseId)) throw new Error('Invalid release ID')
+  const revision = /^purplewave-sb-([1-9][0-9]*)$/.exec(releaseId)?.[1]
+  if (!revision) throw new Error('Invalid PurpleWave release ID')
   const build = path.resolve(root, buildDirectory)
   const info = await json(path.join(build, 'build-info.json'))
   const candidate = await json(path.join(root, 'bots/purplewave/bot.json'))
@@ -175,12 +176,12 @@ export async function packagePurpleWave({
     'work/bwapi-data/AI/PurpleWaveShieldBattery.config.json',
     await readFile(path.join(root, 'bots/purplewave/PurpleWaveShieldBattery.config.json')),
   ])
-  entries.push(['work/bwapi-data/AI/revision.txt', Buffer.from(`${sources[0].revision}-sb-1\n`)])
+  entries.push(['work/bwapi-data/AI/revision.txt', Buffer.from(`${sources[0].revision}-sb-${revision}\n`)])
   const pkg = {
     schemaVersion: 1,
     botId: 'purplewave',
     releaseId,
-    version: '2026.09.22-sb.1',
+    version: `2026.09.22-sb.${revision}`,
     platform: { os: 'windows', architecture: 'x86_64' },
     runtime: {
       kind: 'java',
@@ -193,6 +194,20 @@ export async function packagePurpleWave({
     bwapi: { version: '4.4.0', protocol: 10003, minimumBridgeVersion: '1' },
     sources,
     licenses,
+    modifications: [
+      {
+        modifier: 'ShieldBattery',
+        date: '2026-09-22',
+        summary: 'Isolated saved state, encoded opponent filenames and history, disabled visualizer auto-launch, and adapted the build for Java 21.',
+        scope: 'bot',
+      },
+      {
+        modifier: 'ShieldBattery',
+        date: '2026-09-22',
+        summary: 'Patched JBWAPI instance discovery and updated the Scala/JNA runtime dependencies. Original dependency notices and patched source are included.',
+        scope: 'dependency',
+      },
+    ],
     permissions: candidate.permissions,
     sourceReview: review
       ? { status: 'pending', evidence: 'Review-only archive; publication is not approved.' }

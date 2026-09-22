@@ -1,4 +1,4 @@
-PurpleWave - ShieldBattery build sb.1
+PurpleWave - ShieldBattery build
 
 PurpleWave is by Dan Gant and contributors, under the MIT license.
 This is a modified build maintained by ShieldBattery, not an unmodified upstream

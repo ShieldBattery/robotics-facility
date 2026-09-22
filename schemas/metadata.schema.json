@@ -544,6 +544,31 @@
         "permissions": {
           "$ref": "#/$defs/permissions"
         },
+        "modifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "modifier": {
+                "type": "string",
+                "minLength": 1
+              },
+              "date": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scope": {
+                "enum": ["bot", "dependency"]
+              }
+            },
+            "required": ["modifier", "date", "summary", "scope"]
+          }
+        },
         "writableDirectories": {
           "type": "array",
           "items": {

@@ -93,6 +93,17 @@ test('catalog validates a complete release and rejects invalid publication', () 
     ],
   }
   validate('catalog', catalog)
+  const validModifications = structuredClone(catalog)
+  validModifications.bots[0].releases[0].package.modifications = [
+    {
+      modifier: 'ShieldBattery',
+      date: '2026-09-22',
+      summary: 'Adds a compatibility setting.',
+      scope: 'bot',
+    },
+  ]
+  assert.doesNotThrow(() => validate('catalog', validModifications))
+
   const bad = (change) => {
     const copy = structuredClone(catalog)
     change(copy.bots[0].releases[0], copy)
@@ -103,6 +114,32 @@ test('catalog validates a complete release and rejects invalid publication', () 
       r.package.launch.entrypoint = path
     })
   }
+  bad((r) => {
+    r.package.modifications = [
+      {
+        modifier: 'ShieldBattery',
+        date: '2026-09-22',
+        summary: 'Adds a compatibility setting.',
+        scope: 'unknown',
+      },
+    ]
+  })
+  bad((r) => {
+    r.package.modifications = [
+      { modifier: 'ShieldBattery', date: '2026-09-22', scope: 'bot' },
+    ]
+  })
+  bad((r) => {
+    r.package.modifications = [
+      {
+        modifier: 'ShieldBattery',
+        date: '2026-09-22',
+        summary: 'Adds a compatibility setting.',
+        scope: 'bot',
+        extra: true,
+      },
+    ]
+  })
   bad((r) => {
     r.package.permissions.localDistribution.status = 'unreviewed'
   })
