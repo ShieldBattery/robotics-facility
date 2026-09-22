@@ -1,0 +1,572 @@
+diff --git a/src/Debugging/CombatVisIO.scala b/src/Debugging/CombatVisIO.scala
+index 943165520..ce2e62929 100644
+--- a/src/Debugging/CombatVisIO.scala
++++ b/src/Debugging/CombatVisIO.scala
+@@ -8,9 +8,7 @@ import java.nio.charset.StandardCharsets
+ import scala.collection.mutable.ArrayBuffer
+ 
+ object CombatVisIO {
+-
+-  @volatile private var launched: Boolean = false
+-  @volatile private var visProcess: Process = _
++  // Modified by ShieldBattery on 2026-09-22.
+ 
+   private def baseDir: File = new File(With.bwapiData.write)
+   private def opponentFile: File = {
+@@ -512,30 +510,4 @@ object CombatVisIO {
+     } catch { case _: Throwable => }
+   }
+ 
+-  def launchVisualizer(): Unit = {
+-    try {
+-      ensureDirs()
+-      val path = opponentFile.getAbsolutePath
+-      // Prefer launching an external Java process to isolate UI from the bot JVM
+-      val cp = System.getProperty("java.class.path", ".")
+-      val pb = new ProcessBuilder("java", "-cp", cp, "Debugging.PurpleSimViz", path)
+-      pb.directory(baseDir)
+-      pb.redirectErrorStream(true)
+-      visProcess = pb.start()
+-      launched = true
+-    } catch { case exception: Exception => With.logger.quietlyOnException(exception) }
+-  }
+-
+-  def terminateVisualizer(): Unit = {
+-    try {
+-      if (launched) {
+-        if (visProcess != null) {
+-          try { visProcess.destroy() } catch { case _: Throwable => }
+-          visProcess = null
+-        } else {
+-          try Debugging.PurpleSimViz.requestClose() catch { case exception: Exception => With.logger.quietlyOnException(exception) }
+-        }
+-      }
+-    } catch { case exception: Exception => With.logger.quietlyOnException(exception) } finally { launched = false }
+-  }
+ }
+diff --git a/src/Debugging/Logger.scala b/src/Debugging/Logger.scala
+index f9a5d657a..c92b5e416 100644
+--- a/src/Debugging/Logger.scala
++++ b/src/Debugging/Logger.scala
+@@ -2,6 +2,7 @@ package Debugging
+ 
+ import java.io.{File, PrintWriter}
+ import Lifecycle.With
++import Lifecycle.Configure.RuntimeStateCodec
+ import Utilities.?
+ import Utilities.Time.{Forever, Frames, Seconds}
+ 
+@@ -9,6 +10,8 @@ import scala.collection.mutable
+ import scala.collection.mutable.ListBuffer
+ 
+ class Logger {
++  // Modified by ShieldBattery on 2026-09-22.
++
+   
+   private val logMessages = new ListBuffer[String]
+   private val performanceMessages = new ListBuffer[String]
+@@ -18,7 +21,7 @@ class Logger {
+   def flush(): Unit = {
+     var opponents: String = ""
+     try {
+-      opponents = With.enemies.map(_.name).mkString("-")
++      opponents = With.enemies.map(enemy => RuntimeStateCodec.encodeFilenameComponent(enemy.name)).mkString("-")
+     } catch { case exception: Exception => }
+     
+     val filename = f"${With.bwapiData.write}$opponents${?(errorOcurred, ".error", ".normal")}.log.txt"
+diff --git a/src/Debugging/Visualizations/Views/ShowStoryteller.scala b/src/Debugging/Visualizations/Views/ShowStoryteller.scala
+index 81dcf4414..0cf57f9f5 100644
+--- a/src/Debugging/Visualizations/Views/ShowStoryteller.scala
++++ b/src/Debugging/Visualizations/Views/ShowStoryteller.scala
+@@ -6,11 +6,13 @@ import Utilities.Time.Seconds
+ 
+ //import scala.collection.JavaConverters._
+ 
++// Modified by ShieldBattery on 2026-09-22.
++
+ object ShowStoryteller extends DebugView {
+   val duration = Seconds(10)()
+ 
+   override def renderScreen(): Unit = {
+-    val lines = With.storyteller.tales.view.filter(s => s.frame > 0 && With.framesSince(s.frame) < duration).flatMap(_.tale.lines).toVector
++    val lines = With.storyteller.tales.view.filter(s => s.frame > 0 && With.framesSince(s.frame) < duration).flatMap(_.tale.linesIterator).toVector
+     DrawScreen.column(160, 331 - lines.length * (2 + With.visualization.lineHeightSmall), lines)
+   }
+ }
+diff --git a/src/Debugging/WriteMapCSV.scala b/src/Debugging/WriteMapCSV.scala
+index 67ed1f037..45eeda118 100644
+--- a/src/Debugging/WriteMapCSV.scala
++++ b/src/Debugging/WriteMapCSV.scala
+@@ -1,11 +1,13 @@
+ package Debugging
+ 
+ import Lifecycle.With
++import Lifecycle.Configure.RuntimeStateCodec
+ import Mathematics.Maff
+ 
+ import java.io.{File, PrintWriter}
+ 
+ object WriteMapCSV {
++  // Modified by ShieldBattery on 2026-09-22.
+ 
+   def apply(): Unit = {
+     if (With.frame > 0) return
+@@ -56,7 +58,7 @@ object WriteMapCSV {
+     append("Bases")
+     append(With.geography.bases: _*)
+ 
+-    val filename = f"${With.bwapiData.write}map-${With.mapFileName}.mapinfo.txt"
++    val filename = f"${With.bwapiData.write}map-${RuntimeStateCodec.encodeFilenameComponent(With.mapFileName)}.mapinfo.txt"
+     val file = new File(filename)
+     val printWriter = new PrintWriter(file)
+     printWriter.write(output)
+diff --git a/src/Lifecycle/Configure/BwapiData.scala b/src/Lifecycle/Configure/BwapiData.scala
+index 66a5e554e..d40fa10c4 100644
+--- a/src/Lifecycle/Configure/BwapiData.scala
++++ b/src/Lifecycle/Configure/BwapiData.scala
+@@ -2,60 +2,49 @@ package Lifecycle.Configure
+ 
+ import Lifecycle.With
+ 
++// Modified by ShieldBattery on 2026-09-22.
++
+ import java.io.{File, PrintWriter}
+ import java.nio.file.Paths
+-import scala.reflect.io.Path
+ 
+ class BwapiData {
+   lazy val workingDirectoryDeFacto  : String = System.getProperty("user.dir")
+-  lazy val workingDirectoryDeJure   : String = getWorkingDirectoryDeJure
++  lazy val workingDirectoryDeJure   : String = workingDirectoryDeFacto
+   lazy val ai     : String = workingDirectoryDeJure + "/bwapi-data/AI/"
+   lazy val read   : String = workingDirectoryDeJure + "/bwapi-data/read/"
+   lazy val write  : String = workingDirectoryDeJure + "/bwapi-data/write/"
+   lazy val directoriesARW: Vector[String] = Vector(ai, read, write)
+ 
+-  private def isCorrect(path: String): Boolean = {
+-    val here = new File(path)
+-    val bwapiDataFile = here.listFiles().find(_.getName.toLowerCase == "bwapi-data")
+-    bwapiDataFile.exists(file =>
+-      Seq("ai", "read", "write").forall(subdirectory =>
+-        file.listFiles().exists(_.getName.toLowerCase == subdirectory)))
+-  }
+-
+-  private def getWorkingDirectoryDeJure: String = {
+-    try {
+-      // Try backing up until we find it
+-      var path = Path(workingDirectoryDeFacto)
+-      do {
+-        if (isCorrect(path.toString())) {
+-          return path.toString()
+-        }
+-        path = path.parent
+-      }
+-      while (path != path.parent)
+-      workingDirectoryDeFacto
+-    } catch {
+-      case exception: Exception => workingDirectoryDeFacto
++  private def resolveWithin(directory: String, filename: String): Option[File] = {
++    val base = Paths.get(directory).toAbsolutePath.normalize
++    val target = base.resolve(filename).normalize
++    if (target.startsWith(base)) {
++      Some(target.toFile)
++    } else {
++      With.logger.warn(f"Rejected path outside BWAPI data directory: $filename")
++      None
+     }
+   }
+ 
+   def writeToFile(filename: String, text: String): Unit = {
+     try {
+-      val file = Paths.get(With.bwapiData.write, filename).toFile
+-      val writer = new PrintWriter(file)
+-      writer.print(text)
+-      writer.close()
++      resolveWithin(With.bwapiData.write, filename).foreach(file => {
++        val writer = new PrintWriter(file)
++        writer.print(text)
++        writer.close()
++      })
+     } catch { case exception: Exception => With.logger.onException(exception) }
+   }
+ 
+   def readFromARW(filename: String): Option[File] = {
+     directoriesARW.foreach(directory => {
+       try {
+-        val output = Paths.get(directory, filename).toFile
+-        if (output.exists()) {
+-          With.logger.debug(f"Found ${output.getAbsoluteFile}")
+-          return Some(output)
+-        }
++        resolveWithin(directory, filename).foreach(output => {
++          if (output.exists()) {
++            With.logger.debug(f"Found ${output.getAbsoluteFile}")
++            return Some(output)
++          }
++        })
+       } catch { case exception: Exception => With.logger.onException(exception) }
+     })
+     None
+diff --git a/src/Lifecycle/Configure/ConfigurationLoader.scala b/src/Lifecycle/Configure/ConfigurationLoader.scala
+index 718c52491..2be855698 100644
+--- a/src/Lifecycle/Configure/ConfigurationLoader.scala
++++ b/src/Lifecycle/Configure/ConfigurationLoader.scala
+@@ -7,6 +7,9 @@ import mjson.Json
+ import java.io.File
+ 
+ object ConfigurationLoader {
++  // Modified by ShieldBattery on 2026-09-22.
++
++  private val configurationFilename = "PurpleWaveShieldBattery.config.json"
+ 
+   def getOrDefault[T](json: Json, property: String, default: T): T = {
+     val value = json.at(property)
+@@ -26,17 +29,10 @@ object ConfigurationLoader {
+   }
+ 
+   def load(): Unit = {
+-    val configFiles: Array[File] = new File(With.bwapiData.ai).listFiles.filter(f => Seq("Purple", ".config", ".json").forall(f.getName.contains))
+-    val configFilesMatching = Seq(configFiles.filter(_.getName.contains(With.self.name)), configFiles).find(_.nonEmpty).getOrElse(Array.empty)
+-    if (configFilesMatching.isEmpty) {
+-      With.logger.warn("Didn't find any matching configurations")
+-      return
+-    }
+-    if (configFilesMatching.length > 1) {
+-      With.logger.warn("Found multiple matching configurations; using newest: " + configFilesMatching.map(f => f"{f.getName} (${f.lastModified()})").mkString(", "))
++    val configFile = new File(With.bwapiData.ai, configurationFilename)
++    if (!configFile.isFile) {
++      throw new IllegalStateException("Missing required configuration: " + configFile.getAbsolutePath)
+     }
+-
+-    val configFile = configFilesMatching.maxBy(_.lastModified())
+     With.logger.debug(f"Using configuration file ${configFile.getName}")
+     try {
+       val configSource  = scala.io.Source.fromFile(configFile)
+@@ -59,9 +55,12 @@ object ConfigurationLoader {
+       val frameMsLimit  = getOrDefault(config, "framemslimit",  With.configuration.frameLimitMs)
+ 
+       With.configuration.fixedBuilds = new FileFlag("fixedbuilds.txt").contents
++      if (simviz) {
++        throw new IllegalArgumentException("Simulation visualizer is unsupported")
++      }
+       With.configuration.frameTargetMs = frameMsTarget
+       With.configuration.frameLimitMs = frameMsLimit
+-      With.configuration.simviz = simviz
++      With.configuration.simviz = false
+ 
+       if (tournament    && ladder)      With.logger.warn("Both tournament and ladder modes are enabled")
+       if (tournament    && livestream)  With.logger.warn("Both tournament and livestream modes are enabled")
+@@ -100,7 +99,10 @@ object ConfigurationLoader {
+         ("Fixed build",     With.configuration.fixedBuilds)
+       )
+       .foreach(pair => With.logger.debug(pair._1 + ": " + pair._2))
+-    } catch { case exception: Exception => With.logger.onException(exception) }
++    } catch { case exception: Exception =>
++      With.logger.onException(exception)
++      throw exception
++    }
+   }
+ 
+   private def setTournamentMode(): Unit = {
+diff --git a/src/Lifecycle/Configure/RuntimeStateCodec.java b/src/Lifecycle/Configure/RuntimeStateCodec.java
+new file mode 100644
+index 000000000..ec5b8cfa6
+--- /dev/null
++++ b/src/Lifecycle/Configure/RuntimeStateCodec.java
+@@ -0,0 +1,67 @@
++package Lifecycle.Configure;
++
++import java.nio.charset.StandardCharsets;
++
++/** Modified by ShieldBattery on 2026-09-22. Encodes external game values before they become filenames or CSV cells. */
++public final class RuntimeStateCodec {
++    private RuntimeStateCodec() {}
++
++    public static String encodeFilenameComponent(String value) {
++        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
++        final StringBuilder encoded = new StringBuilder(bytes.length);
++        for (byte current : bytes) {
++            final int unsigned = Byte.toUnsignedInt(current);
++            if (isFilenameSafe(unsigned)) encoded.append((char) unsigned);
++            else appendPercentEncoded(encoded, unsigned);
++        }
++        if (isWindowsReservedName(encoded.toString())) encoded.replace(0, 1, percentEncoded(Byte.toUnsignedInt(bytes[0])));
++        return encoded.toString();
++    }
++
++    public static String encodeHistoryCell(String value) {
++        final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
++        final StringBuilder encoded = new StringBuilder(bytes.length);
++        for (byte current : bytes) {
++            final int unsigned = Byte.toUnsignedInt(current);
++            if (isHistoryCellSafe(unsigned)) encoded.append((char) unsigned);
++            else appendPercentEncoded(encoded, unsigned);
++        }
++        return encoded.toString();
++    }
++
++    public static String decodeHistoryCell(String value) {
++        final byte[] decoded = new byte[value.length()];
++        int length = 0;
++        for (int index = 0; index < value.length(); index++) {
++            final char current = value.charAt(index);
++            if (current == '%') {
++                if (index + 2 >= value.length()) throw new IllegalArgumentException("Truncated percent encoding");
++                final int high = Character.digit(value.charAt(++index), 16);
++                final int low = Character.digit(value.charAt(++index), 16);
++                if (high < 0 || low < 0) throw new IllegalArgumentException("Invalid percent encoding");
++                decoded[length++] = (byte) ((high << 4) | low);
++            } else if (current <= 0x7f) decoded[length++] = (byte) current;
++            else throw new IllegalArgumentException("History cells must be ASCII encoded");
++        }
++        return new String(decoded, 0, length, StandardCharsets.UTF_8);
++    }
++
++    private static boolean isFilenameSafe(int value) {
++        return isAsciiLetterOrDigit(value) || value == '-' || value == '_';
++    }
++
++    private static boolean isHistoryCellSafe(int value) {
++        return isAsciiLetterOrDigit(value) || value == '-' || value == '_' || value == '.';
++    }
++
++    private static boolean isAsciiLetterOrDigit(int value) {
++        return value >= 'a' && value <= 'z' || value >= 'A' && value <= 'Z' || value >= '0' && value <= '9';
++    }
++
++    private static boolean isWindowsReservedName(String value) {
++        return value.matches("(?i)CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]");
++    }
++
++    private static void appendPercentEncoded(StringBuilder output, int value) { output.append(percentEncoded(value)); }
++    private static String percentEncoded(int value) { return String.format("%%%02X", value); }
++}
+diff --git a/src/Lifecycle/PurpleWave.scala b/src/Lifecycle/PurpleWave.scala
+index 8e602deea..7555d5b55 100644
+--- a/src/Lifecycle/PurpleWave.scala
++++ b/src/Lifecycle/PurpleWave.scala
+@@ -6,6 +6,8 @@ import Utilities.?
+ import bwapi.{DefaultBWListener, Player}
+ import jbweb.Walls
+ 
++// Modified by ShieldBattery on 2026-09-22.
++
+ class PurpleWave extends DefaultBWListener {
+ 
+   private def timeFrameZero(todo: () => Unit): Unit = {
+@@ -78,8 +80,7 @@ class PurpleWave extends DefaultBWListener {
+       With.storyteller.onEnd()
+       With.simulation.onEnd()
+       With.manners.onEnd(isWinner)
+-      // Terminate the combat visualizer if we launched it at start
+-      try { if (With.configuration != null && With.configuration.simviz) Debugging.CombatVisIO.terminateVisualizer() } catch { case exception: Exception => With.logger.quietlyOnException(exception) }
++
+       With.logger.flush()
+     })
+   }
+diff --git a/src/Lifecycle/With.scala b/src/Lifecycle/With.scala
+index 65b364377..e5b421fd6 100644
+--- a/src/Lifecycle/With.scala
++++ b/src/Lifecycle/With.scala
+@@ -40,6 +40,8 @@ import bwta.BWTA
+ import scala.collection.JavaConverters._
+ 
+ object With {
++  // Modified by ShieldBattery on 2026-09-22.
++
+ 
+   var frame0ms          : Long                = 0
+   var frame             : Int                 = 0
+@@ -163,16 +165,6 @@ object With {
+     logger            = new Logger
+     ConfigurationLoader.load()
+ 
+-    // Live debugging: prepare combat visualizer IO and launch
+-    try {
+-      if (configuration != null && configuration.simviz) {
+-        Debugging.CombatVisIO.ensureDirs()
+-        Debugging.CombatVisIO.exportMapData()
+-        Debugging.CombatVisIO.prepareEmptySimFile()
+-        Debugging.CombatVisIO.launchVisualizer()
+-      }
+-    } catch { case exception: Exception => With.logger.quietlyOnException(exception) }
+-
+     ////////////////////
+     // Normal systems //
+     ////////////////////
+diff --git a/src/Placement/Templating/TemplatePoint.scala b/src/Placement/Templating/TemplatePoint.scala
+index 9d1466b0d..ac6b60e02 100644
+--- a/src/Placement/Templating/TemplatePoint.scala
++++ b/src/Placement/Templating/TemplatePoint.scala
+@@ -6,6 +6,8 @@ import Mathematics.Points.{Point, Tile}
+ 
+ //import scala.collection.JavaConverters._
+ 
++// Modified by ShieldBattery on 2026-09-22.
++
+ case class TemplatePoint(point: Point, requirement: TemplatePointRequirement) {
+   def drawMap(origin: Tile): Unit = {
+     val tileStart   = origin.add(point)
+@@ -20,7 +22,7 @@ case class TemplatePoint(point: Point, requirement: TemplatePointRequirement) {
+       else Colors.MediumViolet
+     DrawMap.box(pixelStart, pixelEnd, color)
+     if (requirement.width > 1) {
+-      DrawMap.labelBox(requirement.toString.lines, pixelStart.midpoint(pixelEnd))
++      DrawMap.labelBox(requirement.toString.linesIterator, pixelStart.midpoint(pixelEnd))
+     }
+   }
+ }
+diff --git a/src/Strategery/History/HistoryLoader.scala b/src/Strategery/History/HistoryLoader.scala
+index 823f9f53a..70557bf19 100644
+--- a/src/Strategery/History/HistoryLoader.scala
++++ b/src/Strategery/History/HistoryLoader.scala
+@@ -3,11 +3,14 @@ package Strategery.History
+ import java.io._
+ 
+ import Lifecycle.With
++import Lifecycle.Configure.RuntimeStateCodec
+ 
+ import scala.collection.mutable
+ import scala.collection.mutable.ArrayBuffer
+ 
+ object HistoryLoader {
++  // Modified by ShieldBattery on 2026-09-22.
++
+   
+   private val filenameHistoryPrefix = f"_v${HistorySerializer.formatVersion}_history_"
+   private val filenameEnemyToken    = "{opponent}"
+@@ -42,7 +45,7 @@ object HistoryLoader {
+   }
+   
+   private def saveName: String = {
+-    saveFilesDirectory + filenameTemplate.replace(filenameEnemyToken, With.history.currentEnemyName)
++    saveFilesDirectory + filenameTemplate.replace(filenameEnemyToken, RuntimeStateCodec.encodeFilenameComponent(With.history.currentEnemyName))
+   }
+   
+   private def loadAllGames(directories: Iterable[String]): Iterable[String] = {
+diff --git a/src/Strategery/History/HistorySerializer.scala b/src/Strategery/History/HistorySerializer.scala
+index c47cfdf97..057b329a6 100644
+--- a/src/Strategery/History/HistorySerializer.scala
++++ b/src/Strategery/History/HistorySerializer.scala
+@@ -1,10 +1,13 @@
+ package Strategery.History
+ 
+ import Lifecycle.With
++import Lifecycle.Configure.RuntimeStateCodec
+ import Utilities.CountMap
+ import bwapi.Race
+ 
+ object HistorySerializer {
++  // Modified by ShieldBattery on 2026-09-22.
++
+   
+   //////////////////////////////////////////////////////////////////////////////////////////////////////
+   //                                                                                                  //
+@@ -13,7 +16,7 @@ object HistorySerializer {
+   //                                                                                                  //
+   //////////////////////////////////////////////////////////////////////////////////////////////////////
+   
+-  val formatVersion: Int = 4
++  val formatVersion: Int = 5
+   
+   // "Let's roll our own half-baked CSV because the CIG deadline is in two weeks and json4s is being stubborn and we are wise, experienced developers."
+   // The half-backed CSV has lasted 7.5 years now.
+@@ -36,8 +39,8 @@ object HistorySerializer {
+   private def readGameFromColumns(columns: Array[String]): HistoricalGame = {
+     val id              = columns(0).toLong
+     val startLocations  = columns(1).toInt
+-    val mapName         = columns(2)
+-    val opponentName    = columns(3)
++    val mapName         = RuntimeStateCodec.decodeHistoryCell(columns(2))
++    val opponentName    = RuntimeStateCodec.decodeHistoryCell(columns(3))
+     val ourRace         = columns(4)
+     val enemyRace       = columns(5)
+     val won             = columns(6).toBoolean
+@@ -66,8 +69,8 @@ object HistorySerializer {
+     Vector(
+       game.timestamp      .toString,
+       game.startLocations .toString,
+-      game.mapName,
+-      game.enemyName,
++      RuntimeStateCodec.encodeHistoryCell(game.mapName),
++      RuntimeStateCodec.encodeHistoryCell(game.enemyName),
+       game.ourRace        .toString,
+       game.enemyRace      .toString,
+       game.won            .toString) ++ game.tags
+diff --git a/tests/README.md b/tests/README.md
+new file mode 100644
+index 000000000..93256fb9b
+--- /dev/null
++++ b/tests/README.md
+@@ -0,0 +1,11 @@
++# Runtime state codec test
++
++From the PurpleWave source root, run:
++
++```powershell
++$testOutput = Join-Path $env:TEMP 'purplewave-runtime-state-test'
++Remove-Item -LiteralPath $testOutput -Recurse -Force -ErrorAction SilentlyContinue
++javac -encoding UTF-8 -d $testOutput src/Lifecycle/Configure/RuntimeStateCodec.java tests/RuntimeStateCodecTest.java
++java -cp $testOutput RuntimeStateCodecTest
++Remove-Item -LiteralPath $testOutput -Recurse -Force
++```
+diff --git a/tests/RuntimeStateCodecTest.java b/tests/RuntimeStateCodecTest.java
+new file mode 100644
+index 000000000..311e007eb
+--- /dev/null
++++ b/tests/RuntimeStateCodecTest.java
+@@ -0,0 +1,54 @@
++import Lifecycle.Configure.RuntimeStateCodec;
++
++// Created by ShieldBattery on 2026-09-22.
++
++public final class RuntimeStateCodecTest {
++    public static void main(String[] args) {
++        assertFilename("Opponent/..\\%:CON", "%2F", "%2E%2E", "%5C", "%25", "%3A");
++        assertFilename(".", "%2E");
++        assertFilename("%2E", "%252E");
++        assertFilename("CON", "%43ON");
++        assertFilename("AUX", "%41UX");
++        assertFilename("PRN", "%50RN");
++        assertFilename("NUL", "%4EUL");
++        assertFilename("COM1", "%43OM1");
++        assertFilename("LPT1", "%4CPT1");
++        assertFilename("", "");
++        assertFilename("\u732B,Name\n", "%E7%8C%AB", "%2C", "%0A");
++        assertHistoryCell("Fighting Spirit, \u732B\r\n");
++        assertHistoryCell(" Name ");
++        assertHistoryCell(" ");
++        assertHistoryCell("Opponent/..\\%:CON");
++        assertInvalidHistoryCell("%");
++        assertInvalidHistoryCell("%0");
++        assertInvalidHistoryCell("%ZZ");
++    }
++
++    private static void assertFilename(String input, String... requiredFragments) {
++        final String encoded = RuntimeStateCodec.encodeFilenameComponent(input);
++        if (encoded.contains("/") || encoded.contains("\\") || encoded.contains(":")) {
++            throw new AssertionError(encoded);
++        }
++        for (String requiredFragment : requiredFragments) {
++            if (!encoded.contains(requiredFragment)) {
++                throw new AssertionError(encoded);
++            }
++        }
++    }
++
++    private static void assertHistoryCell(String input) {
++        final String encoded = RuntimeStateCodec.encodeHistoryCell(input);
++        final String decoded = RuntimeStateCodec.decodeHistoryCell(encoded.trim());
++        if (!input.equals(decoded) || encoded.contains(",") || encoded.contains("\r") || encoded.contains("\n")) {
++            throw new AssertionError(encoded);
++        }
++    }
++
++    private static void assertInvalidHistoryCell(String input) {
++        try {
++            RuntimeStateCodec.decodeHistoryCell(input);
++            throw new AssertionError(input);
++        } catch (IllegalArgumentException expected) {
++        }
++    }
++}

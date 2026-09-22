@@ -311,7 +311,7 @@
           "additionalProperties": false,
           "properties": {
             "status": {
-              "const": "prototype-tested"
+              "enum": ["unverified", "prototype-tested"]
             },
             "bwapiVersion": {
               "const": "4.4.0"
@@ -320,7 +320,7 @@
               "const": 10003
             },
             "botArchitecture": {
-              "const": "x86"
+              "enum": ["x86", "x86_64"]
             },
             "gameArchitectures": {
               "type": "array",

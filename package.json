@@ -13,7 +13,9 @@
     "publish:staging": "node tools/publish.mjs staging",
     "publish:production": "node tools/publish.mjs production",
     "build:zzzkbot": "node tools/build-zzzkbot.mjs",
-    "package:zzzkbot": "node tools/package-zzzkbot.mjs"
+    "package:zzzkbot": "node tools/package-zzzkbot.mjs",
+    "build:purplewave": "node tools/build-purplewave.mjs",
+    "package:purplewave": "node tools/package-purplewave.mjs"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1136.0",

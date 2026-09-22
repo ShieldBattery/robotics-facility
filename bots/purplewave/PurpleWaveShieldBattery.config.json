@@ -1,0 +1,16 @@
+{
+  "human": false,
+  "ladder": false,
+  "livestream": false,
+  "tournament": false,
+  "roundrobin": false,
+  "elimination": false,
+  "pretraining": false,
+  "debugging": false,
+  "debugginglive": false,
+  "simviz": false,
+  "logstd": false,
+  "multiCPU": true,
+  "framemstarget": 20,
+  "framemslimit": 35
+}

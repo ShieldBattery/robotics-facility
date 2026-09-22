@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { validate, validateRepository } from './validate.mjs'
 
 test('checked-in source lock, candidates, and catalog validate', () => {
-  assert.equal(validateRepository(), 2)
+  assert.equal(validateRepository(), 3)
 })
 test('unknown schema versions and catalog fields are rejected', () => {
   assert.throws(() => validate('catalog', { schemaVersion: 2, revision: 0, bots: [] }))
@@ -174,4 +174,15 @@ test('play-style vocabulary is enforced for candidates and published catalog ent
       assert.throws(() => validate(kind, fixture), /playStyleTags/)
     }
   }
+})
+
+test('candidate metadata supports Java x64 without claiming prototype verification', () => {
+  const bot = JSON.parse(
+    readFileSync(new URL('../bots/purplewave/bot.json', import.meta.url), 'utf8'),
+  )
+  bot.compatibility.status = 'unverified'
+  bot.compatibility.botArchitecture = 'x86_64'
+  assert.doesNotThrow(() => validate('candidate', bot))
+  bot.compatibility.botArchitecture = 'arm64'
+  assert.throws(() => validate('candidate', bot))
 })

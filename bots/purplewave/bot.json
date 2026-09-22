@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "purplewave",
+    "name": "PurpleWave",
+    "description": "A Protoss opponent by Dan Gant with a broad strategy repertoire and persistent opponent history.",
+    "authors": [
+      {
+        "name": "Dan Gant",
+        "url": "https://github.com/dgant"
+      }
+    ],
+    "homepage": "https://github.com/dgant/PurpleWave",
+    "sourceUrl": "https://github.com/dgant/PurpleWave",
+    "playStyleTags": [],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": ["purplewave", "jbwapi", "jbweb", "javajps", "mjson"],
+  "profile": {
+    "selectableRaces": ["protoss"],
+    "randomRace": "unverified",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "experimental",
+        "notes": "Java 21 integration is under verification."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Not tested."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Not tested."
+      }
+    ],
+    "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
+    "learning": {
+      "mode": "persistent",
+      "notes": "Opponent history, placement caches, and logs stay in the isolated profile. Reset read and write to the empty baseline to clear learning; compatible history is preserved across updates."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "purplewave",
+    "path": "license.md",
+    "notes": "Modified ShieldBattery build. Package includes upstream attribution, modification notices, source, and dependency licenses."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "Notice assembly and release review in progress."
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Separate from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86_64",
+    "gameArchitectures": ["x86", "x86_64"],
+    "evidence": "Java 21 x64 package verification in progress.",
+    "limitations": [
+      "Experimental partial BWAPI semantics.",
+      "Only Protoss is offered initially; other races and formats remain unverified."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "f84805d2712a28c90c1041e7bf7a7361601daea8",
+    "instructions": "bots/purplewave/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "Pinned source audit and runtime verification in progress."
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "artifacts": [
+    {
+      "name": "scala-library-2.12.20.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.jar",
+      "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+      "sizeBytes": 5436770,
+      "runtime": true
+    },
+    {
+      "name": "scala-reflect-2.12.20.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/scala-lang/scala-reflect/2.12.20/scala-reflect-2.12.20.jar",
+      "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+      "sizeBytes": 3670575,
+      "runtime": true
+    },
+    {
+      "name": "scala-compiler-2.12.20.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/scala-lang/scala-compiler/2.12.20/scala-compiler-2.12.20.jar",
+      "sha256": "c88676d75c69721b717ea6c441ece04fff262abab9d210a2936abc2be3731fa2",
+      "sizeBytes": 10995131,
+      "runtime": false
+    },
+    {
+      "name": "jna-5.18.1.jar",
+      "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna/5.18.1/jna-5.18.1.jar",
+      "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+      "sizeBytes": 2002994,
+      "runtime": true
+    },
+    {
+      "name": "jna-platform-5.18.1.jar",
+      "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.18.1/jna-platform-5.18.1.jar",
+      "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+      "sizeBytes": 1380744,
+      "runtime": true
+    },
+    {
+      "name": "commons-lang3-3.8.1.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar",
+      "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+      "sizeBytes": 501879,
+      "runtime": true
+    }
+  ]
+}

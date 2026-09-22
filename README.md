@@ -74,6 +74,11 @@ The ZZZKBot recipe and MIT external host live in `native/`. See
 offline rebuild from the source included with every release. UAlbertaBot still
 uses the prototype recipe recorded in its candidate metadata.
 
+The Java 21 PurpleWave integration is described in
+[bots/purplewave/BUILD.md](bots/purplewave/BUILD.md). Java dependency jars are pinned
+by size and SHA-256 in `jvm/dependencies.json`; runtime jars are shipped unchanged
+with their original notices. Java itself is detected on the player's PC, not bundled.
+
 See [catalog and offline installation design](docs/catalog-and-offline.md) for
 refresh behavior, installed-state ownership, packaging, and hosting decisions.
 
