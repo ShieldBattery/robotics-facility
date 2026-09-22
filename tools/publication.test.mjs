@@ -103,19 +103,22 @@ async function fixture() {
 }
 function storeFixture() {
   const objects = new Map(),
-    writes = []
+    writes = [],
+    metadata = new Map()
   return {
     objects,
     writes,
+    metadata,
     fail: undefined,
     async get(name, limit) {
       const data = objects.get(name)
       if (data && data.length > limit) throw new Error('Object too large')
       return data ?? null
     },
-    async put(name, bytes) {
+    async put(name, bytes, options) {
       if (this.fail?.(name)) throw new Error('Simulated upload failure')
       writes.push(name)
+      metadata.set(name, { ...options })
       objects.set(name, Buffer.from(bytes))
     },
   }
@@ -241,6 +244,15 @@ test('publication orders verified artifacts before activation and creates receip
   await publishPrepared(args)
   assert.equal(store.writes.at(-2), 'catalog.json')
   assert.equal(store.writes.at(-1), 'published/1.json')
+  assert.equal(
+    store.metadata.get('catalog.json').cacheControl,
+    'public, no-cache, max-age=0, must-revalidate',
+  )
+  for (const [name, metadata] of store.metadata) {
+    if (name !== 'catalog.json') {
+      assert.equal(metadata.cacheControl, 'public, max-age=31536000, immutable')
+    }
+  }
   assert.ok(
     store.writes.indexOf(`packages/${f.release.artifact.sha256}.zip`) <
       store.writes.indexOf('catalog.json'),

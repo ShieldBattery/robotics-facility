@@ -230,7 +230,7 @@ export async function publishPrepared({ prepared, store, publicBaseUrl, trust, p
   if (!current?.equals(signed)) {
     await store.put('catalog.json', signed, {
       contentType: 'application/json',
-      cacheControl: 'public, max-age=60, must-revalidate',
+      cacheControl: 'public, no-cache, max-age=0, must-revalidate',
     })
     const activated = await store.get('catalog.json', JSON_LIMIT)
     if (!activated?.equals(signed)) throw new Error('Catalog activation verification failed')
