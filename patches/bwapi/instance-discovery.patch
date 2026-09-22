@@ -1,0 +1,34 @@
+diff --git a/bwapi/BWAPIClient/Source/Client.cpp b/bwapi/BWAPIClient/Source/Client.cpp
+index d48bb4b4..e9c41686 100755
+--- a/bwapi/BWAPIClient/Source/Client.cpp
++++ b/bwapi/BWAPIClient/Source/Client.cpp
+@@ -1,3 +1,5 @@
++// Modified by ShieldBattery on 2026-09-21: select the local match discovery table
++// using SB_BWAPI_INSTANCE; reject malformed or oversized instance identifiers.
+ #include <BWAPI/Client/Client.h>
+ #include <windows.h>
+ #include <sstream>
+@@ -34,7 +36,22 @@ namespace BWAPI
+     int gameTableIndex  = -1;
+ 
+     this->gameTable = NULL;
+-    this->gameTableFileHandle = OpenFileMappingA(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, "Local\\bwapi_shared_memory_game_list" );
++    std::string gameTableName("Local\\bwapi_shared_memory_game_list");
++    char instance[128];
++    const DWORD length = GetEnvironmentVariableA("SB_BWAPI_INSTANCE", instance, sizeof(instance));
++    if (length >= sizeof(instance)) return false;
++    if (length > 0)
++    {
++      for (DWORD i = 0; i < length; ++i)
++      {
++        const char c = instance[i];
++        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
++              (c >= '0' && c <= '9') || c == '-' || c == '_')) return false;
++      }
++      gameTableName += "_";
++      gameTableName.append(instance, length);
++    }
++    this->gameTableFileHandle = OpenFileMappingA(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, gameTableName.c_str());
+     if ( !this->gameTableFileHandle )
+     {
+       std::cerr << "Game table mapping not found." << std::endl;

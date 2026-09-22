@@ -3,8 +3,9 @@
 Upstream checkouts in `.sources/` stay at the exact clean commits in `source-lock.json`.
 Downstream fixes belong in `patches/<source-id>/<name>.patch`, with an ordered
 `patches` list on that source record. Each entry has `path` and `sha256` fields.
-An omitted or empty list means no patches. No bot-source patches are currently
-included: the filename issues in the scoped review remain release blockers.
+An omitted or empty list means no patches. ZZZKBot packages apply persistence-name
+encoding and BWAPI instance discovery patches; each has a recorded hash and
+release-specific review.
 
 Use patches for needed storage, compatibility, or runtime fixes, with a short
 companion note explaining the behavior, licensing/attribution implications, tests,

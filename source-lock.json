@@ -5,13 +5,23 @@
       "id": "bwapi",
       "repository": "https://github.com/bwapi/bwapi.git",
       "revision": "7687da8abc4726f8366401f11ab648d421385793",
-      "patches": []
+      "patches": [
+        {
+          "path": "patches/bwapi/instance-discovery.patch",
+          "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+        }
+      ]
     },
     {
       "id": "zzzkbot",
       "repository": "https://github.com/chriscoxe/ZZZKBot.git",
       "revision": "7183e37b6b416ea53c1040c83e639a3a3c395eed",
-      "patches": []
+      "patches": [
+        {
+          "path": "patches/zzzkbot/0001-encode-persistence-names.patch",
+          "sha256": "2802cc9b666a95a5dbd6314f0c123bf5614da93d33a8dbe6bed05e46bce8e9f6"
+        }
+      ]
     },
     {
       "id": "ualbertabot",

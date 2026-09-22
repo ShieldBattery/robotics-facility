@@ -1,0 +1,205 @@
+diff --git a/ZZZKBot/Source/PersistenceEncoding.h b/ZZZKBot/Source/PersistenceEncoding.h
+new file mode 100644
+index 0000000..3195452
+--- /dev/null
++++ b/ZZZKBot/Source/PersistenceEncoding.h
+@@ -0,0 +1,119 @@
++// SPDX-License-Identifier: LGPL-3.0-or-later
++// Copyright 2026 ShieldBattery contributors
++
++/*
++ * ShieldBattery modification, 2026-09-21.
++ *
++ * ZZZKBot persists player names in both file paths and tab-delimited history.
++ * These helpers retain ordinary ASCII names while encoding bytes that could
++ * change a path or a history record's structure.
++ */
++#ifndef ZZZKBOT_PERSISTENCE_ENCODING_H
++#define ZZZKBOT_PERSISTENCE_ENCODING_H
++
++#include <string>
++
++namespace ZZZKBotPersistence
++{
++    inline char hexDigit(unsigned char value)
++    {
++        return static_cast<char>(value < 10 ? '0' + value : 'A' + (value - 10));
++    }
++
++    inline void appendPercentEncodedByte(std::string& output, unsigned char value)
++    {
++        output += '%';
++        output += hexDigit(static_cast<unsigned char>(value >> 4));
++        output += hexDigit(static_cast<unsigned char>(value & 0x0f));
++    }
++
++    inline bool isSafeFilenameByte(unsigned char value)
++    {
++        return (value >= 'A' && value <= 'Z') ||
++            (value >= 'a' && value <= 'z') ||
++            (value >= '0' && value <= '9') ||
++            value == ' ' || value == '-' || value == '_' || value == '.';
++    }
++
++    inline bool equalsAsciiIgnoreCase(const std::string& value, std::size_t length, const char* expected)
++    {
++        for (std::size_t i = 0; i < length; ++i)
++        {
++            const unsigned char valueByte = static_cast<unsigned char>(value[i]);
++            const unsigned char expectedByte = static_cast<unsigned char>(expected[i]);
++            if (valueByte != expectedByte &&
++                !((valueByte | 0x20) == (expectedByte | 0x20) &&
++                    valueByte >= 'A' && valueByte <= 'z'))
++            {
++                return false;
++            }
++        }
++        return expected[length] == '\0';
++    }
++
++    inline bool isReservedWindowsDeviceName(const std::string& value)
++    {
++        std::size_t basenameLength = value.find('.');
++        if (basenameLength == std::string::npos)
++        {
++            basenameLength = value.size();
++        }
++        while (basenameLength != 0 && value[basenameLength - 1] == ' ')
++        {
++            --basenameLength;
++        }
++
++        if (basenameLength == 3 &&
++            (equalsAsciiIgnoreCase(value, basenameLength, "CON") ||
++                equalsAsciiIgnoreCase(value, basenameLength, "PRN") ||
++                equalsAsciiIgnoreCase(value, basenameLength, "AUX") ||
++                equalsAsciiIgnoreCase(value, basenameLength, "NUL")))
++        {
++            return true;
++        }
++
++        return basenameLength == 4 &&
++            ((equalsAsciiIgnoreCase(value, 3, "COM") || equalsAsciiIgnoreCase(value, 3, "LPT")) &&
++                value[3] >= '1' && value[3] <= '9');
++    }
++
++    inline std::string encodeFilenameComponent(const std::string& value)
++    {
++        std::string encoded;
++        encoded.reserve(value.size());
++        const bool startsWithReservedDeviceName = isReservedWindowsDeviceName(value);
++        for (std::size_t i = 0; i < value.size(); ++i)
++        {
++            const unsigned char byte = static_cast<unsigned char>(value[i]);
++            if (isSafeFilenameByte(byte) && !(startsWithReservedDeviceName && i == 0))
++            {
++                encoded += static_cast<char>(byte);
++            }
++            else
++            {
++                appendPercentEncodedByte(encoded, byte);
++            }
++        }
++        return encoded;
++    }
++
++    inline std::string escapeHistoryField(const std::string& value)
++    {
++        std::string escaped;
++        escaped.reserve(value.size());
++        for (unsigned char byte : value)
++        {
++            if (byte == '%' || byte == '\t' || byte == '\r' || byte == '\n' || byte == '\0')
++            {
++                appendPercentEncodedByte(escaped, byte);
++            }
++            else
++            {
++                escaped += static_cast<char>(byte);
++            }
++        }
++        return escaped;
++    }
++}
++
++#endif
+diff --git a/ZZZKBot/Source/ZZZKBotAIModule.cpp b/ZZZKBot/Source/ZZZKBotAIModule.cpp
+index 1da36dd..bff48c1 100644
+--- a/ZZZKBot/Source/ZZZKBotAIModule.cpp
++++ b/ZZZKBot/Source/ZZZKBotAIModule.cpp
+@@ -27,6 +27,9 @@
+ // of BWAPI.
+ 
+ #include "ZZZKBotAIModule.h"
++#include "PersistenceEncoding.h"
++
++// ShieldBattery modification, 2026-09-21: encode persisted names and history fields.
+ #include <fstream>
+ #include <iomanip>
+ 
+@@ -973,7 +976,7 @@ void ZZZKBotAIModule::onFrame()
+             versusSignifierStr;
+ 
+         const std::string configFileExtension = "cfg";
+-        const std::string configFilePath = AIDirPath + Broodwar->self()->getName() + "." + configFileExtension;
++        const std::string configFilePath = AIDirPath + ZZZKBotPersistence::encodeFilenameComponent(Broodwar->self()->getName()) + "." + configFileExtension;
+ 
+         const std::string dataFileExtension = "dat";
+ 
+@@ -1022,7 +1025,7 @@ void ZZZKBotAIModule::onFrame()
+                     enemyStartLocDeduced = *otherStartLocs.begin();
+                 }
+                 enemyName = Broodwar->enemy() ? Broodwar->enemy()->getName() : "";
+-                enemyFileName = filePrefix + pathFieldDelimiter + enemyName + pathFieldDelimiter + enemyRaceInit.getName() + "." + dataFileExtension;
++                enemyFileName = filePrefix + pathFieldDelimiter + ZZZKBotPersistence::encodeFilenameComponent(enemyName) + pathFieldDelimiter + enemyRaceInit.getName() + "." + dataFileExtension;
+                 enemyReadFilePath = readDirPath + enemyFileName;
+                 enemyWriteFilePath = writeDirPath + enemyFileName;
+                 enemyNameUpperCase = enemyName;
+@@ -2605,9 +2608,7 @@ void ZZZKBotAIModule::onFrame()
+                 oss << Broodwar->observers().size() << delim;
+                 oss << Broodwar->self()->getID() << delim;
+                 oss << Broodwar->self()->getType() << delim;
+-                // TODO: player names may contain unusual characters, so sanitize by stripping or replacing them
+-                // (esp. tabs because I use tab as a delimiter).
+-                oss << Broodwar->self()->getName() << delim;
++                oss << ZZZKBotPersistence::escapeHistoryField(Broodwar->self()->getName()) << delim;
+                 // Race picked in the game lobby.
+                 // Currently, BWAPI doesn't provide a way to know whether Random or a specific race was picked
+                 // (see https://github.com/bwapi/bwapi/issues/679).
+@@ -2619,9 +2620,7 @@ void ZZZKBotAIModule::onFrame()
+                 oss << versusSignifierStr << delim;
+                 oss << enemyPlayerID << delim;
+                 oss << enemyPlayerType << delim;
+-                // TODO: player names may contain unusual characters, so sanitize by stripping or replacing them
+-                // (esp. tabs because I use tab as a delimiter).
+-                oss << enemyName << delim;
++                oss << ZZZKBotPersistence::escapeHistoryField(enemyName) << delim;
+                 // Race picked in the game lobby.
+                 // Currently, BWAPI doesn't provide a way to know whether Random or a specific race was picked
+                 // if enemy units are visible at the start of the game, e.g. if Flag::CompleteMapInformation is
+@@ -2645,12 +2644,8 @@ void ZZZKBotAIModule::onFrame()
+                 oss << isTooSmallFileDetected << delim;
+                 oss << isFileCopyNeeded << delim;
+                 oss << isFileCopyFailed << delim;
+-                // TODO: map names may contain unusual characters, so sanitize by stripping or replacing them
+-                // (esp. tabs because I use tab as a delimiter).
+-                oss << Broodwar->mapName() << delim;
+-                // TODO: map names could theoretically contain unusual characters, so sanitize by stripping or
+-                // replacing them (esp. tabs because I use tab as a delimiter).
+-                oss << Broodwar->mapFileName() << delim;
++                oss << ZZZKBotPersistence::escapeHistoryField(Broodwar->mapName()) << delim;
++                oss << ZZZKBotPersistence::escapeHistoryField(Broodwar->mapFileName()) << delim;
+                 oss << Broodwar->mapHash() << delim;
+                 oss << Broodwar->mapWidth() << delim;
+                 oss << Broodwar->mapHeight() << delim;
+@@ -5721,9 +5716,7 @@ void ZZZKBotAIModule::onPlayerLeft(BWAPI::Player player)
+         oss << delim;
+ 
+         oss << player->getID() << delim;
+-        // TODO: player names may contain unusual characters, so sanitize by stripping or replacing them
+-        // (esp. tabs because I use tab as a delimiter).
+-        oss << player->getName() << delim;
++        oss << ZZZKBotPersistence::escapeHistoryField(player->getName()) << delim;
+ 
+         oss << endOfUpdateSentinel << delim;
+ 

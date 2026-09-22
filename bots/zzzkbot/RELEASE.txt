@@ -1,0 +1,56 @@
+ZZZKBot 1.9.1.0.0 - ShieldBattery package sb.1
+
+Original bot: ZZZKBot by Chris Coxe
+Copyright 2019 Chris Coxe. https://github.com/chriscoxe/ZZZKBot
+Upstream source: 7183e37b6b416ea53c1040c83e639a3a3c395eed
+BWAPI 4.4.0 source: 7687da8abc4726f8366401f11ab648d421385793
+Package maintainer: ShieldBattery (https://shieldbattery.net)
+This is a modified build; upstream authors have not endorsed this package.
+
+Modified by ShieldBattery on 2026-09-21:
+- ZZZKBot: encode player names used in storage filenames and protect record
+  delimiters. See source/patches/zzzkbot and the changed source file notices.
+- BWAPI: select the match's discovery table using SB_BWAPI_INSTANCE, rejecting
+  malformed identifiers. See source/patches/bwapi/instance-discovery.patch.
+- Build a standalone 32-bit external client using the ShieldBattery host.
+No intentional build-order or strategic changes are included.
+The SSCAIT rating in the catalog is an upstream observation, not a measurement
+of this modified build or a calibrated human ShieldBattery rating.
+
+Licenses and corresponding source
+
+This executable uses ZZZKBot and BWAPI under GNU LGPL version 3; ZZZKBot also
+permits any later version. The GNU GPL version 3 and LGPL version 3 texts are
+included here. Preserve original notices in the source files. The ShieldBattery
+host is MIT-licensed; its complete copyright and license notice is included.
+
+The complete applied source used by this executable, local patches, and CMake
+build recipe are included in this same download under source/. See
+source/BUILD.md for instructions to rebuild, modify, or relink either library.
+No additional source download or payment is required. Microsoft Visual Studio
+C++ tools, the Windows SDK, and CMake are build prerequisites, not bundled source.
+This source delivery supplies the Minimal Corresponding Source and Corresponding
+Application Code for LGPLv3 section 4(d)(0). You may modify these components and
+reverse engineer the combined work to debug those modifications. The source
+licenses govern those rights; catalog signature checks do not restrict your
+ability to run a modified build through ShieldBattery's local-bot import.
+
+Source and patch hashes and the recipe revision are recorded in package.json
+and source/build-info.json. Release archives are versioned at:
+https://github.com/ShieldBattery/robotics-facility/releases
+
+Saved data
+
+The bot reads optional configuration from work/bwapi-data/AI and stores opponent
+history under work/bwapi-data/read and work/bwapi-data/write. The launcher must
+provide a separate writable working copy for each simultaneous instance. Reset
+both history folders to the empty packaged baseline to reset learning. Keep the
+AI configuration folder intact. Compatible bot updates may retain this history.
+The process is not sandboxed; source review does not create an OS security boundary.
+
+Experimental compatibility
+
+Use a Zerg slot in a 1v1 legacy-limit melee game with ShieldBattery's experimental
+BWAPI 4.4 bridge. This is a staging release, not full BWAPI API conformance. The
+current game bridge is available in debug builds. Public competition eligibility
+is separate and has not been approved for this package.

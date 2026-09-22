@@ -11,7 +11,9 @@
     "sources": "node tools/fetch-sources.mjs",
     "prepare-source": "node tools/prepare-source.mjs",
     "publish:staging": "node tools/publish.mjs staging",
-    "publish:production": "node tools/publish.mjs production"
+    "publish:production": "node tools/publish.mjs production",
+    "build:zzzkbot": "node tools/build-zzzkbot.mjs",
+    "package:zzzkbot": "node tools/package-zzzkbot.mjs"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1136.0",
