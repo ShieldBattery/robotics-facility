@@ -18,6 +18,7 @@ permissions:
 jobs:
   publish:
     uses: ./.github/workflows/publish.yml
+    secrets: inherit
     with:
       environment: production
       revision: ${{ inputs.revision }}
