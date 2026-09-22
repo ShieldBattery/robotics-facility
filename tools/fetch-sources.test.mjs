@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, symlink, unlink, writeFile } from '
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
+import { pathToFileURL } from 'node:url'
 
 import { SourceFetchError, fetchSources, parseArguments } from './fetch-sources.mjs'
 
@@ -78,6 +79,25 @@ async function withFixture(callback) {
   }
 }
 
+async function withCanonicalOrigin(root, upstream, callback) {
+  const configPath = path.join(root, 'gitconfig')
+  const previousConfig = process.env.GIT_CONFIG_GLOBAL
+  await writeFile(
+    configPath,
+    `[url ${JSON.stringify(pathToFileURL(upstream).href)}]\n\tinsteadOf = https://github.com/bwapi/bwapi.git\n`,
+  )
+  process.env.GIT_CONFIG_GLOBAL = configPath
+  try {
+    await callback()
+  } finally {
+    if (previousConfig === undefined) {
+      delete process.env.GIT_CONFIG_GLOBAL
+    } else {
+      process.env.GIT_CONFIG_GLOBAL = previousConfig
+    }
+  }
+}
+
 test('fetches a pinned source from a local clone and records its canonical origin', async () => {
   await withFixture(async ({ root, research, firstRevision }) => {
     await writeLock(root, firstRevision)
@@ -88,11 +108,50 @@ test('fetches a pinned source from a local clone and records its canonical origi
     assert.deepEqual(result, { fetched: ['bwapi'], reused: [] })
     assert.equal(await git(['-C', destination, 'rev-parse', 'HEAD']), firstRevision)
     assert.equal(
-      await git(['-C', destination, 'remote', 'get-url', 'origin']),
+      await git(['-C', destination, 'config', '--get', 'remote.origin.url']),
       'https://github.com/bwapi/bwapi.git',
     )
     assert.equal((await stat(destination)).isDirectory(), true)
     assert.equal(await readFile(path.join(research, 'README.md'), 'utf8'), 'second revision\n')
+  })
+})
+
+test('fetches an unadvertised pinned commit from the canonical origin without changing its seed', async () => {
+  await withFixture(async ({ root, research, secondRevision }) => {
+    const seed = path.join(root, 'seed')
+    const upstream = path.join(root, 'upstream.git')
+    await git(['clone', '--no-hardlinks', research, seed])
+    await git(['clone', '--bare', research, upstream])
+    await git(['-C', upstream, 'config', 'core.logAllRefUpdates', 'true'])
+    await git(['-C', upstream, 'config', 'uploadpack.allowAnySHA1InWant', 'true'])
+
+    await writeFile(path.join(research, 'README.md'), 'unadvertised revision\n')
+    await git(['-C', research, 'commit', '-am', 'unadvertised'])
+    const pinnedRevision = await git(['-C', research, 'rev-parse', 'HEAD'])
+    await git(['-C', research, 'push', upstream, 'HEAD:refs/hidden/pin'])
+    await git(['-C', research, 'push', upstream, ':refs/hidden/pin'])
+    assert.doesNotMatch(await git(['-C', upstream, 'show-ref']), new RegExp(pinnedRevision))
+
+    await writeLock(root, pinnedRevision)
+    await withCanonicalOrigin(root, upstream, async () => {
+      const result = await fetchSources({ rootDir: root, from: new Map([['bwapi', seed]]) })
+      const destination = path.join(root, '.sources', 'bwapi')
+
+      assert.deepEqual(result, { fetched: ['bwapi'], reused: [] })
+      assert.equal(await git(['-C', destination, 'rev-parse', 'HEAD']), pinnedRevision)
+      assert.equal(
+        await git(['-C', destination, 'config', '--get', 'remote.origin.url']),
+        'https://github.com/bwapi/bwapi.git',
+      )
+      assert.doesNotMatch(await git(['-C', destination, 'show-ref']), new RegExp(pinnedRevision))
+      assert.deepEqual(
+        await fetchSources({ rootDir: root, from: new Map([['bwapi', seed]]) }),
+        { fetched: [], reused: ['bwapi'] },
+      )
+    })
+
+    assert.equal(await git(['-C', seed, 'rev-parse', 'HEAD']), secondRevision)
+    assert.equal(await git(['-C', seed, 'status', '--porcelain=v1', '--untracked-files=all']), '')
   })
 })
 

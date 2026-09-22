@@ -271,7 +271,7 @@ export async function inspectExistingDestination(destination, source) {
   try {
     status = await runGit(['-C', destination, 'status', '--porcelain=v1', '--untracked-files=all'])
     head = await runGit(['-C', destination, 'rev-parse', 'HEAD'])
-    origin = await runGit(['-C', destination, 'remote', 'get-url', 'origin'])
+    origin = await runGit(['-C', destination, 'config', '--get', 'remote.origin.url'])
   } catch (error) {
     throw new SourceFetchError(
       `Existing source '${source.id}' is not an acceptable pinned checkout at ${destination}: ${error.message}`,
@@ -326,10 +326,15 @@ async function cloneSource(source, destination, cloneInput) {
   try {
     await runGit(['clone', '--no-checkout', '--no-hardlinks', cloneInput, destination])
     await runGit(['-C', destination, 'remote', 'set-url', 'origin', source.repository])
+    try {
+      await runGit(['-C', destination, 'cat-file', '--exists', `${source.revision}^{commit}`])
+    } catch {
+      await runGit(['-C', destination, 'fetch', '--no-tags', 'origin', source.revision])
+    }
     await runGit(['-C', destination, 'checkout', '--detach', source.revision])
     const [head, origin] = await Promise.all([
       runGit(['-C', destination, 'rev-parse', 'HEAD']),
-      runGit(['-C', destination, 'remote', 'get-url', 'origin']),
+      runGit(['-C', destination, 'config', '--get', 'remote.origin.url']),
     ])
     if (head !== source.revision || origin !== source.repository) {
       throw new SourceFetchError(
