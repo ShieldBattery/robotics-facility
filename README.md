@@ -81,5 +81,5 @@ without editing `.sources/`.
 
 [GitHub deployment configuration](docs/github-deployment.md) lists the staging and
 production environment secrets and variables. Both targets reuse ShieldBattery's
-existing Spaces buckets under `public/robotics-facility/`; contributors do not need
+existing Spaces buckets under `robotics-facility/`; contributors do not need
 their own bucket or upload credentials.

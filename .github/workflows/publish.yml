@@ -117,7 +117,7 @@ jobs:
           STAGING_PUBLIC_BASE_URL: ${{ vars.STAGING_PUBLIC_BASE_URL }}
           STAGING_CATALOG_KEY_ID: ${{ vars.STAGING_CATALOG_KEY_ID }}
           STAGING_CATALOG_PUBLIC_KEY: ${{ vars.STAGING_CATALOG_PUBLIC_KEY }}
-          PUBLISH_PREFIX: public/robotics-facility
+          PUBLISH_PREFIX: robotics-facility
         shell: bash
         run: |
           if [ "$PUBLISH_TARGET" = production ]; then

@@ -115,11 +115,11 @@ Development app builds default to one shared staging catalog; production release
 default to a separate production catalog. Developers only need public HTTPS read
 access and do not configure personal Spaces buckets or upload credentials. Keep
 publishing credentials in the publishing workflow. Reuse ShieldBattery's existing
-staging and production Spaces buckets, each under `public/robotics-facility/`.
+staging and production Spaces buckets, each under `robotics-facility/`.
 The proposed catalog URLs follow the existing CDN hosts:
 
-- Staging: `https://staging-cdn.shieldbattery.net/public/robotics-facility/catalog.json`
-- Production: `https://cdn.shieldbattery.net/public/robotics-facility/catalog.json`
+- Staging: `https://staging-cdn.shieldbattery.net/robotics-facility/catalog.json`
+- Production: `https://cdn.shieldbattery.net/robotics-facility/catalog.json`
 
 These are publication targets, not already uploaded catalogs. Exact bucket names
 and S3 API endpoints come from the corresponding deployment configuration, not from
@@ -179,7 +179,7 @@ and end-to-end verification.
 ## Hosting and publication
 
 Use the existing staging/production ShieldBattery Spaces buckets under the dedicated
-`public/robotics-facility/` prefix for the small catalog and immutable package archives.
+`robotics-facility/` prefix for the small catalog and immutable package archives.
 GitHub releases can be a mirror or a build artifact source. The client uses HTTPS artifact URLs and hashes, not a dependency on GitHub's
 release API or a particular storage provider. No bucket or repository publication
 is needed to validate local metadata, source retrieval, or builds.

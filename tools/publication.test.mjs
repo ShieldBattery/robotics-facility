@@ -16,8 +16,8 @@ import {
 import { objectKey } from './publication-store.mjs'
 import { parsePublishArgs } from './publish.mjs'
 
-const stagingBase = 'https://staging.example.test/public/robotics-facility/'
-const productionBase = 'https://prod.example.test/public/robotics-facility/'
+const stagingBase = 'https://staging.example.test/robotics-facility/'
+const productionBase = 'https://prod.example.test/robotics-facility/'
 function keys(keyId = 'test-key') {
   const pair = generateKeyPairSync('ed25519')
   return {
@@ -339,7 +339,7 @@ test('production copies exact staged ZIP bytes and requires staged content-addre
 })
 
 test('object keys, URLs, and workflow input parsing constrain publication targets', () => {
-  assert.equal(objectKey('catalog.json'), 'public/robotics-facility/catalog.json')
+  assert.equal(objectKey('catalog.json'), 'robotics-facility/catalog.json')
   for (const key of [
     '../catalog.json',
     '/catalog.json',
@@ -350,8 +350,10 @@ test('object keys, URLs, and workflow input parsing constrain publication target
     assert.throws(() => objectKey(key))
   for (const value of ['0', '-1', '1e3', '9007199254740992', '1;echo hi'])
     assert.throws(() => revision(value))
-  assert.throws(() => baseUrl('http://example.test/public/robotics-facility/'))
+  assert.throws(() => baseUrl('http://example.test/robotics-facility/'))
   assert.throws(() => baseUrl('https://example.test/'))
+  assert.throws(() => baseUrl('https://example.test/public/robotics-facility/'))
+  assert.equal(baseUrl(stagingBase), stagingBase)
   assert.equal(
     parsePublishArgs(['prepare', 'production', '--revision', '2', '--staging-revision', '1'])
       .prepare,

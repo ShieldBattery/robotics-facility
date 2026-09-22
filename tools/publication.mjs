@@ -2,7 +2,7 @@ import { createPrivateKey, createPublicKey, sign, verify } from 'node:crypto'
 import { validate } from './validate.mjs'
 import { ARCHIVE_LIMIT, JSON_LIMIT, sha256, verifyArchive } from './publication-archive.mjs'
 
-export const PREFIX = 'public/robotics-facility/'
+export const PREFIX = 'robotics-facility/'
 export function revision(value) {
   if (!/^[1-9][0-9]*$/.test(String(value)) || !Number.isSafeInteger(Number(value)))
     throw new Error('Revision must be a positive safe integer')
@@ -25,8 +25,8 @@ export function httpsUrl(value) {
 }
 export function baseUrl(value) {
   const url = httpsUrl(value)
-  if (url.search || !url.pathname.endsWith(`/${PREFIX}`))
-    throw new Error(`Public base URL must end with /${PREFIX}`)
+  if (url.search || url.pathname !== `/${PREFIX}`)
+    throw new Error(`Public base URL path must be /${PREFIX}`)
   return url.href
 }
 function channelName(channel) {
