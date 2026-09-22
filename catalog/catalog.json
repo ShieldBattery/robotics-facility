@@ -1,5 +1,179 @@
 {
   "schemaVersion": 1,
   "revision": 0,
-  "bots": []
+  "bots": [
+    {
+      "bot": {
+        "id": "zzzkbot",
+        "name": "ZZZKBot",
+        "description": "A Zerg opponent with persistent learning.",
+        "authors": [
+          {
+            "name": "Chris Coxe"
+          }
+        ],
+        "homepage": "https://github.com/chriscoxe/ZZZKBot",
+        "sourceUrl": "https://github.com/chriscoxe/ZZZKBot",
+        "playStyleTags": [],
+        "humanSkill": "uncalibrated",
+        "externalRatings": [
+          {
+            "provider": "SSCAIT",
+            "entry": "Chris Coxe",
+            "rating": 2631,
+            "observedOn": "2026-09-21",
+            "ratedVersion": null,
+            "sourceUrl": "https://sscaitournament.com/index.php?action=scores",
+            "notes": "User-supplied saved standings; exact rated build and server measurement date unknown. Not a rating for this pinned source build."
+          }
+        ]
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "zzzkbot",
+            "releaseId": "zzzkbot-sb-1",
+            "version": "1.9.1.0.0-sb.1",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86"
+            },
+            "runtime": {
+              "kind": "native"
+            },
+            "launch": {
+              "entrypoint": "bin/ZZZKBotClient.exe",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "zerg"
+              ],
+              "randomRace": "unsupported",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "verified",
+                  "notes": "Pinned sb.1 client won a complete local x64 match; x86 instance/sync smoke verified. https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "persistent",
+                "notes": "Per-opponent history in bwapi-data/read and write under an isolated working profile. Encodes unsafe names; reset both folders to the empty baseline. Preserve compatible history across updates."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "bwapi",
+                "repository": "https://github.com/bwapi/bwapi.git",
+                "revision": "7687da8abc4726f8366401f11ab648d421385793",
+                "patches": [
+                  {
+                    "path": "patches/bwapi/instance-discovery.patch",
+                    "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+                  }
+                ]
+              },
+              {
+                "id": "zzzkbot",
+                "repository": "https://github.com/chriscoxe/ZZZKBot.git",
+                "revision": "7183e37b6b416ea53c1040c83e639a3a3c395eed",
+                "patches": [
+                  {
+                    "path": "patches/zzzkbot/0001-encode-persistence-names.patch",
+                    "sha256": "2802cc9b666a95a5dbd6314f0c123bf5614da93d33a8dbe6bed05e46bce8e9f6"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "LGPL-3.0-or-later (ZZZKBot)",
+                "noticePath": "notices/ZZZKBot-LICENSE.txt"
+              },
+              {
+                "name": "GPL-3.0 license text",
+                "noticePath": "notices/GPL-3.0.txt"
+              },
+              {
+                "name": "LGPL-3.0 license text",
+                "noticePath": "notices/LGPL-3.0.txt"
+              },
+              {
+                "name": "LGPL-3.0 (BWAPI)",
+                "noticePath": "notices/BWAPI-LICENSE.txt"
+              },
+              {
+                "name": "BSD-3-Clause (smallsha1)",
+                "noticePath": "notices/SMALLSHA1-LICENSE.txt"
+              },
+              {
+                "name": "MIT (ShieldBattery host)",
+                "noticePath": "notices/ShieldBattery-MIT.txt"
+              },
+              {
+                "name": "Attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "LGPL source/relink materials and complete LGPL/GPL/MIT/BSD notices included in this staging package. https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
+            },
+            "writableDirectories": [
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "9e53ceaa09c55f00618548f1c74ab362fc091645",
+                "patches": []
+              },
+              "recipePath": "native/CMakeLists.txt",
+              "toolchain": "{\"cmake\":\"cmake version 3.31.0\\n\\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\",\"generator\":\"Visual Studio 17 2022\",\"architecture\":\"Win32\",\"configuration\":\"Release\",\"msvcRuntime\":\"static\",\"compiler\":\"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x86/cl.exe\",\"compilerId\":\"MSVC\",\"compilerVersion\":\"19.43.34810.0\",\"windowsSdkVersion\":\"10.0.26100.0\"}"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/zzzkbot-sb-1/zzzkbot-sb-1.zip",
+            "sha256": "d581da5fbc409bdc9d7cb7259f3ede0b62535d8bc6832c74ac3d1d62128a0ffb",
+            "sizeBytes": 1420964,
+            "manifestSha256": "8e3060e283b2a4f905899d7fcbb2644b379e94796e904c3b3c9e7d3c20bbe26a",
+            "format": "zip"
+          }
+        }
+      ]
+    }
+  ]
 }
