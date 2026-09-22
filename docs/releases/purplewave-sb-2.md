@@ -44,4 +44,19 @@ An observer session `615723de-50a3-4581-9383-93bfe27a249d` also verified code-0 
 exit after a win: the hidden client dismissed its finished game normally, native
 results arrived, and the session ended successfully while the observer remained.
 
-The sb.2 update and visible disclosure are checked after staging publication.
+## Staging publication and update
+
+[Staging revision 5](https://github.com/ShieldBattery/robotics-facility/actions/runs/35712665770)
+and Windows/Linux validation both passed. Independent readback verified the
+configured Ed25519 key against `catalog.json`, `catalogs/5.json`, and
+`published/5.json`; the CDN ZIP matched the local artifact byte for byte.
+The current catalog requests revalidation; immutable revisions and artifacts keep
+long cache lifetimes. Production promotion was not run.
+
+The real app refreshed revision 5 and updated the installed sb.1 to sb.2 with no
+install errors. Saved learning data remained present. Its detail panel displayed
+both modification summaries and the License action opened the original licenses
+and modified-build notice. The UI emitted a duplicate-key warning because it keys
+modification records only by modifier/date; the bot and dependency records share
+both values. This UI issue is recorded in ShieldBattery's Java integration handoff.
+All owned test games and Java processes were stopped.
