@@ -32,7 +32,7 @@
       {
         "id": "one-v-one",
         "support": "verified",
-        "notes": "Java 21 x64 client won a complete local x64 match; x86 instance/sync smoke verified. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-1/docs/releases/purplewave-sb-1.md"
+        "notes": "Java 21 x64 client won a complete local x64 match; x86 instance/sync smoke verified. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
       },
       {
         "id": "teams",
@@ -62,7 +62,7 @@
   "permissions": {
     "localDistribution": {
       "status": "approved",
-      "evidence": "Pinned source and dependency licenses reviewed; original notices, downstream changes, patched source, and build inputs included. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-1/docs/releases/purplewave-sb-1.md"
+      "evidence": "Pinned source and dependency licenses reviewed; original notices, downstream changes, patched source, and build inputs included. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -78,7 +78,7 @@
       "x86",
       "x86_64"
     ],
-    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-1/docs/releases/purplewave-sb-1.md",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md",
     "limitations": [
       "Experimental partial BWAPI semantics.",
       "Only Protoss is offered initially; other races and formats remain unverified."
@@ -87,11 +87,11 @@
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "6a93089b7ac0bba136ab0a2f897b8a033aa506d1",
+    "revision": "bac6f6b1c26a9b99e06c22b08f311561ee35321b",
     "instructions": "bots/purplewave/BUILD.md"
   },
   "sourceReview": {
     "status": "approved",
-    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-1/docs/releases/purplewave-sb-1.md"
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
   }
 }
