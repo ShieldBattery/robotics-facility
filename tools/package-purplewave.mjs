@@ -182,7 +182,12 @@ export async function packagePurpleWave({
     releaseId,
     version: '2026.09.22-sb.1',
     platform: { os: 'windows', architecture: 'x86_64' },
-    runtime: { kind: 'java', major: 21, architecture: 'x86_64' },
+    runtime: {
+      kind: 'java',
+      major: 21,
+      architecture: 'x86_64',
+      jvmArguments: ['-Xms128m', '-Xmx1024m'],
+    },
     launch: { entrypoint: 'bin/PurpleWave.jar', arguments: [], workingDirectory: 'work' },
     profile: candidate.profile,
     bwapi: { version: '4.4.0', protocol: 10003, minimumBridgeVersion: '1' },

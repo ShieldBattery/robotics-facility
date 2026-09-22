@@ -22,3 +22,7 @@ are never edited. Recipe inputs must be committed before building.
 This build uses Scala 2.12.20 and JNA 5.18.1 on Java 21 rather than the upstream
 Scala 2.12.18/JNA 5.1.0/32-bit Java 8 recipe. Commons Lang remains 3.8.1.
 It uses a fixed, quiet configuration with no visualizer or chat mode.
+
+The runtime requests `-Xms128m -Xmx1024m` before `-jar` to bound the heap without
+reserving a gigabyte at startup. These are JVM arguments; the bot has no
+application arguments. JNA and the JVM also use memory outside the Java heap.

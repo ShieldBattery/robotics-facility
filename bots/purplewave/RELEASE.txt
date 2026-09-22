@@ -10,6 +10,7 @@ Changes dated 2026-09-22:
 - Encode opponent filenames and history cells; disable visualizer auto-launch.
 - Adapt String line iteration for Java 21.
 - Isolate JBWAPI discovery using SB_BWAPI_INSTANCE.
+- Bound the Java heap to 1024 MiB, starting at 128 MiB.
 - Build with Scala 2.12.20, JNA 5.18.1, and x64 Java 21; keep runtime jars separate.
 
 The package includes PurpleWave, JBWAPI/Java BWEM, JBWEB, JavaJPS, mjson, Scala,

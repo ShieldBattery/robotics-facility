@@ -416,6 +416,13 @@
             },
             "architecture": {
               "enum": ["x86", "x86_64"]
+            },
+            "jvmArguments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Arguments passed to Java before -jar; launch.arguments are passed to the bot afterward."
             }
           },
           "required": ["kind", "major", "architecture"]
