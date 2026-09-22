@@ -3,7 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { validate, validateRepository } from './validate.mjs'
 
-test('checked-in source lock, candidates, and empty catalog validate', () => {
+test('checked-in source lock, candidates, and catalog validate', () => {
   assert.equal(validateRepository(), 2)
 })
 test('unknown schema versions and catalog fields are rejected', () => {
@@ -136,4 +136,42 @@ test('catalog validates a complete release and rejects invalid publication', () 
   bad((r, c) => {
     c.bots[0].releases.push(structuredClone(r))
   })
+})
+
+test('play-style vocabulary is enforced for candidates and published catalog entries', () => {
+  const candidate = JSON.parse(
+    readFileSync(new URL('../bots/zzzkbot/bot.json', import.meta.url), 'utf8'),
+  )
+  const catalog = JSON.parse(
+    readFileSync(new URL('../catalog/catalog.json', import.meta.url), 'utf8'),
+  )
+  const schema = JSON.parse(
+    readFileSync(new URL('../schemas/metadata.schema.json', import.meta.url), 'utf8'),
+  )
+  const tags = schema.$defs.bot.properties.playStyleTags.items.enum
+  assert.ok(tags.length > 0)
+  assert.equal(new Set(tags).size, tags.length)
+  for (const [kind, fixture, identity] of [
+    ['candidate', candidate, candidate.bot],
+    ['catalog', catalog, catalog.bots[0].bot],
+  ]) {
+    for (const allowed of [[], ['cheese', 'bio'], ...tags.map((tag) => [tag])]) {
+      identity.playStyleTags = allowed
+      assert.doesNotThrow(() => validate(kind, fixture))
+    }
+    for (const rejected of [
+      ['invented-strategy'],
+      ['rush'],
+      ['Cheese'],
+      ['cheese', 'cheese'],
+      ['cheese', 'learns'],
+      ['cheese', 'terran'],
+      ['beginner-friendly'],
+      [null],
+      'cheese',
+    ]) {
+      identity.playStyleTags = rejected
+      assert.throws(() => validate(kind, fixture), /playStyleTags/)
+    }
+  }
 })

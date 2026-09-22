@@ -14,7 +14,7 @@
         ],
         "homepage": "https://github.com/chriscoxe/ZZZKBot",
         "sourceUrl": "https://github.com/chriscoxe/ZZZKBot",
-        "playStyleTags": [],
+        "playStyleTags": ["cheese"],
         "humanSkill": "uncalibrated",
         "externalRatings": [
           {
@@ -48,9 +48,7 @@
               "workingDirectory": "work"
             },
             "profile": {
-              "selectableRaces": [
-                "zerg"
-              ],
+              "selectableRaces": ["zerg"],
               "randomRace": "unsupported",
               "formats": [
                 {
@@ -69,9 +67,7 @@
                   "notes": "Not tested."
                 }
               ],
-              "mapConstraints": [
-                "Legacy SC:R unit limits required by the experimental bridge."
-              ],
+              "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
               "learning": {
                 "mode": "persistent",
                 "notes": "Per-opponent history in bwapi-data/read and write under an isolated working profile. Encodes unsafe names; reset both folders to the empty baseline. Preserve compatible history across updates."
@@ -150,10 +146,7 @@
               "status": "approved",
               "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/zzzkbot-sb-1/docs/releases/zzzkbot-sb-1.md"
             },
-            "writableDirectories": [
-              "work/bwapi-data/read",
-              "work/bwapi-data/write"
-            ],
+            "writableDirectories": ["work/bwapi-data/read", "work/bwapi-data/write"],
             "build": {
               "recipeSource": {
                 "id": "robotics-facility",

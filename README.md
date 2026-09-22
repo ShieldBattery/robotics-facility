@@ -86,3 +86,6 @@ without editing `.sources/`.
 production environment secrets and variables. Both targets reuse ShieldBattery's
 existing Spaces buckets under `robotics-facility/`; contributors do not need
 their own bucket or upload credentials.
+
+[Play-style tags](docs/play-style-tags.md) documents the standard IDs and the
+localization contract for ShieldBattery.

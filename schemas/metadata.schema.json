@@ -87,9 +87,24 @@
           "type": "array",
           "items": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*$"
+            "enum": [
+              "cheese",
+              "timing-attack",
+              "macro",
+              "defensive",
+              "aggressive",
+              "harassment",
+              "micro-heavy",
+              "drops",
+              "air-focused",
+              "bio",
+              "mech",
+              "varied-openings",
+              "reactive"
+            ]
           },
-          "minItems": 0
+          "minItems": 0,
+          "uniqueItems": true
         },
         "humanSkill": {
           "enum": ["uncalibrated"]
