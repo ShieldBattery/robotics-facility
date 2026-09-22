@@ -74,7 +74,7 @@
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "f84805d2712a28c90c1041e7bf7a7361601daea8",
+    "revision": "1c474e91a07cd3a848ec3c3dc0cbe57c9736ec0d",
     "instructions": "bots/purplewave/BUILD.md"
   },
   "sourceReview": {

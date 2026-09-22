@@ -47,7 +47,7 @@
       "patches": [
         {
           "path": "patches/jbwapi/instance-discovery.patch",
-          "sha256": "e468b4f99e764c75f949c88e35a89775808f4565549bc54a71777d0cbb1f450d"
+          "sha256": "82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1"
         }
       ]
     },
