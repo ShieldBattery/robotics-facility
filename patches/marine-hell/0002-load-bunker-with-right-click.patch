@@ -1,4 +1,5 @@
-﻿diff --git a/src/TestBot1.java b/src/TestBot1.java
+diff --git a/src/TestBot1.java b/src/TestBot1.java
+index 95312e1..fd8b08e 100644
 --- a/src/TestBot1.java
 +++ b/src/TestBot1.java
 @@ -291,7 +291,7 @@ public class TestBot1 extends DefaultBWListener {

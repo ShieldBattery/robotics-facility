@@ -85,7 +85,7 @@
         },
         {
           "path": "patches/marine-hell/0002-load-bunker-with-right-click.patch",
-          "sha256": "be34abf0a690cd025c32eda894b45af461c1e6ab29b893d7e55cb536b241bcfc"
+          "sha256": "8f38bd8e7cc9f96320321abdb582b5210ea2f15b6c1a24d119581c60e102ebfe"
         }
       ]
     }
