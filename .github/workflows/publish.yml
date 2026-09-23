@@ -54,6 +54,15 @@ jobs:
       - name: Install checked dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Check generated metadata types
+        run: pnpm check:metadata
+
+      - name: Typecheck tooling
+        run: pnpm typecheck
+
+      - name: Lint and check formatting
+        run: pnpm lint
+
       - name: Validate catalog metadata
         run: pnpm validate
 
@@ -96,10 +105,10 @@ jobs:
         shell: bash
         run: |
           if [ "$PUBLISH_TARGET" = production ]; then
-            node tools/publish.mjs prepare production --revision "$PUBLISH_REVISION" --staging-revision "$PUBLISH_STAGING_REVISION"
+            node tools/publish.ts prepare production --revision "$PUBLISH_REVISION" --staging-revision "$PUBLISH_STAGING_REVISION"
             exit 0
           fi
-          node tools/publish.mjs prepare staging --revision "$PUBLISH_REVISION"
+          node tools/publish.ts prepare staging --revision "$PUBLISH_REVISION"
       - name: Publish the signed catalog
         env:
           PUBLISH_TARGET: ${{ inputs.environment }}
@@ -121,6 +130,6 @@ jobs:
         shell: bash
         run: |
           if [ "$PUBLISH_TARGET" = production ]; then
-            exec node tools/publish.mjs production --revision "$PUBLISH_REVISION" --staging-revision "$PUBLISH_STAGING_REVISION"
+            exec node tools/publish.ts production --revision "$PUBLISH_REVISION" --staging-revision "$PUBLISH_STAGING_REVISION"
           fi
-          exec node tools/publish.mjs staging --revision "$PUBLISH_REVISION"
+          exec node tools/publish.ts staging --revision "$PUBLISH_REVISION"

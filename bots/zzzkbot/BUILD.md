@@ -7,13 +7,13 @@ not require a separately installed Visual C++ redistributable.
 
 ## Build from this repository
 
-Use Node.js 24+, pnpm, and Git:
+Use Node.js 24.12+, pnpm, and Git:
 
 ```powershell
 pnpm install --frozen-lockfile --ignore-scripts
 pnpm sources
-node tools/build-zzzkbot.mjs zzzkbot-release
-node tools/package-zzzkbot.mjs .build/zzzkbot-release zzzkbot-sb-1
+node tools/build-zzzkbot.ts zzzkbot-release
+node tools/package-zzzkbot.ts .build/zzzkbot-release zzzkbot-sb-1
 ```
 
 The build directory must not exist. The builder prepares independent copies of
@@ -45,3 +45,7 @@ No StarCraft game files, maps, or learned opponent data are distributed here.
 The ZIP encoder uses stable ordering, timestamps, and permissions. The source
 pins and patches make build inputs reproducible; byte-identical native output
 across toolchain versions or checkout paths is not promised.
+
+Use the recipe revision recorded in a published package when reproducing that release.
+The TypeScript recipes on `main` require a fresh build directory and a new release ID;
+older `.mjs` build records and published archives are not rewritten by this migration.

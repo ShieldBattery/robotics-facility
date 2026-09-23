@@ -52,7 +52,7 @@ prefixes through workflow inputs.
 ## Publication boundary
 
 Before a publish step receives credentials, the workflow installs dependencies without
-lifecycle scripts and runs `publish.mjs prepare`. Preparation validates the catalog,
+lifecycle scripts and runs `publish.ts prepare`. Preparation validates the catalog,
 downloads and verifies every package archive, and for production verifies the signed,
 immutable staging catalog and exact promoted bytes. It writes the verified bundle to
 `.build/publication`. The following step receives upload and signing credentials, then

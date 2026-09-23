@@ -6,12 +6,12 @@ so the package does not require a separately installed Visual C++ redistributabl
 
 ## Build from this repository
 
-Use Node.js 24+, pnpm, and Git:
+Use Node.js 24.12+, pnpm, and Git:
 
     pnpm install --frozen-lockfile --ignore-scripts
     pnpm sources
-    node tools/build-ualbertabot.mjs ualbertabot-release
-    node tools/package-ualbertabot.mjs .build/ualbertabot-release ualbertabot-sb-1 --review
+    node tools/build-ualbertabot.ts ualbertabot-release
+    node tools/package-ualbertabot.ts .build/ualbertabot-release ualbertabot-sb-1 --review
 
 The build directory must not exist. The builder prepares independent copies of
 the pinned BWAPI and UAlbertaBot source trees, applies ordered hashed patches,
@@ -40,3 +40,7 @@ maps, or opponent data.
 The ZIP encoder uses stable ordering, timestamps, and permissions. The source
 pins, patches, and build record make the inputs reproducible; byte-identical
 output across toolchain versions or checkout paths is not promised.
+
+Use the recipe revision recorded in a published package when reproducing that release.
+The TypeScript recipes on `main` require a fresh build directory and a new release ID;
+older `.mjs` build records and published archives are not rewritten by this migration.

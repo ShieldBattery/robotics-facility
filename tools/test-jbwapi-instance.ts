@@ -7,26 +7,26 @@ import process from 'node:process'
 const executableSuffix = process.platform === 'win32' ? '.exe' : ''
 
 function usage() {
-  return 'Usage: node tools/test-jbwapi-instance.mjs <prepared-source> [java-home]'
+  return 'Usage: node tools/test-jbwapi-instance.ts <prepared-source> [java-home]'
 }
 
-function run(command, args) {
-  return new Promise((resolve, reject) => {
+function run(command: string, args: string[]): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     const child = spawn(command, args, { shell: false, windowsHide: true })
     let stdout = ''
     let stderr = ''
     child.stdout.setEncoding('utf8')
     child.stderr.setEncoding('utf8')
-    child.stdout.on('data', (data) => {
+    child.stdout.on('data', data => {
       stdout += data
     })
-    child.stderr.on('data', (data) => {
+    child.stderr.on('data', data => {
       stderr += data
     })
-    child.on('error', (error) => {
+    child.on('error', error => {
       reject(new Error('Could not start ' + command + ': ' + error.message, { cause: error }))
     })
-    child.on('close', (code) => {
+    child.on('close', code => {
       if (code === 0) {
         resolve(stdout)
       } else {
@@ -103,7 +103,7 @@ final class GameTableMappingNameTest {
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error.message)
   process.exitCode = 1
 })

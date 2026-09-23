@@ -1,19 +1,22 @@
+import type { Catalog } from './metadata.ts'
+export type CatalogRelease = Catalog['bots'][number]['releases'][number]
 import { createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import yauzl from 'yauzl'
 
 export const ARCHIVE_LIMIT = 128 * 1024 * 1024
 export const JSON_LIMIT = 8 * 1024 * 1024
-export const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
+export const sha256 = (bytes: string | Uint8Array) =>
+  createHash('sha256').update(bytes).digest('hex')
 
-export function archivePath(name) {
+export function archivePath(name: string) {
   const clean = name.endsWith('/') ? name.slice(0, -1) : name
   if (
     !clean ||
     clean
       .split('/')
       .some(
-        (p) =>
+        p =>
           !/^[A-Za-z0-9_ .-]+$/.test(p) ||
           p === '.' ||
           p === '..' ||
@@ -32,7 +35,7 @@ const crcTable = Array.from({ length: 256 }, (_, i) => {
   return n >>> 0
 })
 
-export async function verifyArchive(bytes, release) {
+export async function verifyArchive(bytes: Buffer, release: CatalogRelease): Promise<void> {
   const { artifact, package: pkg } = release
   if (
     bytes.length > ARCHIVE_LIMIT ||
@@ -41,24 +44,25 @@ export async function verifyArchive(bytes, release) {
   ) {
     throw new Error('Archive size or SHA-256 mismatch')
   }
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     yauzl.fromBuffer(
       bytes,
       { lazyEntries: true, strictFileNames: true, validateEntrySizes: true },
       (error, zip) => {
         if (error) return reject(error)
+        if (!zip) return reject(new Error('Could not open ZIP'))
         let failed = false,
           expanded = 0,
           count = 0,
-          manifest
-        const entries = new Map()
-        const fail = (err) => {
+          manifest: Buffer | undefined
+        const entries = new Map<string, { directory: boolean; original: string }>()
+        const fail = (err: unknown) => {
           failed = true
           zip.close()
-          reject(err)
+          reject(err instanceof Error ? err : new Error(String(err), { cause: err }))
         }
         zip.on('error', fail)
-        zip.on('entry', (entry) => {
+        zip.on('entry', entry => {
           if (failed) return
           try {
             const directory = entry.fileName.endsWith('/')
@@ -86,11 +90,12 @@ export async function verifyArchive(bytes, release) {
             }
             zip.openReadStream(entry, (err, stream) => {
               if (err) return fail(err)
+              if (!stream) return fail(new Error('Could not open ZIP entry'))
               let length = 0,
                 crc = 0xffffffff
-              const chunks = []
+              const chunks: Buffer[] = []
               stream.on('error', fail)
-              stream.on('data', (chunk) => {
+              stream.on('data', (chunk: Buffer) => {
                 length += chunk.length
                 if (length > entry.uncompressedSize) {
                   stream.destroy(new Error('ZIP entry size mismatch'))
@@ -126,11 +131,11 @@ export async function verifyArchive(bytes, release) {
             if (
               !manifest ||
               sha256(manifest) !== artifact.manifestSha256 ||
-              !isDeepStrictEqual(JSON.parse(manifest), pkg)
+              !isDeepStrictEqual(JSON.parse(manifest.toString('utf8')), pkg)
             ) {
               throw new Error('Package descriptor missing or does not match catalog')
             }
-            const requireFile = (name) => {
+            const requireFile = (name: string) => {
               if (entries.get(archivePath(name))?.directory !== false)
                 throw new Error(`Required package file missing: ${name}`)
             }
@@ -140,7 +145,7 @@ export async function verifyArchive(bytes, release) {
               const dir = archivePath(pkg.launch.workingDirectory)
               if (
                 !entries.get(dir)?.directory &&
-                ![...entries.keys()].some((p) => p.startsWith(`${dir}/`))
+                ![...entries.keys()].some(p => p.startsWith(`${dir}/`))
               )
                 throw new Error('Working directory missing')
             }

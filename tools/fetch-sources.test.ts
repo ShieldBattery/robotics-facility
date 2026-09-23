@@ -6,23 +6,23 @@ import path from 'node:path'
 import test from 'node:test'
 import { pathToFileURL } from 'node:url'
 
-import { SourceFetchError, fetchSources, parseArguments } from './fetch-sources.mjs'
+import { fetchSources, parseArguments, SourceFetchError } from './fetch-sources.ts'
 
-function git(args, cwd) {
+function git(args: readonly string[], cwd?: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn('git', args, { cwd, shell: false, windowsHide: true })
     let stdout = ''
     let stderr = ''
     child.stdout.setEncoding('utf8')
     child.stderr.setEncoding('utf8')
-    child.stdout.on('data', (data) => {
+    child.stdout.on('data', (data: string) => {
       stdout += data
     })
-    child.stderr.on('data', (data) => {
+    child.stderr.on('data', (data: string) => {
       stderr += data
     })
     child.on('error', reject)
-    child.on('close', (code) => {
+    child.on('close', code => {
       if (code === 0) {
         resolve(stdout.trim())
       } else {
@@ -48,7 +48,7 @@ async function makeFixture() {
   return { root, research, firstRevision, secondRevision }
 }
 
-async function writeLock(root, revision, source = {}) {
+async function writeLock(root: string, revision: string, source: Record<string, unknown> = {}) {
   await writeFile(
     path.join(root, 'source-lock.json'),
     `${JSON.stringify({
@@ -65,7 +65,9 @@ async function writeLock(root, revision, source = {}) {
   )
 }
 
-async function withFixture(callback) {
+async function withFixture(
+  callback: (fixture: Awaited<ReturnType<typeof makeFixture>>) => Promise<void>,
+): Promise<void> {
   const fixture = await makeFixture()
   try {
     await callback(fixture)
@@ -79,7 +81,11 @@ async function withFixture(callback) {
   }
 }
 
-async function withCanonicalOrigin(root, upstream, callback) {
+async function withCanonicalOrigin(
+  root: string,
+  upstream: string,
+  callback: () => Promise<void>,
+): Promise<void> {
   const configPath = path.join(root, 'gitconfig')
   const previousConfig = process.env.GIT_CONFIG_GLOBAL
   await writeFile(
@@ -98,7 +104,7 @@ async function withCanonicalOrigin(root, upstream, callback) {
   }
 }
 
-test('fetches a pinned source from a local clone and records its canonical origin', async () => {
+await test('fetches a pinned source from a local clone and records its canonical origin', async () => {
   await withFixture(async ({ root, research, firstRevision }) => {
     await writeLock(root, firstRevision)
 
@@ -116,7 +122,7 @@ test('fetches a pinned source from a local clone and records its canonical origi
   })
 })
 
-test('fetches an unadvertised pinned commit from the canonical origin without changing its seed', async () => {
+await test('fetches an unadvertised pinned commit from the canonical origin without changing its seed', async () => {
   await withFixture(async ({ root, research, secondRevision }) => {
     const seed = path.join(root, 'seed')
     const upstream = path.join(root, 'upstream.git')
@@ -144,10 +150,10 @@ test('fetches an unadvertised pinned commit from the canonical origin without ch
         'https://github.com/bwapi/bwapi.git',
       )
       assert.doesNotMatch(await git(['-C', destination, 'show-ref']), new RegExp(pinnedRevision))
-      assert.deepEqual(
-        await fetchSources({ rootDir: root, from: new Map([['bwapi', seed]]) }),
-        { fetched: [], reused: ['bwapi'] },
-      )
+      assert.deepEqual(await fetchSources({ rootDir: root, from: new Map([['bwapi', seed]]) }), {
+        fetched: [],
+        reused: ['bwapi'],
+      })
     })
 
     assert.equal(await git(['-C', seed, 'rev-parse', 'HEAD']), secondRevision)
@@ -155,7 +161,7 @@ test('fetches an unadvertised pinned commit from the canonical origin without ch
   })
 })
 
-test('refuses an existing dirty checkout and a clean checkout at another revision', async () => {
+await test('refuses an existing dirty checkout and a clean checkout at another revision', async () => {
   await withFixture(async ({ root, research, firstRevision, secondRevision }) => {
     await writeLock(root, firstRevision)
     await fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) })
@@ -164,19 +170,19 @@ test('refuses an existing dirty checkout and a clean checkout at another revisio
     await writeFile(path.join(destination, 'untracked-local-edit.txt'), 'local edit\n')
     await assert.rejects(
       fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) }),
-      (error) => error instanceof SourceFetchError && /dirty/.test(error.message),
+      error => error instanceof SourceFetchError && /dirty/.test(error.message),
     )
 
     await unlink(path.join(destination, 'untracked-local-edit.txt'))
     await git(['-C', destination, 'checkout', '--detach', secondRevision])
     await assert.rejects(
       fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) }),
-      (error) => error instanceof SourceFetchError && /not locked revision/.test(error.message),
+      error => error instanceof SourceFetchError && /not locked revision/.test(error.message),
     )
   })
 })
 
-test('rejects an escaping source id before creating .sources', async () => {
+await test('rejects an escaping source id before creating .sources', async () => {
   await withFixture(async ({ root, firstRevision }) => {
     await writeLock(root, firstRevision, { id: '../escape' })
 
@@ -185,7 +191,7 @@ test('rejects an escaping source id before creating .sources', async () => {
   })
 })
 
-test('refuses an existing checkout whose origin is not the canonical lock repository', async () => {
+await test('refuses an existing checkout whose origin is not the canonical lock repository', async () => {
   await withFixture(async ({ root, research, firstRevision }) => {
     await writeLock(root, firstRevision)
     await fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) })
@@ -194,12 +200,12 @@ test('refuses an existing checkout whose origin is not the canonical lock reposi
 
     await assert.rejects(
       fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) }),
-      (error) => error instanceof SourceFetchError && /canonical repository/.test(error.message),
+      error => error instanceof SourceFetchError && /canonical repository/.test(error.message),
     )
   })
 })
 
-test('reuses a clean, pinned source checkout without changing it', async () => {
+await test('reuses a clean, pinned source checkout without changing it', async () => {
   await withFixture(async ({ root, research, firstRevision }) => {
     await writeLock(root, firstRevision)
     await fetchSources({ rootDir: root, from: new Map([['bwapi', research]]) })
@@ -210,7 +216,7 @@ test('reuses a clean, pinned source checkout without changing it', async () => {
   })
 })
 
-test('rejects malformed and unknown --from overrides before any clone', async () => {
+await test('rejects malformed and unknown --from overrides before any clone', async () => {
   assert.throws(() => parseArguments(['--unknown']), /Unknown or malformed argument/)
   assert.throws(() => parseArguments(['--from']), /requires id=absolute-local-repo-path/)
   assert.throws(
@@ -228,7 +234,7 @@ test('rejects malformed and unknown --from overrides before any clone', async ()
   })
 })
 
-test('rejects .sources and source destinations that are symbolic links or junctions', async () => {
+await test('rejects .sources and source destinations that are symbolic links or junctions', async () => {
   await withFixture(async ({ root, firstRevision }) => {
     await writeLock(root, firstRevision)
     const externalSources = path.join(root, 'external-sources')
@@ -252,7 +258,7 @@ test('rejects .sources and source destinations that are symbolic links or juncti
   })
 })
 
-test('requires at least one safe source id', async () => {
+await test('requires at least one safe source id', async () => {
   await withFixture(async ({ root, firstRevision }) => {
     await writeFile(
       path.join(root, 'source-lock.json'),

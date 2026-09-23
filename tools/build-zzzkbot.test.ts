@@ -5,7 +5,7 @@ import {
   parseBuildArguments,
   validateOutputName,
   validateProvenanceRecord,
-} from './build-zzzkbot.mjs'
+} from './build-zzzkbot.ts'
 
 const source = {
   id: 'bwapi',
@@ -29,12 +29,12 @@ const validState = {
   untracked: '',
 }
 
-test('accepts a new safe output directory name', () => {
+await test('accepts a new safe output directory name', () => {
   assert.equal(validateOutputName('zzzkbot-release-1'), 'zzzkbot-release-1')
   assert.equal(parseBuildArguments(['zzzkbot-release-1']), 'zzzkbot-release-1')
 })
 
-test('rejects existing-tree escape and Windows device names in output names', () => {
+await test('rejects existing-tree escape and Windows device names in output names', () => {
   for (const name of ['', '../escape', 'nested/path', 'CON', 'zzzkbot release']) {
     assert.throws(() => validateOutputName(name), /safe directory name/)
   }
@@ -42,7 +42,7 @@ test('rejects existing-tree escape and Windows device names in output names', ()
   assert.throws(() => parseBuildArguments(['one', 'two']), /Usage/)
 })
 
-test('requires the prepared index tree and working tree to match provenance', () => {
+await test('requires the prepared index tree and working tree to match provenance', () => {
   assert.doesNotThrow(() => validateProvenanceRecord(validState))
   assert.throws(
     () => validateProvenanceRecord({ ...validState, indexTree: 'f'.repeat(40) }),
@@ -58,13 +58,23 @@ test('requires the prepared index tree and working tree to match provenance', ()
   )
 })
 
-test('records a package-relative executable and exact prepared trees', () => {
+await test('records a package-relative executable and exact prepared trees', () => {
   const info = makeBuildInfo({
     recipeRevision: 'b'.repeat(40),
     recipeSha256: 'd'.repeat(64),
     executable: 'bin/ZZZKBotClient.exe',
     executableSha256: 'c'.repeat(64),
-    toolchain: { generator: 'Visual Studio 17 2022' },
+    toolchain: {
+      cmake: 'cmake version 3',
+      generator: 'Visual Studio 17 2022',
+      architecture: 'Win32',
+      configuration: 'Release',
+      msvcRuntime: 'static',
+      compiler: 'cl',
+      compilerId: 'MSVC',
+      compilerVersion: '19',
+      windowsSdkVersion: '10',
+    },
     sources: [{ directory: 'sources/bwapi', tree: validProvenance.tree, source }],
   })
   assert.deepEqual(info, {
@@ -73,7 +83,17 @@ test('records a package-relative executable and exact prepared trees', () => {
     recipeSha256: 'd'.repeat(64),
     executable: 'bin/ZZZKBotClient.exe',
     executableSha256: 'c'.repeat(64),
-    toolchain: { generator: 'Visual Studio 17 2022' },
+    toolchain: {
+      cmake: 'cmake version 3',
+      generator: 'Visual Studio 17 2022',
+      architecture: 'Win32',
+      configuration: 'Release',
+      msvcRuntime: 'static',
+      compiler: 'cl',
+      compilerId: 'MSVC',
+      compilerVersion: '19',
+      windowsSdkVersion: '10',
+    },
     sources: [
       {
         id: 'bwapi',

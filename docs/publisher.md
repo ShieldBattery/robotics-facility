@@ -8,12 +8,12 @@ catalog deliberately fails publication. Synthetic packages exist only in tests.
 
 ## Two phases
 
-`node tools/publish.mjs prepare staging --revision 1` validates the catalog and ZIPs
+`node tools/publish.ts prepare staging --revision 1` validates the catalog and ZIPs
 without upload/signing secrets. It writes a new `.build/publication/` workspace, with
 `bundle.json` written last. It refuses an existing workspace. Preparation is expected
 to run on a fresh Actions checkout; inspect/remove local failed workspaces explicitly.
 
-`node tools/publish.mjs staging --revision 1` consumes that workspace, rechecks
+`node tools/publish.ts staging --revision 1` consumes that workspace, rechecks
 metadata and file hashes, signs the catalog, and uploads it. Do not put untrusted
 steps between preparation and publication. The workspace is trusted same-job state,
 not a portable signed release bundle or an arbitrary user-supplied upload directory.

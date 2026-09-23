@@ -1,27 +1,28 @@
-import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import yauzl from 'yauzl'
-import { indexedFiles, makeArchive } from './package-zzzkbot.mjs'
-import { sha256, verifyArchive } from './publication-archive.mjs'
-import { validate } from './validate.mjs'
-import { recipePaths } from './build-purplewave.mjs'
+import { type DependencyLock, type PurpleWaveBuildInfo, recipePaths } from './build-purplewave.ts'
+import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
+import { type ArchiveEntry, indexedFiles, makeArchive } from './package-zzzkbot.ts'
+import { sha256, verifyArchive } from './publication-archive.ts'
+import { validate } from './validate.ts'
 
-const json = async (file) => JSON.parse(await readFile(file, 'utf8'))
-const git = (root, ...args) =>
+const json = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, 'utf8')) as T
+const git = (root: string, ...args: string[]) =>
   execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim()
 
 // Runtime jars are hash-verified before this reader extracts their original legal notices.
-export function jarNotices(bytes) {
-  return new Promise((resolve, reject) => {
+export function jarNotices(bytes: Buffer): Promise<ArchiveEntry[]> {
+  return new Promise<ArchiveEntry[]>((resolve, reject) => {
     yauzl.fromBuffer(bytes, { lazyEntries: true }, (error, zip) => {
       if (error) return reject(error)
-      const notices = []
+      const notices: ArchiveEntry[] = []
       zip.on('error', reject)
       zip.on('end', () => resolve(notices))
-      zip.on('entry', (entry) => {
+      zip.on('entry', entry => {
         if (!/^(META-INF\/)?(LICENSE|NOTICE)(\.txt)?$/i.test(entry.fileName)) {
           zip.readEntry()
           return
@@ -37,9 +38,9 @@ export function jarNotices(bytes) {
             reject(err)
             return
           }
-          const chunks = []
+          const chunks: Buffer[] = []
           stream.on('error', reject)
-          stream.on('data', (chunk) => chunks.push(chunk))
+          stream.on('data', (chunk: Buffer) => chunks.push(chunk))
           stream.on('end', () => {
             notices.push([entry.fileName.replaceAll('/', '-'), Buffer.concat(chunks)])
             zip.readEntry()
@@ -56,24 +57,29 @@ export async function packagePurpleWave({
   buildDirectory,
   releaseId,
   review = false,
+}: {
+  root?: string
+  buildDirectory: string
+  releaseId: string
+  review?: boolean
 }) {
   const revision = /^purplewave-sb-([1-9][0-9]*)$/.exec(releaseId)?.[1]
   if (!revision) throw new Error('Invalid PurpleWave release ID')
   const build = path.resolve(root, buildDirectory)
-  const info = await json(path.join(build, 'build-info.json'))
-  const candidate = await json(path.join(root, 'bots/purplewave/bot.json'))
+  const info = await json<PurpleWaveBuildInfo>(path.join(build, 'build-info.json'))
+  const candidate = await json<Candidate>(path.join(root, 'bots/purplewave/bot.json'))
   if (
     !review &&
     (candidate.sourceReview.status !== 'approved' ||
       candidate.permissions.localDistribution.status !== 'approved')
   )
     throw new Error('Source and distribution review must be approved before packaging')
-  const lock = await json(path.join(root, 'source-lock.json'))
-  const dependencies = await json(path.join(root, 'jvm/dependencies.json'))
-  const entries = [],
-    licenses = [],
-    sources = []
-  const addNotice = (name, noticePath, bytes) => {
+  const lock = await json<SourceLock>(path.join(root, 'source-lock.json'))
+  const dependencies = await json<DependencyLock>(path.join(root, 'jvm/dependencies.json'))
+  const entries: ArchiveEntry[] = []
+  const licenses: Package['licenses'] = []
+  const sources: Source[] = []
+  const addNotice = (name: string, noticePath: string, bytes: Buffer) => {
     entries.push([noticePath, bytes])
     licenses.push({ name, noticePath })
   }
@@ -85,9 +91,9 @@ export async function packagePurpleWave({
       throw new Error(`Build file changed: ${file.path}`)
     entries.push([file.path, bytes])
   }
-  if (!info.files.some((file) => file.path === 'bin/PurpleWave.jar'))
+  if (!info.files.some(file => file.path === 'bin/PurpleWave.jar'))
     throw new Error('Missing bot JAR')
-  for (const dependency of dependencies.artifacts.filter((d) => d.runtime)) {
+  for (const dependency of dependencies.artifacts.filter(d => d.runtime)) {
     const bytes = entries.find(([name]) => name === `bin/lib/${dependency.name}`)?.[1]
     if (!bytes || bytes.length !== dependency.sizeBytes || sha256(bytes) !== dependency.sha256)
       throw new Error(`Runtime dependency changed: ${dependency.name}`)
@@ -119,12 +125,17 @@ export async function packagePurpleWave({
     javajps: [['MIT - JavaJPS, including Kevin Sheehan attribution', 'README.md']],
     mjson: [['Apache-2.0 - mjson', 'LICENSE.txt']],
   }
-  for (const [id, prefixes] of Object.entries(inventories)) {
-    const source = lock.sources.find((s) => s.id === id)
-    const input = info.sources.find((s) => s.id === id)
+  for (const [id, prefixes] of Object.entries(inventories) as [
+    keyof typeof inventories,
+    string[],
+  ][]) {
+    const source = lock.sources.find(s => s.id === id)
+    const input = info.sources.find(s => s.id === id)
     if (!source || !input) throw new Error(`Missing source: ${id}`)
     const directory = path.resolve(build, input.directory)
-    const provenance = await json(path.join(directory, '.git/robotics-source.json'))
+    const provenance = await json<{ source: Source; tree: string }>(
+      path.join(directory, '.git/robotics-source.json'),
+    )
     if (
       JSON.stringify(provenance.source) !== JSON.stringify(source) ||
       provenance.tree !== input.tree ||
@@ -181,8 +192,11 @@ export async function packagePurpleWave({
     'work/bwapi-data/AI/PurpleWaveShieldBattery.config.json',
     await readFile(path.join(root, 'bots/purplewave/PurpleWaveShieldBattery.config.json')),
   ])
-  entries.push(['work/bwapi-data/AI/revision.txt', Buffer.from(`${sources[0].revision}-sb-${revision}\n`)])
-  const pkg = {
+  entries.push([
+    'work/bwapi-data/AI/revision.txt',
+    Buffer.from(`${sources[0].revision}-sb-${revision}\n`),
+  ])
+  const pkg: Package = {
     schemaVersion: 1,
     botId: 'purplewave',
     releaseId,
@@ -203,13 +217,15 @@ export async function packagePurpleWave({
       {
         modifier: 'ShieldBattery',
         date: '2026-09-22',
-        summary: 'Isolated saved state, encoded opponent filenames and history, disabled visualizer auto-launch, and adapted the build for Java 21.',
+        summary:
+          'Isolated saved state, encoded opponent filenames and history, disabled visualizer auto-launch, and adapted the build for Java 21.',
         scope: 'bot',
       },
       {
         modifier: 'ShieldBattery',
         date: '2026-09-22',
-        summary: 'Patched JBWAPI instance discovery and updated the Scala/JNA runtime dependencies. Original dependency notices and patched source are included.',
+        summary:
+          'Patched JBWAPI instance discovery and updated the Scala/JNA runtime dependencies. Original dependency notices and patched source are included.',
         scope: 'dependency',
       },
     ],
@@ -225,7 +241,7 @@ export async function packagePurpleWave({
         revision: info.recipeRevision,
         patches: [],
       },
-      recipePath: 'tools/build-purplewave.mjs',
+      recipePath: 'tools/build-purplewave.ts',
       toolchain: JSON.stringify(info.toolchain),
     },
   }
@@ -234,18 +250,16 @@ export async function packagePurpleWave({
   entries.push(['package.json', manifest])
   const bytes = await makeArchive(entries),
     file = `${releaseId}.zip`
-  const release = {
-    package: pkg,
-    artifact: {
-      url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
-      sha256: sha256(bytes),
-      sizeBytes: bytes.length,
-      manifestSha256: sha256(manifest),
-      format: 'zip',
-    },
+  const artifact: Artifact = {
+    url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
+    sha256: sha256(bytes),
+    sizeBytes: bytes.length,
+    manifestSha256: sha256(manifest),
+    format: 'zip',
   }
+  const release = { package: pkg, artifact }
   await verifyArchive(bytes, release)
-  const catalog = {
+  const catalog: Catalog = {
     schemaVersion: 1,
     revision: 0,
     bots: [{ bot: candidate.bot, releases: [release] }],
@@ -269,11 +283,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const [buildDirectory, releaseId, ...rest] = process.argv.slice(2)
   if (!buildDirectory || !releaseId || rest.length > 1 || (rest.length && rest[0] !== '--review'))
     throw new Error(
-      'Usage: node tools/package-purplewave.mjs <build-directory> <release-id> [--review]',
+      'Usage: node tools/package-purplewave.ts <build-directory> <release-id> [--review]',
     )
   packagePurpleWave({ buildDirectory, releaseId, review: rest[0] === '--review' })
     .then(console.log)
-    .catch((error) => {
+    .catch(error => {
       console.error(error)
       process.exitCode = 1
     })

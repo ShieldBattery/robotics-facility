@@ -13,7 +13,7 @@
         "repository": {
           "type": "string",
           "pattern": "^https://[^\\s]+$",
-          "description": "Canonical HTTPS Git URL ending in .git, without credentials, query, or fragment; tools/validate.mjs also enforces URL semantics."
+          "description": "Canonical HTTPS Git URL ending in .git, without credentials, query, or fragment; tools/validate.ts also enforces URL semantics."
         },
         "revision": {
           "type": "string",

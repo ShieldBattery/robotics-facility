@@ -22,7 +22,7 @@ resolves to commit `3c493c1642b1555d541755e0984c968ba6c0f540`. The
 `097eee0a217d07a7b298a0e9e725313884582275a2ec95e01c7c7168d1b087de`.
 The package's `licenses` list records the new notice.
 
-[The repack script](../../tools/repackage-purplewave-notices.mjs) verifies the
+[The repack script](https://github.com/ShieldBattery/robotics-facility/blob/d5e2d77a89b2a850a55117bc096f16ea7877b47e/tools/repackage-purplewave-notices.mjs) verifies the
 exact sb.3 ZIP and catalog, changes only a fixed allowlist, validates the
 package schema and both archives, and reads back the sb.4 ZIP entry by entry.
 An independent ZIP comparison found 1,120 original entries: 1,117 unchanged,

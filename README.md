@@ -31,15 +31,24 @@ not an automatic release approval.
 
 ## Working locally
 
-Requires Node.js 24+, pnpm, and Git. Native builds additionally require Visual Studio
+Requires Node.js 24.12+, pnpm 11.18, and Git. Native builds additionally require Visual Studio
 C++ tools and CMake as described in the ShieldBattery build instructions.
 
 ```powershell
 pnpm install --frozen-lockfile
+pnpm check:metadata
+pnpm typecheck
+pnpm lint
 pnpm validate
 pnpm test
 pnpm sources
 ```
+
+The tooling is strict TypeScript executed directly by Node.js. Run `pnpm lint:fix` to
+apply the shared ShieldBattery import and formatting conventions. Type stripping does not
+check types; `pnpm typecheck` is a separate required check. Metadata types are generated
+from the runtime JSON Schema with `pnpm gen:metadata`; CI rejects stale generated output.
+See [tooling maintenance](tools/README.md) for module boundaries and build-recipe compatibility.
 
 `pnpm sources` clones each exact `source-lock.json` commit into `.sources/<id>`.
 Sources are independent ignored checkouts, not submodules or vendored source trees.
@@ -52,7 +61,7 @@ needs them. Fetching a pin is not proof of a reproducible or license-complete bu
 Existing local research clones can seed the checkouts without another download:
 
 ```powershell
-node tools/fetch-sources.mjs --from bwapi=C:\path\to\bwapi --from zzzkbot=C:\path\to\ZZZKBot --from ualbertabot=C:\path\to\ualbertabot
+node tools/fetch-sources.ts --from bwapi=C:\path\to\bwapi --from zzzkbot=C:\path\to\ZZZKBot --from ualbertabot=C:\path\to\ualbertabot
 ```
 
 The tool does not modify the seed repositories. The canonical upstream remains in

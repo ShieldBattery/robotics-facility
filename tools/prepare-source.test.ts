@@ -1,13 +1,17 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdtemp, mkdir, readFile, writeFile, rm, lstat, symlink } from 'node:fs/promises'
+import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { prepareSource, provenanceName } from './prepare-source.mjs'
-import { runGit, validateSourceLock } from './fetch-sources.mjs'
+import test from 'node:test'
+import type { TestContext } from 'node:test'
+import { runGit, validateSourceLock } from './fetch-sources.ts'
+import type { Source } from './metadata.ts'
 
-const diff = (before, after) =>
+type FixtureSource = Source & { patches: NonNullable<Source['patches']> }
+import { prepareSource, provenanceName } from './prepare-source.ts'
+
+const diff = (before: string, after: string): Buffer =>
   Buffer.from(`diff --git a/data.txt b/data.txt
 --- a/data.txt
 +++ b/data.txt
@@ -16,7 +20,7 @@ const diff = (before, after) =>
 +${after}
 `)
 
-async function fixture(t) {
+async function fixture(t: TestContext) {
   const root = await mkdtemp(path.join(tmpdir(), 'robotics-patches-'))
   t.after(async () => {
     const relative = path.relative(path.resolve(tmpdir()), path.resolve(root))
@@ -45,7 +49,7 @@ async function fixture(t) {
   const revision = await runGit(['-C', src, 'rev-parse', 'HEAD'])
   const repository = 'https://example.test/bot.git'
   await runGit(['-C', src, 'remote', 'add', 'origin', repository])
-  const source = { id: 'bot', repository, revision, patches: [] }
+  const source: FixtureSource = { id: 'bot', repository, revision, patches: [] }
   const save = () =>
     writeFile(
       path.join(root, 'source-lock.json'),
@@ -53,7 +57,7 @@ async function fixture(t) {
     )
   await save()
   await mkdir(path.join(root, 'patches', 'bot'), { recursive: true })
-  const patch = async (name, bytes) => {
+  const patch = async (name: string, bytes: Uint8Array) => {
     const relative = `patches/bot/${name}.patch`
     await writeFile(path.join(root, relative), bytes)
     source.patches.push({
@@ -67,7 +71,7 @@ async function fixture(t) {
   return { root, src, source, save, patch, prepare }
 }
 
-test('applies patches in order and records the resulting tree without modifying upstream', async (t) => {
+await test('applies patches in order and records the resulting tree without modifying upstream', async t => {
   const f = await fixture(t)
   await f.patch('001-first', diff('alpha', 'beta'))
   await f.patch('002-second', diff('beta', 'gamma'))
@@ -78,12 +82,13 @@ test('applies patches in order and records the resulting tree without modifying 
   assert.equal(await runGit(['-C', f.src, 'status', '--porcelain']), '')
   assert.equal(await runGit(['-C', out, 'rev-parse', 'HEAD']), f.source.revision)
   assert.equal(await runGit(['-C', out, 'show', `${record.tree}:data.txt`]), 'gamma')
-  assert.deepEqual(JSON.parse(await readFile(path.join(out, provenanceName), 'utf8')), record)
+  const provenance: unknown = JSON.parse(await readFile(path.join(out, provenanceName), 'utf8'))
+  assert.deepEqual(provenance, record)
   assert.deepEqual(record.source.patches, f.source.patches)
   await assert.rejects(f.prepare(), /already exists/)
 })
 
-test('rejects mismatched hashes and wrong base before creating output', async (t) => {
+await test('rejects mismatched hashes and wrong base before creating output', async t => {
   const f = await fixture(t)
   await f.patch('change', diff('alpha', 'beta'))
   const file = path.join(f.root, f.source.patches[0].path)
@@ -96,7 +101,7 @@ test('rejects mismatched hashes and wrong base before creating output', async (t
   await assert.rejects(f.prepare(), /not locked revision/)
 })
 
-test('a nonapplicable patch leaves no success marker', async (t) => {
+await test('a nonapplicable patch leaves no success marker', async t => {
   const f = await fixture(t)
   await f.patch('wrong-context', diff('absent', 'beta'))
   await assert.rejects(f.prepare(), /Preparation failed/)
@@ -106,7 +111,7 @@ test('a nonapplicable patch leaves no success marker', async (t) => {
   assert.equal(await readFile(path.join(f.src, 'data.txt'), 'utf8'), 'alpha\n')
 })
 
-test('refuses output escapes and linked ancestors', async (t) => {
+await test('refuses output escapes and linked ancestors', async t => {
   const f = await fixture(t)
   await assert.rejects(f.prepare('../escape'), /under .build/)
   await assert.rejects(f.prepare('.build'), /under .build/)
@@ -121,10 +126,13 @@ test('refuses output escapes and linked ancestors', async (t) => {
   await assert.rejects(f.prepare(), /symbolic link or junction/)
 })
 
-test('refuses unsafe patch paths, duplicates, and linked patch directories', async (t) => {
+await test('refuses unsafe patch paths, duplicates, and linked patch directories', async t => {
   const f = await fixture(t)
   await f.patch('change', diff('alpha', 'beta'))
-  const lock = (patches) => ({ schemaVersion: 1, sources: [{ ...f.source, patches }] })
+  const lock = (patches: Source['patches']) => ({
+    schemaVersion: 1,
+    sources: [{ ...f.source, patches }],
+  })
   assert.throws(() =>
     validateSourceLock(lock([{ ...f.source.patches[0], path: '../change.patch' }])),
   )
@@ -135,7 +143,7 @@ test('refuses unsafe patch paths, duplicates, and linked patch directories', asy
   await symlink(target, linkedDir, process.platform === 'win32' ? 'junction' : 'dir')
   // A source with a linked patch directory must be rejected before reading its bytes.
   await assert.rejects(
-    import('./prepare-source.mjs').then(({ readPatches }) =>
+    import('./prepare-source.ts').then(({ readPatches }) =>
       readPatches(f.root, {
         patches: [{ path: 'patches/linked/change.patch', sha256: 'a'.repeat(64) }],
       }),
@@ -144,7 +152,7 @@ test('refuses unsafe patch paths, duplicates, and linked patch directories', asy
   )
 })
 
-test('empty patch sets preserve the exact upstream tree', async (t) => {
+await test('empty patch sets preserve the exact upstream tree', async t => {
   const f = await fixture(t)
   const record = await f.prepare()
   assert.equal(record.tree, await runGit(['-C', f.src, 'rev-parse', 'HEAD^{tree}']))

@@ -1,11 +1,12 @@
-import { createHash } from 'node:crypto'
 import { spawn } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { lstat, readFile, realpath, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
-import { readSourceLock, runGit } from './fetch-sources.mjs'
-import { prepareSource, provenanceName } from './prepare-source.mjs'
+import { readSourceLock, runGit } from './fetch-sources.ts'
+import type { Source } from './metadata.ts'
+import { prepareSource, provenanceName } from './prepare-source.ts'
 
 const outputNamePattern = /^[a-z0-9][a-z0-9-]*$/
 const reservedWindowsDeviceNames = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/
@@ -16,8 +17,54 @@ const recipePaths = [
   'source-lock.json',
 ]
 const generator = 'Visual Studio 17 2022'
+export interface NativeToolchain {
+  cmake: string
+  generator: string
+  architecture: string
+  configuration: string
+  msvcRuntime: string
+  compiler: string
+  compilerId: string
+  compilerVersion: string
+  windowsSdkVersion: string
+}
+export interface BoostBuildRecord {
+  directory: string
+  archive: { name: string; url: string; sha256: string; sizeBytes: number }
+  files: { path: string; sha256: string; sizeBytes: number }[]
+  inventory: string
+  inventorySha256: string
+  headerCount: number
+  extractedBytes: number
+}
+export interface NativeBuildInfo {
+  schemaVersion: 1
+  recipeRevision: string
+  recipeSha256: string
+  executable: string
+  executableSha256: string
+  toolchain: NativeToolchain
+  sources: { id: string; directory: string; tree: string; source: Source }[]
+  dependencies?: { boost: BoostBuildRecord }
+}
+export interface NativeBuildOptions {
+  rootDir?: string
+  outputName: string
+  botId: 'zzzkbot' | 'ualbertabot' | 'opprimobot'
+  prepareDependencies?: (locations: { root: string; output: string }) => Promise<{
+    includeDir: string
+    verify(): Promise<{ boost: BoostBuildRecord }>
+  }>
+}
+type PreparedSource = { source: Source; directory: string; tree: string }
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
 
-export function validateOutputName(name) {
+export function validateOutputName(name: unknown) {
   if (
     typeof name !== 'string' ||
     !outputNamePattern.test(name) ||
@@ -28,8 +75,8 @@ export function validateOutputName(name) {
   return name
 }
 
-export function parseBuildArguments(args) {
-  if (args.length !== 1) throw new Error('Usage: node tools/build-zzzkbot.mjs <new-output-name>')
+export function parseBuildArguments(args: string[]) {
+  if (args.length !== 1) throw new Error('Usage: node tools/build-zzzkbot.ts <new-output-name>')
   return validateOutputName(args[0])
 }
 
@@ -40,8 +87,21 @@ export function validateProvenanceRecord({
   indexTree,
   unstaged,
   untracked,
+}: {
+  source: Source
+  provenance: unknown
+  head: string
+  indexTree: string
+  unstaged: string
+  untracked: string
 }) {
-  if (!provenance || provenance.schemaVersion !== 1 || !provenance.source || !provenance.tree) {
+  if (
+    !isRecord(provenance) ||
+    provenance.schemaVersion !== 1 ||
+    !provenance.source ||
+    typeof provenance.tree !== 'string' ||
+    !provenance.tree
+  ) {
     throw new Error(`Missing or invalid source provenance for ${source.id}`)
   }
   if (JSON.stringify(provenance.source) !== JSON.stringify(source)) {
@@ -57,25 +117,28 @@ export function validateProvenanceRecord({
   if (untracked) throw new Error(`Prepared ${source.id} has untracked files`)
 }
 
-async function assertMissingDirectory(directory) {
+async function assertMissingDirectory(directory: string) {
   try {
     await lstat(directory)
   } catch (error) {
-    if (error.code === 'ENOENT') return
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return
     throw error
   }
   throw new Error(`Build output already exists: ${directory}`)
 }
 
-async function sourceProvenance(source, directory) {
+async function sourceProvenance(source: Source, directory: string): Promise<PreparedSource> {
   const provenancePath = path.join(directory, provenanceName)
-  let provenance
+  let provenance: unknown
   try {
     provenance = JSON.parse(await readFile(provenancePath, 'utf8'))
   } catch (error) {
-    throw new Error(`Could not read source provenance at ${provenancePath}: ${error.message}`, {
-      cause: error,
-    })
+    throw new Error(
+      `Could not read source provenance at ${provenancePath}: ${errorMessage(error)}`,
+      {
+        cause: error,
+      },
+    )
   }
   const [head, indexTree, unstaged, untracked] = await Promise.all([
     runGit(['-C', directory, 'rev-parse', 'HEAD']),
@@ -87,26 +150,26 @@ async function sourceProvenance(source, directory) {
   return { directory, tree: indexTree, source }
 }
 
-async function run(command, args, options = {}) {
-  await new Promise((resolve, reject) => {
+async function run(command: string, args: string[], options: { cwd?: string } = {}) {
+  await new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: options.cwd,
       shell: false,
       stdio: 'inherit',
       windowsHide: true,
     })
-    child.on('error', (error) =>
-      reject(new Error(`Could not start ${command}: ${error.message}`, { cause: error })),
+    child.on('error', error =>
+      reject(new Error(`Could not start ${command}: ${errorMessage(error)}`, { cause: error })),
     )
-    child.on('close', (code) => {
+    child.on('close', code => {
       if (code === 0) resolve()
       else reject(new Error(`${command} exited with code ${code}`))
     })
   })
 }
 
-async function commandOutput(command, args, options = {}) {
-  return await new Promise((resolve, reject) => {
+async function commandOutput(command: string, args: string[], options: { cwd?: string } = {}) {
+  return await new Promise<string>((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: options.cwd,
       shell: false,
@@ -116,12 +179,12 @@ async function commandOutput(command, args, options = {}) {
     let stderr = ''
     child.stdout.setEncoding('utf8')
     child.stderr.setEncoding('utf8')
-    child.stdout.on('data', (data) => (stdout += data))
-    child.stderr.on('data', (data) => (stderr += data))
-    child.on('error', (error) =>
-      reject(new Error(`Could not start ${command}: ${error.message}`, { cause: error })),
+    child.stdout.on('data', data => (stdout += data))
+    child.stderr.on('data', data => (stderr += data))
+    child.on('error', error =>
+      reject(new Error(`Could not start ${command}: ${errorMessage(error)}`, { cause: error })),
     )
-    child.on('close', (code) => {
+    child.on('close', code => {
       if (code === 0) resolve(stdout.trim())
       else
         reject(new Error(`${command} exited with code ${code}: ${stderr.trim() || stdout.trim()}`))
@@ -129,13 +192,13 @@ async function commandOutput(command, args, options = {}) {
   })
 }
 
-async function sha256(file) {
+async function sha256(file: string) {
   return createHash('sha256')
     .update(await readFile(file))
     .digest('hex')
 }
 
-async function recipeProvenance(root, recipePaths) {
+async function recipeProvenance(root: string, recipePaths: readonly string[]) {
   const [revision, tracked, changed] = await Promise.all([
     runGit(['-C', root, 'rev-parse', 'HEAD']),
     runGit(['-C', root, 'ls-files', '--', ...recipePaths]),
@@ -144,7 +207,7 @@ async function recipeProvenance(root, recipePaths) {
   const trackedPaths = tracked ? tracked.split(/\r?\n/) : []
   if (
     trackedPaths.length !== recipePaths.length ||
-    recipePaths.some((file) => !trackedPaths.includes(file))
+    recipePaths.some(file => !trackedPaths.includes(file))
   ) {
     throw new Error('The build recipe and source-lock.json must be tracked before building')
   }
@@ -160,8 +223,8 @@ async function recipeProvenance(root, recipePaths) {
   return { revision, sha256: hash.digest('hex') }
 }
 
-async function readToolchain(cmakeDirectory) {
-  const fields = new Map()
+async function readToolchain(cmakeDirectory: string): Promise<NativeToolchain> {
+  const fields = new Map<string, string>()
   for (const line of (
     await readFile(path.join(cmakeDirectory, 'toolchain-info.txt'), 'utf8')
   ).split(/\r?\n/)) {
@@ -178,14 +241,14 @@ async function readToolchain(cmakeDirectory) {
     architecture: 'Win32',
     configuration: 'Release',
     msvcRuntime: 'static',
-    compiler: fields.get('compiler'),
-    compilerId: fields.get('compilerId'),
-    compilerVersion: fields.get('compilerVersion'),
-    windowsSdkVersion: fields.get('windowsSdkVersion'),
+    compiler: fields.get('compiler')!,
+    compilerId: fields.get('compilerId')!,
+    compilerVersion: fields.get('compilerVersion')!,
+    windowsSdkVersion: fields.get('windowsSdkVersion')!,
   }
 }
 
-function relativeToRoot(root, target) {
+function relativeToRoot(root: string, target: string) {
   const relative = path.relative(root, target)
   if (
     !relative ||
@@ -205,7 +268,14 @@ export function makeBuildInfo({
   executableSha256,
   toolchain,
   sources,
-}) {
+}: {
+  recipeRevision: string
+  recipeSha256: string
+  executable: string
+  executableSha256: string
+  toolchain: NativeToolchain
+  sources: PreparedSource[]
+}): NativeBuildInfo {
   return {
     schemaVersion: 1,
     recipeRevision,
@@ -228,9 +298,9 @@ export const opprimoRecipePaths = Object.freeze([
   'native/opprimobot-compat.hpp',
   'native/opprimobot-tests.cpp',
   'native/dependencies.json',
-  'tools/build-zzzkbot.mjs',
-  'tools/build-opprimobot.mjs',
-  'tools/package-opprimobot.mjs',
+  'tools/build-zzzkbot.ts',
+  'tools/build-opprimobot.ts',
+  'tools/package-opprimobot.ts',
   'bots/opprimobot/BUILD.md',
   'bots/opprimobot/RELEASE.txt',
   'bots/opprimobot/OPPRIMOBOT-MIT.txt',
@@ -242,10 +312,10 @@ export const ualbertaRecipePaths = Object.freeze([
   ...recipePaths,
   'native/ualbertabot.cmake',
   'native/ualberta-timer.hpp',
-  'tools/build-zzzkbot.mjs',
-  'tools/build-ualbertabot.mjs',
+  'tools/build-zzzkbot.ts',
+  'tools/build-ualbertabot.ts',
   'bots/ualbertabot/UAlbertaBot_Config.txt',
-  'tools/package-ualbertabot.mjs',
+  'tools/package-ualbertabot.ts',
   'bots/ualbertabot/BUILD.md',
   'bots/ualbertabot/RELEASE.txt',
   'bots/ualbertabot/UALBERTABOT-MIT.txt',
@@ -254,13 +324,16 @@ export const ualbertaRecipePaths = Object.freeze([
   'bots/ualbertabot/SMALLSHA1-LICENSE.txt',
 ])
 
-export function buildZzzkbot(options) {
+export function buildZzzkbot(options: Omit<NativeBuildOptions, 'botId' | 'prepareDependencies'>) {
   return buildNativeBot({ ...options, botId: 'zzzkbot' })
 }
 
 export async function buildNativeBot({
-  rootDir = process.cwd(), outputName, botId, prepareDependencies,
-}) {
+  rootDir = process.cwd(),
+  outputName,
+  botId,
+  prepareDependencies,
+}: NativeBuildOptions) {
   if (!['zzzkbot', 'ualbertabot', 'opprimobot'].includes(botId)) {
     throw new Error('Unsupported native bot')
   }
@@ -268,15 +341,15 @@ export async function buildNativeBot({
     throw new Error('OpprimoBot requires its verified Boost preparation step')
   }
   const sourceIds = botId === 'opprimobot' ? ['bwapi', 'bwta2', 'opprimobot'] : ['bwapi', botId]
-  const inputs = botId === 'opprimobot'
-    ? opprimoRecipePaths
-    : botId === 'ualbertabot' ? ualbertaRecipePaths : recipePaths
-  const target = botId === 'opprimobot'
-    ? 'OpprimoBot'
-    : botId === 'ualbertabot' ? 'UAlbertaBot' : 'ZZZKBotClient'
-  const sourceVariable = botId === 'ualbertabot'
-    ? 'UALBERTABOT'
-    : botId === 'opprimobot' ? 'OPPRIMOBOT' : 'ZZZKBOT'
+  let inputs: readonly string[] = recipePaths
+  if (botId === 'opprimobot') inputs = opprimoRecipePaths
+  else if (botId === 'ualbertabot') inputs = ualbertaRecipePaths
+  let target = 'ZZZKBotClient'
+  if (botId === 'opprimobot') target = 'OpprimoBot'
+  else if (botId === 'ualbertabot') target = 'UAlbertaBot'
+  let sourceVariable = 'ZZZKBOT'
+  if (botId === 'ualbertabot') sourceVariable = 'UALBERTABOT'
+  else if (botId === 'opprimobot') sourceVariable = 'OPPRIMOBOT'
 
   const root = await realpath(rootDir)
   const name = validateOutputName(outputName)
@@ -285,15 +358,15 @@ export async function buildNativeBot({
 
   const recipe = await recipeProvenance(root, inputs)
   const lock = await readSourceLock(root)
-  const selectedSources = sourceIds.map((id) => {
-    const source = lock.sources.find((candidate) => candidate.id === id)
+  const selectedSources = sourceIds.map(id => {
+    const source = lock.sources.find(candidate => candidate.id === id)
     if (!source) throw new Error(`source-lock.json is missing ${id}`)
     return source
   })
 
   const dependencies = prepareDependencies ? await prepareDependencies({ root, output }) : undefined
 
-  const prepared = []
+  const prepared: PreparedSource[] = []
   for (const source of selectedSources) {
     const directory = path.join(output, 'sources', source.id)
     await prepareSource({
@@ -319,10 +392,12 @@ export async function buildNativeBot({
     `-DSB_NATIVE_BOT=${botId}`,
     `-D${sourceVariable}_SOURCE_DIR=${path.join(output, 'sources', botId)}`,
     `-D${sourceVariable}_OUTPUT_DIR=${path.join(output, 'bin')}`,
-    ...(botId === 'opprimobot' ? [
-      `-DBWTA2_SOURCE_DIR=${path.join(output, 'sources', 'bwta2')}`,
-      `-DOPPRIMOBOT_BOOST_DIR=${dependencies.includeDir}`,
-    ] : []),
+    ...(botId === 'opprimobot'
+      ? [
+          `-DBWTA2_SOURCE_DIR=${path.join(output, 'sources', 'bwta2')}`,
+          `-DOPPRIMOBOT_BOOST_DIR=${dependencies!.includeDir}`,
+        ]
+      : []),
   ])
   await run('cmake', [
     '--build',
@@ -338,12 +413,14 @@ export async function buildNativeBot({
     const info = await lstat(executablePath)
     if (!info.isFile()) throw new Error('not a regular file')
   } catch (error) {
-    throw new Error(`CMake did not produce ${executablePath}: ${error.message}`, { cause: error })
+    throw new Error(`CMake did not produce ${executablePath}: ${errorMessage(error)}`, {
+      cause: error,
+    })
   }
 
   // CMake must not write into a source input. Re-read every invariant after compilation, not only
   // before it, so publication can trust the recorded index trees.
-  const verified = []
+  const verified: PreparedSource[] = []
   for (const preparedSource of prepared) {
     verified.push(await sourceProvenance(preparedSource.source, preparedSource.directory))
   }
@@ -357,7 +434,7 @@ export async function buildNativeBot({
     executable: relativeToRoot(output, executablePath),
     executableSha256: await sha256(executablePath),
     toolchain: await readToolchain(cmakeDirectory),
-    sources: verified.map((source) => ({
+    sources: verified.map(source => ({
       ...source,
       directory: relativeToRoot(output, source.directory),
     })),
@@ -378,14 +455,14 @@ if (isMain) {
   try {
     outputName = parseBuildArguments(process.argv.slice(2))
   } catch (error) {
-    console.error(error.message)
+    console.error(errorMessage(error))
     process.exitCode = 1
   }
   if (!process.exitCode) {
-    buildZzzkbot({ outputName })
+    buildZzzkbot({ outputName: outputName! })
       .then(({ output }) => console.log(`Built ZZZKBotClient in ${output}`))
-      .catch((error) => {
-        console.error(error.message)
+      .catch(error => {
+        console.error(errorMessage(error))
         process.exitCode = 1
       })
   }

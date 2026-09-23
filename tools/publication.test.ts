@@ -1,20 +1,24 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { generateKeyPairSync } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import test from 'node:test'
 import yazl from 'yazl'
-import { archivePath, sha256, verifyArchive } from './publication-archive.mjs'
+import type { Catalog, Package } from './metadata.ts'
+import type { CatalogRelease } from './publication-archive.ts'
+import { archivePath, sha256, verifyArchive } from './publication-archive.ts'
+import type { ObjectMetadata, PublicationStore } from './publication-store.ts'
+import { objectKey } from './publication-store.ts'
 import {
+  baseUrl,
   canonical,
   preparePublication,
   publishPrepared,
+  revision,
   signCatalog,
   verifyCatalog,
-  revision,
-  baseUrl,
-} from './publication.mjs'
-import { objectKey } from './publication-store.mjs'
-import { parsePublishArgs } from './publish.mjs'
+} from './publication.ts'
+import { parsePublishArgs } from './publish.ts'
+import { validate } from './validate.ts'
 
 const stagingBase = 'https://staging.example.test/robotics-facility/'
 const productionBase = 'https://prod.example.test/robotics-facility/'
@@ -26,11 +30,12 @@ function keys(keyId = 'test-key') {
     publicKey: pair.publicKey.export({ format: 'pem', type: 'spki' }),
   }
 }
-async function zip(entries) {
+type ZipEntry = [string, string | Buffer, number?]
+async function zip(entries: ZipEntry[]): Promise<Buffer> {
   const archive = new yazl.ZipFile()
-  const chunks = []
-  const result = new Promise((resolve, reject) => {
-    archive.outputStream.on('data', (c) => chunks.push(c))
+  const chunks: Buffer[] = []
+  const result = new Promise<Buffer>((resolve, reject) => {
+    archive.outputStream.on('data', c => chunks.push(c))
     archive.outputStream.on('end', () => resolve(Buffer.concat(chunks)))
     archive.outputStream.on('error', reject)
   })
@@ -40,8 +45,11 @@ async function zip(entries) {
   return result
 }
 async function fixture() {
-  const candidate = JSON.parse(await readFile(new URL('../bots/zzzkbot/bot.json', import.meta.url)))
-  const pkg = {
+  const candidate: unknown = JSON.parse(
+    await readFile(new URL('../bots/zzzkbot/bot.json', import.meta.url), 'utf8'),
+  )
+  validate('candidate', candidate)
+  const pkg: Package = {
     schemaVersion: 1,
     botId: 'zzzkbot',
     releaseId: 'test-1',
@@ -77,13 +85,13 @@ async function fixture() {
     },
   }
   const manifest = Buffer.from(JSON.stringify(pkg))
-  const entries = [
+  const entries: ZipEntry[] = [
     ['package.json', manifest],
     ['bin/bot.exe', 'not executable fixture'],
     ['LICENSE.txt', 'fixture notice'],
   ]
   const bytes = await zip(entries)
-  const release = {
+  const release: CatalogRelease = {
     package: pkg,
     artifact: {
       url: 'https://input.example.test/bot.zip',
@@ -98,13 +106,22 @@ async function fixture() {
     release,
     bytes,
     entries,
-    catalog: { schemaVersion: 1, revision: 0, bots: [{ bot: candidate.bot, releases: [release] }] },
+    catalog: {
+      schemaVersion: 1,
+      revision: 0,
+      bots: [{ bot: candidate.bot, releases: [release] }],
+    } satisfies Catalog,
   }
 }
-function storeFixture() {
-  const objects = new Map(),
-    writes = [],
-    metadata = new Map()
+function storeFixture(): PublicationStore & {
+  objects: Map<string, Buffer>
+  writes: string[]
+  metadata: Map<string, ObjectMetadata>
+  fail?: (name: string) => boolean
+} {
+  const objects = new Map<string, Buffer>(),
+    writes: string[] = [],
+    metadata = new Map<string, ObjectMetadata>()
   return {
     objects,
     writes,
@@ -123,7 +140,7 @@ function storeFixture() {
     },
   }
 }
-async function stage(f) {
+async function stage(f: Awaited<ReturnType<typeof fixture>>) {
   return preparePublication({
     channel: 'staging',
     nextRevision: 1,
@@ -132,12 +149,12 @@ async function stage(f) {
     download: async () => f.bytes,
   })
 }
-const signing = (k) => ({
+const signing = (k: ReturnType<typeof keys>) => ({
   trust: { keyId: k.keyId, publicKey: k.publicKey },
   privateKey: k.privateKey,
 })
 
-test('archive verifies exact bytes, embedded manifest, files and notices', async () => {
+await test('archive verifies exact bytes, embedded manifest, files and notices', async () => {
   const f = await fixture()
   await verifyArchive(f.bytes, f.release)
   await assert.rejects(
@@ -166,7 +183,7 @@ test('archive verifies exact bytes, embedded manifest, files and notices', async
   }
 })
 
-test('archive rejects Windows escapes, symlinks, path and case collisions', async () => {
+await test('archive rejects Windows escapes, symlinks, path and case collisions', async () => {
   for (const p of [
     '../x',
     '/x',
@@ -185,7 +202,7 @@ test('archive rejects Windows escapes, symlinks, path and case collisions', asyn
     [['bin/BOT.exe', 'collision']],
     [['bin', 'not a directory']],
     [['link', 'target', 0o120777]],
-  ]) {
+  ] satisfies ZipEntry[][]) {
     const bytes = await zip([...f.entries, ...extra])
     await assert.rejects(
       verifyArchive(bytes, {
@@ -196,7 +213,7 @@ test('archive rejects Windows escapes, symlinks, path and case collisions', asyn
   }
 })
 
-test('signed catalogs bind channel, trusted key, and exact payload bytes', async () => {
+await test('signed catalogs bind channel, trusted key, and exact payload bytes', async () => {
   const f = await fixture(),
     k = keys(),
     prepared = await stage(f)
@@ -209,14 +226,20 @@ test('signed catalogs bind channel, trusted key, and exact payload bytes', async
   assert.deepEqual(verifyCatalog(signed, trust), prepared.catalog)
   assert.throws(() => verifyCatalog(signed, { ...trust, channel: 'production' }), /context/)
   assert.throws(() => verifyCatalog(signed, { ...trust, publicKey: keys().publicKey }), /signature/)
-  const tampered = JSON.parse(signed)
-  const payload = JSON.parse(Buffer.from(tampered.payload, 'base64'))
+  const tampered = JSON.parse(signed.toString('utf8')) as {
+    payload: string
+    signature: string
+    envelopeVersion: number
+  }
+  const payload = JSON.parse(Buffer.from(tampered.payload, 'base64').toString('utf8')) as {
+    catalog: Catalog
+  }
   payload.catalog.revision++
   tampered.payload = Buffer.from(canonical(payload)).toString('base64')
   assert.throws(() => verifyCatalog(Buffer.from(JSON.stringify(tampered)), trust), /signature/)
 })
 
-test('prepare refuses empty/unapproved catalogs and corrupt archives before publication', async () => {
+await test('prepare refuses empty/unapproved catalogs and corrupt archives before publication', async () => {
   const f = await fixture()
   await assert.rejects(
     preparePublication({
@@ -235,7 +258,7 @@ test('prepare refuses empty/unapproved catalogs and corrupt archives before publ
   await assert.rejects(stage(f), /size or SHA/)
 })
 
-test('publication orders verified artifacts before activation and creates receipt last; retry is idempotent', async () => {
+await test('publication orders verified artifacts before activation and creates receipt last; retry is idempotent', async () => {
   const f = await fixture(),
     k = keys(),
     store = storeFixture(),
@@ -245,7 +268,7 @@ test('publication orders verified artifacts before activation and creates receip
   assert.equal(store.writes.at(-2), 'catalog.json')
   assert.equal(store.writes.at(-1), 'published/1.json')
   assert.equal(
-    store.metadata.get('catalog.json').cacheControl,
+    store.metadata.get('catalog.json')?.cacheControl,
     'public, no-cache, max-age=0, must-revalidate',
   )
   for (const [name, metadata] of store.metadata) {
@@ -257,21 +280,20 @@ test('publication orders verified artifacts before activation and creates receip
     store.writes.indexOf(`packages/${f.release.artifact.sha256}.zip`) <
       store.writes.indexOf('catalog.json'),
   )
-  assert.deepEqual(
-    verifyCatalog(store.objects.get('published/1.json'), { channel: 'staging', ...k }),
-    prepared.catalog,
-  )
+  const receipt = store.objects.get('published/1.json')
+  assert.ok(receipt)
+  assert.deepEqual(verifyCatalog(receipt, { channel: 'staging', ...k }), prepared.catalog)
   const before = [...store.writes]
   await publishPrepared(args)
   assert.deepEqual(store.writes, before)
 })
 
-test('failed package upload cannot activate a catalog or authorize promotion', async () => {
+await test('failed package upload cannot activate a catalog or authorize promotion', async () => {
   const f = await fixture(),
     k = keys(),
     store = storeFixture(),
     prepared = await stage(f)
-  store.fail = (name) => name.startsWith('packages/')
+  store.fail = name => name.startsWith('packages/')
   await assert.rejects(
     publishPrepared({ prepared, store, publicBaseUrl: stagingBase, ...signing(k) }),
     /upload failure/,
@@ -280,12 +302,12 @@ test('failed package upload cannot activate a catalog or authorize promotion', a
   assert.equal(store.objects.has('published/1.json'), false)
 })
 
-test('failed activation leaves no promotion receipt and can be retried', async () => {
+await test('failed activation leaves no promotion receipt and can be retried', async () => {
   const f = await fixture(),
     k = keys(),
     store = storeFixture(),
     prepared = await stage(f)
-  store.fail = (name) => name === 'catalog.json'
+  store.fail = name => name === 'catalog.json'
   const args = { prepared, store, publicBaseUrl: stagingBase, ...signing(k) }
   await assert.rejects(publishPrepared(args), /upload failure/)
   assert.equal(store.objects.has('catalogs/1.json'), true)
@@ -295,7 +317,7 @@ test('failed activation leaves no promotion receipt and can be retried', async (
   assert.equal(store.objects.has('published/1.json'), true)
 })
 
-test('revisions and release identities cannot be silently reused with different content', async () => {
+await test('revisions and release identities cannot be silently reused with different content', async () => {
   const f = await fixture(),
     k = keys(),
     store = storeFixture(),
@@ -318,7 +340,7 @@ test('revisions and release identities cannot be silently reused with different 
   await assert.rejects(publishPrepared(args), /roll back/)
 })
 
-test('production copies exact staged ZIP bytes and requires staged content-addressed URLs', async () => {
+await test('production copies exact staged ZIP bytes and requires staged content-addressed URLs', async () => {
   const f = await fixture(),
     staged = await stage(f)
   const promoted = await preparePublication({
@@ -327,12 +349,12 @@ test('production copies exact staged ZIP bytes and requires staged content-addre
     inputCatalog: staged.catalog,
     publicBaseUrl: productionBase,
     stagingBaseUrl: stagingBase,
-    download: async (url) => {
+    download: async url => {
       assert.equal(url, `${stagingBase}packages/${f.release.artifact.sha256}.zip`)
       return f.bytes
     },
   })
-  assert.ok(promoted.artifacts.get(f.release.artifact.sha256).equals(f.bytes))
+  assert.ok(promoted.artifacts.get(f.release.artifact.sha256)?.equals(f.bytes))
   assert.equal(
     promoted.catalog.bots[0].releases[0].artifact.url,
     `${productionBase}packages/${f.release.artifact.sha256}.zip`,
@@ -350,7 +372,7 @@ test('production copies exact staged ZIP bytes and requires staged content-addre
   )
 })
 
-test('object keys, URLs, and workflow input parsing constrain publication targets', () => {
+await test('object keys, URLs, and workflow input parsing constrain publication targets', () => {
   assert.equal(objectKey('catalog.json'), 'robotics-facility/catalog.json')
   for (const key of [
     '../catalog.json',

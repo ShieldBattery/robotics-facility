@@ -1,10 +1,10 @@
 # Marine Hell build and review package
 
-Use an x64 JDK 21, Node 24, pnpm, and Git. Fetch the locked `marine-hell` and
+Use an x64 JDK 21, Node 24.12+, pnpm, and Git. Fetch the locked `marine-hell` and
 `jbwapi` sources with `pnpm sources`, then build into a new directory:
 
 ```powershell
-node tools/build-marine-hell.mjs marine-hell-check-3 "C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot"
+node tools/build-marine-hell.ts marine-hell-check-3 "C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot"
 ```
 
 The build produces `bin/MarineHell.jar` with main class `TestBot1` and the
@@ -28,7 +28,7 @@ After the build recipe, package recipe, notices, and source lock are committed,
 make a fresh clean build and create a review-only archive:
 
 ```powershell
-node tools/package-marine-hell.mjs .build/marine-hell-check-3 marine-hell-sb-1 --review
+node tools/package-marine-hell.ts .build/marine-hell-check-3 marine-hell-sb-1 --review
 ```
 
 The packager verifies the committed recipe inputs, patched source trees,
@@ -65,7 +65,7 @@ Get-ChildItem source/jbwapi/src/main/java -Recurse -Filter *.java |
 
 This rebuild checks the source and Java dependencies without executing the
 bot. The convenience `jar` command creates a different manifest from the
-locked recipe, so byte-for-byte comparison requires `tools/build-marine-hell.mjs`
+locked recipe, so byte-for-byte comparison requires `tools/build-marine-hell.ts`
 with the pinned Git sources and its deterministic JAR writer. For a controlled
 bridge test, use the instance name assigned by the ShieldBattery host and
 launch from the extracted `work` directory:
@@ -82,3 +82,7 @@ try {
   Pop-Location
 }
 ```
+
+Use the recipe revision recorded in a published package when reproducing that release.
+The TypeScript recipes on `main` require a fresh build directory and a new release ID;
+older `.mjs` build records and published archives are not rewritten by this migration.

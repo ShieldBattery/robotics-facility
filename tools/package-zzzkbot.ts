@@ -1,26 +1,34 @@
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readFile, writeFile, mkdir, lstat } from 'node:fs/promises'
+import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
 import yazl from 'yazl'
-import { archivePath, sha256, verifyArchive } from './publication-archive.mjs'
-import { validate } from './validate.mjs'
+import type { NativeBuildInfo } from './build-zzzkbot.ts'
+import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
+import { archivePath, sha256, verifyArchive } from './publication-archive.ts'
+import { validate } from './validate.ts'
 
-const git = (directory, ...args) =>
+export type ArchiveEntry = [name: string, bytes: Buffer]
+
+const git = (directory: string, ...args: string[]) =>
   execFileSync('git', ['-C', directory, ...args], { encoding: 'utf8' }).trim()
-const json = async (file) => JSON.parse(await readFile(file, 'utf8'))
+const json = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, 'utf8')) as T
 
-export async function makeArchive(entries) {
+export async function makeArchive(entries: Iterable<ArchiveEntry>): Promise<Buffer> {
   const zip = new yazl.ZipFile()
-  const chunks = []
-  const complete = new Promise((resolve, reject) => {
-    zip.outputStream.on('data', (chunk) => chunks.push(chunk))
+  const chunks: Buffer[] = []
+  const complete = new Promise<Buffer>((resolve, reject) => {
+    zip.outputStream.on('data', (chunk: Buffer) => chunks.push(chunk))
     zip.outputStream.on('end', () => resolve(Buffer.concat(chunks)))
     zip.outputStream.on('error', reject)
   })
   const seen = new Set()
-  for (const [name, bytes] of [...entries].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+  for (const [name, bytes] of [...entries].sort(([a], [b]) => {
+    if (a < b) return -1
+    if (a > b) return 1
+    return 0
+  })) {
     const normalized = archivePath(name)
     if (seen.has(normalized)) throw new Error(`Duplicate archive entry: ${name}`)
     seen.add(normalized)
@@ -32,14 +40,17 @@ export async function makeArchive(entries) {
   return complete
 }
 
-export async function indexedFiles(directory, prefixes) {
+export async function indexedFiles(
+  directory: string,
+  prefixes: readonly string[],
+): Promise<ArchiveEntry[]> {
   if (git(directory, 'diff', '--name-only')) throw new Error('Prepared source has unstaged changes')
   if (git(directory, 'ls-files', '--others', '--exclude-standard'))
     throw new Error('Prepared source has untracked files')
   const files = git(directory, 'ls-files', '-z').split('\0').filter(Boolean)
-  const entries = []
+  const entries: ArchiveEntry[] = []
   for (const name of files) {
-    if (!prefixes.some((prefix) => name === prefix || name.startsWith(`${prefix}/`))) continue
+    if (!prefixes.some(prefix => name === prefix || name.startsWith(`${prefix}/`))) continue
     const file = path.join(directory, name)
     const stat = await lstat(file)
     if (!stat.isFile() || stat.isSymbolicLink())
@@ -55,27 +66,34 @@ export async function packageBot({
   buildDirectory,
   releaseId,
   review = false,
+}: {
+  root?: string
+  buildDirectory: string
+  releaseId: string
+  review?: boolean
 }) {
   if (!/^[a-z][a-z0-9-]*$/.test(releaseId)) throw new Error('Invalid release ID')
   const build = path.resolve(root, buildDirectory)
-  const info = await json(path.join(build, 'build-info.json'))
-  const candidate = await json(path.join(root, 'bots/zzzkbot/bot.json'))
+  const info = await json<NativeBuildInfo>(path.join(build, 'build-info.json'))
+  const candidate = await json<Candidate>(path.join(root, 'bots/zzzkbot/bot.json'))
   if (
     !review &&
     (candidate.sourceReview.status !== 'approved' ||
       candidate.permissions.localDistribution.status !== 'approved')
   )
     throw new Error('Source and distribution review must be approved before packaging')
-  const lock = await json(path.join(root, 'source-lock.json'))
+  const lock = await json<SourceLock>(path.join(root, 'source-lock.json'))
   const executable = await readFile(path.join(build, info.executable))
   if (sha256(executable) !== info.executableSha256) throw new Error('Build executable changed')
-  const entries = [['bin/ZZZKBotClient.exe', executable]]
-  const sources = []
+  const entries: ArchiveEntry[] = [['bin/ZZZKBotClient.exe', executable]]
+  const sources: Source[] = []
   for (const id of ['bwapi', 'zzzkbot']) {
-    const source = lock.sources.find((s) => s.id === id)
-    const input = info.sources.find((s) => s.id === id)
+    const source = lock.sources.find(s => s.id === id)!
+    const input = info.sources.find(s => s.id === id)!
     const directory = path.resolve(build, input.directory)
-    const provenance = await json(path.join(directory, '.git/robotics-source.json'))
+    const provenance = await json<{ source: Source; tree: string }>(
+      path.join(directory, '.git/robotics-source.json'),
+    )
     if (
       JSON.stringify(provenance.source) !== JSON.stringify(source) ||
       provenance.tree !== input.tree ||
@@ -134,7 +152,7 @@ export async function packageBot({
   }
   if (recipeHash.digest('hex') !== info.recipeSha256)
     throw new Error('Recipe bytes changed since build')
-  const notices = [
+  const notices: [name: string, noticePath: string, file: string][] = [
     ['LGPL-3.0-or-later (ZZZKBot)', 'notices/ZZZKBot-LICENSE.txt', '.sources/zzzkbot/LICENSE.txt'],
     ['GPL-3.0 license text', 'notices/GPL-3.0.txt', '.sources/zzzkbot/COPYING.txt'],
     ['LGPL-3.0 license text', 'notices/LGPL-3.0.txt', '.sources/zzzkbot/COPYING.LESSER.txt'],
@@ -159,7 +177,7 @@ export async function packageBot({
     'work/bwapi-data/write/',
   ])
     entries.push([dir, Buffer.alloc(0)])
-  const pkg = {
+  const pkg: Package = {
     schemaVersion: 1,
     botId: 'zzzkbot',
     releaseId,
@@ -192,18 +210,16 @@ export async function packageBot({
   entries.push(['package.json', manifest])
   const bytes = await makeArchive(entries)
   const file = `${releaseId}.zip`
-  const release = {
-    package: pkg,
-    artifact: {
-      url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
-      sha256: sha256(bytes),
-      sizeBytes: bytes.length,
-      manifestSha256: sha256(manifest),
-      format: 'zip',
-    },
+  const artifact: Artifact = {
+    url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
+    sha256: sha256(bytes),
+    sizeBytes: bytes.length,
+    manifestSha256: sha256(manifest),
+    format: 'zip',
   }
+  const release = { package: pkg, artifact }
   await verifyArchive(bytes, release)
-  const catalog = {
+  const catalog: Catalog = {
     schemaVersion: 1,
     revision: 0,
     bots: [{ bot: candidate.bot, releases: [release] }],
@@ -227,11 +243,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const [buildDirectory, releaseId, ...rest] = process.argv.slice(2)
   if (!buildDirectory || !releaseId || rest.length > 1 || (rest.length && rest[0] !== '--review'))
     throw new Error(
-      'Usage: node tools/package-zzzkbot.mjs <build-directory> <release-id> [--review]',
+      'Usage: node tools/package-zzzkbot.ts <build-directory> <release-id> [--review]',
     )
   packageBot({ buildDirectory, releaseId, review: rest[0] === '--review' })
     .then(console.log)
-    .catch((error) => {
+    .catch(error => {
       console.error(error)
       process.exitCode = 1
     })

@@ -3,24 +3,46 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": ">=24.12"
   },
   "scripts": {
-    "validate": "node tools/validate.mjs",
-    "test": "node --test tools/*.test.mjs",
-    "sources": "node tools/fetch-sources.mjs",
-    "prepare-source": "node tools/prepare-source.mjs",
-    "publish:staging": "node tools/publish.mjs staging",
-    "publish:production": "node tools/publish.mjs production",
-    "build:zzzkbot": "node tools/build-zzzkbot.mjs",
-    "package:zzzkbot": "node tools/package-zzzkbot.mjs",
-    "build:purplewave": "node tools/build-purplewave.mjs",
-    "package:purplewave": "node tools/package-purplewave.mjs"
+    "validate": "node tools/validate.ts",
+    "test": "node --test tools/*.test.ts",
+    "sources": "node tools/fetch-sources.ts",
+    "prepare-source": "node tools/prepare-source.ts",
+    "publish:staging": "node tools/publish.ts staging",
+    "publish:production": "node tools/publish.ts production",
+    "build:zzzkbot": "node tools/build-zzzkbot.ts",
+    "package:zzzkbot": "node tools/package-zzzkbot.ts",
+    "build:purplewave": "node tools/build-purplewave.ts",
+    "package:purplewave": "node tools/package-purplewave.ts",
+    "typecheck": "tsc",
+    "lint": "oxlint && pnpm run format:check",
+    "lint:fix": "oxlint --fix && pnpm run format",
+    "format": "oxfmt \"tools/**/*.ts\"",
+    "format:check": "oxfmt --check \"tools/**/*.ts\"",
+    "gen:metadata": "node tools/generate-metadata.ts",
+    "check:metadata": "node tools/generate-metadata.ts --check",
+    "build:ualbertabot": "node tools/build-ualbertabot.ts",
+    "package:ualbertabot": "node tools/package-ualbertabot.ts",
+    "build:opprimobot": "node tools/build-opprimobot.ts",
+    "package:opprimobot": "node tools/package-opprimobot.ts",
+    "build:marine-hell": "node tools/build-marine-hell.ts",
+    "package:marine-hell": "node tools/package-marine-hell.ts"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1136.0",
+    "@types/node": "24.13.3",
+    "@types/yauzl": "3.4.0",
+    "@types/yazl": "3.3.1",
     "ajv": "8.17.1",
+    "json-schema-to-typescript": "16.0.0",
+    "oxfmt": "0.70.0",
+    "oxlint": "1.85.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "6.0.3",
     "yauzl": "3.4.0",
     "yazl": "3.3.1"
-  }
+  },
+  "packageManager": "pnpm@11.18.0"
 }

@@ -39,6 +39,15 @@ jobs:
       - name: Install checked dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Check generated metadata types
+        run: pnpm check:metadata
+
+      - name: Typecheck tooling
+        run: pnpm typecheck
+
+      - name: Lint and check formatting
+        run: pnpm lint
+
       - name: Validate catalog metadata
         run: pnpm validate
 

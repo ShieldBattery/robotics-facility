@@ -1,7 +1,16 @@
+import { Readable } from 'node:stream'
+export interface ObjectMetadata {
+  contentType: string
+  cacheControl: string
+}
+export interface PublicationStore {
+  get(relative: string, limit: number): Promise<Buffer | null>
+  put(relative: string, bytes: Buffer, metadata: ObjectMetadata): Promise<void>
+}
 import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { PREFIX, httpsUrl } from './publication.mjs'
+import { PREFIX, httpsUrl } from './publication.ts'
 
-export function objectKey(relative) {
+export function objectKey(relative: string) {
   if (
     !/^(catalog\.json|catalogs\/[1-9][0-9]*\.json|published\/[1-9][0-9]*\.json|packages\/[a-f0-9]{64}\.zip|releases\/[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*\.json)$/.test(
       relative,
@@ -12,7 +21,19 @@ export function objectKey(relative) {
   return PREFIX + relative
 }
 
-export function createStore({ endpoint, bucket, region, accessKeyId, secretAccessKey }) {
+export function createStore({
+  endpoint,
+  bucket,
+  region,
+  accessKeyId,
+  secretAccessKey,
+}: {
+  endpoint: string
+  bucket: string
+  region: string
+  accessKeyId: string
+  secretAccessKey: string
+}): PublicationStore & { close(): void } {
   const url = httpsUrl(endpoint)
   if (
     url.pathname !== '/' ||
@@ -40,11 +61,13 @@ export function createStore({ endpoint, bucket, region, accessKeyId, secretAcces
           new GetObjectCommand({ Bucket: bucket, Key: objectKey(relative) }),
           { abortSignal: AbortSignal.timeout(180000) },
         )
-        if (result.ContentLength > limit) {
+        if (!(result.Body instanceof Readable))
+          throw new Error('Stored object has no readable body')
+        if (result.ContentLength !== undefined && result.ContentLength > limit) {
           result.Body?.destroy()
           throw new Error('Stored object exceeds expected size')
         }
-        const chunks = []
+        const chunks: Buffer[] = []
         let total = 0
         for await (const chunk of result.Body) {
           total += chunk.length
@@ -53,7 +76,7 @@ export function createStore({ endpoint, bucket, region, accessKeyId, secretAcces
         }
         return Buffer.concat(chunks)
       } catch (error) {
-        if (error.name === 'NoSuchKey') return null
+        if (error instanceof Error && error.name === 'NoSuchKey') return null
         throw error
       }
     },

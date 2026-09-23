@@ -1,60 +1,98 @@
-import { createHash } from 'node:crypto'
 import { spawn } from 'node:child_process'
-import https from 'node:https'
+import { createHash } from 'node:crypto'
 import { lstat, mkdir, readdir, readFile, realpath, writeFile } from 'node:fs/promises'
+import https from 'node:https'
 import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 import yazl from 'yazl'
-import { readSourceLock, runGit } from './fetch-sources.mjs'
-import { prepareSource, provenanceName } from './prepare-source.mjs'
+import { readSourceLock, runGit } from './fetch-sources.ts'
+import type { Source } from './metadata.ts'
+import { prepareSource, provenanceName } from './prepare-source.ts'
 
 const sourceIds = ['purplewave', 'jbwapi', 'jbweb', 'javajps', 'mjson']
 const outputName = /^[a-z0-9][a-z0-9-]*$/
 const jarName = /^[a-z0-9][a-z0-9.-]*\.jar$/
 const devices = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/i
 const defaultJavaHome = process.env.JAVA_HOME
+export interface DependencyArtifact {
+  name: string
+  url: string
+  sha256: string
+  sizeBytes: number
+  runtime: boolean
+}
+export interface DependencyLock {
+  schemaVersion: 1
+  artifacts: DependencyArtifact[]
+}
+export interface JavaProperties {
+  javaVersion?: string
+  javaVendor?: string
+  javaVmName?: string
+  javaVmVersion?: string
+  osArchitecture?: string
+  dataModel?: string
+}
+export interface JavaFileRecord {
+  path: string
+  sha256: string
+  sizeBytes: number
+}
+export interface PurpleWaveBuildInfo {
+  schemaVersion: 1
+  recipeRevision: string
+  recipeSha256: string
+  toolchain: { javacVersion: string; java: JavaProperties; scalaVersion: '2.12.20' }
+  sources: { id: string; directory: string; tree: string; source: Source }[]
+  files: JavaFileRecord[]
+}
+type PreparedSource = { source: Source; directory: string; tree: string }
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
 
 export const recipePaths = Object.freeze([
   'source-lock.json',
   'jvm/dependencies.json',
-  'tools/build-purplewave.mjs',
-  'tools/prepare-source.mjs',
-  'tools/fetch-sources.mjs',
+  'tools/build-purplewave.ts',
+  'tools/prepare-source.ts',
+  'tools/fetch-sources.ts',
   'bots/purplewave/PurpleWaveShieldBattery.config.json',
   'bots/purplewave/BUILD.md',
   'bots/purplewave/RELEASE.txt',
   'bots/purplewave/JNA-THIRD-PARTY-NOTICES.txt',
-  'tools/package-purplewave.mjs',
-  'tools/package-zzzkbot.mjs',
-  'tools/publication-archive.mjs',
-  'tools/validate.mjs',
+  'tools/package-purplewave.ts',
+  'tools/package-zzzkbot.ts',
+  'tools/publication-archive.ts',
+  'tools/validate.ts',
   'schemas/metadata.schema.json',
   'package.json',
   'pnpm-lock.yaml',
 ])
 
-const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
 
-export function validateOutputDirectory(value) {
+export function validateOutputDirectory(value: unknown) {
   if (typeof value !== 'string' || !outputName.test(value) || devices.test(value))
     throw new Error('Output directory must be a new safe directory name under .build')
   return value
 }
 
-export function parseBuildArguments(args) {
+export function parseBuildArguments(args: string[]) {
   if (args.length < 1 || args.length > 2)
-    throw new Error('Usage: node tools/build-purplewave.mjs <new-output-directory> [java-home]')
+    throw new Error('Usage: node tools/build-purplewave.ts <new-output-directory> [java-home]')
   return { outputDir: validateOutputDirectory(args[0]), javaHome: args[1] }
 }
 
-const lockError = (value) => new Error(`Invalid jvm/dependencies.json: ${value}`)
+const lockError = (value: string) => new Error(`Invalid jvm/dependencies.json: ${value}`)
 
-export function validateDependencyLock(lock) {
+export function validateDependencyLock(lock: unknown): DependencyLock {
   if (
-    !lock ||
-    typeof lock !== 'object' ||
-    Array.isArray(lock) ||
+    !isRecord(lock) ||
     Object.keys(lock).sort().join(',') !== 'artifacts,schemaVersion' ||
     lock.schemaVersion !== 1 ||
     !Array.isArray(lock.artifacts) ||
@@ -62,12 +100,10 @@ export function validateDependencyLock(lock) {
   ) {
     throw lockError('must contain schemaVersion 1 and a non-empty artifacts array')
   }
-  const names = new Set()
-  for (const artifact of lock.artifacts) {
+  const names = new Set<string>()
+  for (const artifact of lock.artifacts as unknown[]) {
     if (
-      !artifact ||
-      typeof artifact !== 'object' ||
-      Array.isArray(artifact) ||
+      !isRecord(artifact) ||
       Object.keys(artifact).sort().join(',') !== 'name,runtime,sha256,sizeBytes,url'
     ) {
       throw lockError('each artifact needs name, url, sha256, sizeBytes, and runtime')
@@ -81,7 +117,8 @@ export function validateDependencyLock(lock) {
       throw lockError(`invalid artifact name: ${JSON.stringify(artifact.name)}`)
     }
     names.add(artifact.name)
-    let url
+    if (typeof artifact.url !== 'string') throw lockError('invalid artifact URL')
+    let url: URL
     try {
       url = new URL(artifact.url)
     } catch {
@@ -102,45 +139,57 @@ export function validateDependencyLock(lock) {
     }
     if (typeof artifact.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(artifact.sha256))
       throw lockError(`invalid SHA-256 for ${artifact.name}`)
-    if (!Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes <= 0)
+    if (
+      typeof artifact.sizeBytes !== 'number' ||
+      !Number.isSafeInteger(artifact.sizeBytes) ||
+      artifact.sizeBytes <= 0
+    )
       throw lockError(`invalid size for ${artifact.name}`)
     if (typeof artifact.runtime !== 'boolean')
       throw lockError(`runtime must be boolean for ${artifact.name}`)
   }
-  return lock
+  return lock as unknown as DependencyLock
 }
 
-export function verifyDependencyBytes(artifact, bytes) {
+export function verifyDependencyBytes(
+  artifact: Pick<DependencyArtifact, 'name' | 'sha256' | 'sizeBytes'>,
+  bytes: unknown,
+): Buffer {
   if (!Buffer.isBuffer(bytes)) throw new Error(`Dependency ${artifact.name} is not bytes`)
   if (bytes.length !== artifact.sizeBytes || sha256(bytes) !== artifact.sha256)
     throw new Error(`Dependency ${artifact.name} has a size or SHA-256 mismatch`)
   return bytes
 }
 
-export function verifyRecordedFile(record, bytes) {
+export function verifyRecordedFile(record: unknown, bytes: Buffer) {
   if (
-    !record ||
+    !isRecord(record) ||
+    typeof record.path !== 'string' ||
     !/^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*$/.test(record.path) ||
+    typeof record.sha256 !== 'string' ||
     !/^[a-f0-9]{64}$/.test(record.sha256) ||
+    typeof record.sizeBytes !== 'number' ||
     !Number.isSafeInteger(record.sizeBytes) ||
     bytes.length !== record.sizeBytes ||
     sha256(bytes) !== record.sha256
   ) {
-    throw new Error(`Built file changed: ${record?.path ?? 'invalid record'}`)
+    throw new Error(
+      `Built file changed: ${isRecord(record) && typeof record.path === 'string' ? record.path : 'invalid record'}`,
+    )
   }
   return true
 }
 
-async function stat(file) {
+async function stat(file: string) {
   try {
     return await lstat(file)
   } catch (error) {
-    if (error.code === 'ENOENT') return undefined
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return undefined
     throw error
   }
 }
 
-async function safeDirectory(directory, label, create = false) {
+async function safeDirectory(directory: string, label: string, create = false) {
   const value = await stat(directory)
   if (!value) {
     if (!create) return false
@@ -152,8 +201,8 @@ async function safeDirectory(directory, label, create = false) {
   return true
 }
 
-async function run(command, args, captured = false) {
-  return await new Promise((resolve, reject) => {
+async function run(command: string, args: string[], captured = false): Promise<string> {
+  return await new Promise<string>((resolve, reject) => {
     const child = spawn(command, args, {
       shell: false,
       windowsHide: true,
@@ -161,15 +210,15 @@ async function run(command, args, captured = false) {
     })
     let output = ''
     if (captured) {
-      child.stdout.setEncoding('utf8')
-      child.stderr.setEncoding('utf8')
-      child.stdout.on('data', (value) => (output += value))
-      child.stderr.on('data', (value) => (output += value))
+      child.stdout!.setEncoding('utf8')
+      child.stderr!.setEncoding('utf8')
+      child.stdout!.on('data', value => (output += value))
+      child.stderr!.on('data', value => (output += value))
     }
-    child.once('error', (error) =>
-      reject(new Error(`Could not start ${command}: ${error.message}`)),
+    child.once('error', error =>
+      reject(new Error(`Could not start ${command}: ${errorMessage(error)}`)),
     )
-    child.once('close', (code) =>
+    child.once('close', code =>
       code === 0
         ? resolve(output.trim())
         : reject(new Error(`${command} exited with code ${code}: ${output.trim()}`)),
@@ -177,14 +226,14 @@ async function run(command, args, captured = false) {
   })
 }
 
-async function recipeProvenance(root) {
+async function recipeProvenance(root: string) {
   const [revision, tracked, changed] = await Promise.all([
     runGit(['-C', root, 'rev-parse', 'HEAD']),
     runGit(['-C', root, 'ls-files', '--', ...recipePaths]),
     runGit(['-C', root, 'diff', '--name-only', 'HEAD', '--', ...recipePaths]),
   ])
   const paths = tracked ? tracked.split(/\r?\n/) : []
-  if (paths.length !== recipePaths.length || recipePaths.some((file) => !paths.includes(file)))
+  if (paths.length !== recipePaths.length || recipePaths.some(file => !paths.includes(file)))
     throw new Error('The PurpleWave recipe inputs must be tracked before building')
   if (changed) throw new Error('The PurpleWave recipe inputs differ from HEAD')
   const digest = createHash('sha256')
@@ -204,8 +253,21 @@ export function validateProvenanceRecord({
   indexTree,
   unstaged,
   untracked,
+}: {
+  source: Source
+  provenance: unknown
+  head: string
+  indexTree: string
+  unstaged: string
+  untracked: string
 }) {
-  if (!provenance || provenance.schemaVersion !== 1 || !provenance.source || !provenance.tree)
+  if (
+    !isRecord(provenance) ||
+    provenance.schemaVersion !== 1 ||
+    !provenance.source ||
+    typeof provenance.tree !== 'string' ||
+    !provenance.tree
+  )
     throw new Error(`Missing source provenance for ${source.id}`)
   if (JSON.stringify(provenance.source) !== JSON.stringify(source))
     throw new Error(`Source provenance does not match source-lock.json for ${source.id}`)
@@ -216,8 +278,10 @@ export function validateProvenanceRecord({
   if (untracked) throw new Error(`Prepared ${source.id} has untracked files`)
 }
 
-async function sourceProvenance(source, directory) {
-  const provenance = JSON.parse(await readFile(path.join(directory, provenanceName), 'utf8'))
+async function sourceProvenance(source: Source, directory: string): Promise<PreparedSource> {
+  const provenance: unknown = JSON.parse(
+    await readFile(path.join(directory, provenanceName), 'utf8'),
+  )
   const [head, indexTree, unstaged, untracked] = await Promise.all([
     runGit(['-C', directory, 'rev-parse', 'HEAD']),
     runGit(['-C', directory, 'write-tree']),
@@ -228,18 +292,22 @@ async function sourceProvenance(source, directory) {
   return { source, directory, tree: indexTree }
 }
 
-function relativeTo(parent, target) {
+function relativeTo(parent: string, target: string) {
   const result = path.relative(parent, target)
   if (!result || path.isAbsolute(result) || result === '..' || result.startsWith(`..${path.sep}`))
     throw new Error(`Path is outside the build output: ${target}`)
   return result.split(path.sep).join('/')
 }
 
-async function files(directory, extension) {
-  const result = []
-  async function visit(current) {
+async function files(directory: string, extension?: string): Promise<string[]> {
+  const result: string[] = []
+  async function visit(current: string) {
     const entries = await readdir(current, { withFileTypes: true })
-    entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    entries.sort((a, b) => {
+      if (a.name < b.name) return -1
+      if (a.name > b.name) return 1
+      return 0
+    })
     for (const entry of entries) {
       const file = path.join(current, entry.name)
       const value = await lstat(file)
@@ -254,17 +322,17 @@ async function files(directory, extension) {
   return result
 }
 
-async function argumentFile(file, sourceFiles) {
-  const quote = (value) => `"${value.replaceAll('\\', '/').replaceAll('"', '\\"')}"`
+async function argumentFile(file: string, sourceFiles: string[]) {
+  const quote = (value: string) => `"${value.replaceAll('\\', '/').replaceAll('"', '\\"')}"`
   await writeFile(file, sourceFiles.map(quote).join('\r\n') + '\r\n', { flag: 'wx' })
   return `@${file}`
 }
 
-function classPath(jars) {
+function classPath(jars: string[]) {
   return jars.join(path.delimiter)
 }
 
-function manifestLine(name, value) {
+function manifestLine(name: string, value: string) {
   const lines = []
   let line = `${name}: `
   let length = Buffer.byteLength(line)
@@ -283,34 +351,38 @@ function manifestLine(name, value) {
   return lines.join('\r\n') + '\r\n'
 }
 
-export function makeManifest(runtimeArtifacts) {
+export function makeManifest(runtimeArtifacts: Pick<DependencyArtifact, 'name'>[]) {
   return Buffer.from(
     manifestLine('Manifest-Version', '1.0') +
       manifestLine('Main-Class', 'Lifecycle.Main') +
       manifestLine('Add-Opens', 'java.base/java.nio') +
       manifestLine(
         'Class-Path',
-        runtimeArtifacts.map((artifact) => `lib/${artifact.name}`).join(' '),
+        runtimeArtifacts.map(artifact => `lib/${artifact.name}`).join(' '),
       ) +
       '\r\n',
     'utf8',
   )
 }
 
-export async function makeJar(entries) {
+export async function makeJar(entries: Iterable<[string, Buffer]>): Promise<Buffer> {
   const zip = new yazl.ZipFile()
-  const chunks = []
-  const complete = new Promise((resolve, reject) => {
-    zip.outputStream.on('data', (chunk) => chunks.push(chunk))
+  const chunks: Buffer[] = []
+  const complete = new Promise<Buffer>((resolve, reject) => {
+    zip.outputStream.on('data', chunk => chunks.push(chunk))
     zip.outputStream.once('end', () => resolve(Buffer.concat(chunks)))
     zip.outputStream.once('error', reject)
   })
   const seen = new Set()
-  for (const [name, bytes] of [...entries].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+  for (const [name, bytes] of [...entries].sort(([a], [b]) => {
+    if (a < b) return -1
+    if (a > b) return 1
+    return 0
+  })) {
     if (
       !/^[A-Za-z0-9_.$/-]+$/.test(name) ||
       name.startsWith('/') ||
-      name.split('/').some((part) => !part || part === '.' || part === '..') ||
+      name.split('/').some(part => !part || part === '.' || part === '..') ||
       seen.has(name)
     ) {
       throw new Error(`Unsafe or duplicate JAR entry: ${name}`)
@@ -326,7 +398,7 @@ export async function makeJar(entries) {
   return await complete
 }
 
-async function cachedDependency(directory, artifact) {
+async function cachedDependency(directory: string, artifact: DependencyArtifact) {
   const file = path.join(directory, artifact.name)
   const value = await stat(file)
   if (value) {
@@ -334,7 +406,7 @@ async function cachedDependency(directory, artifact) {
       throw new Error(`Dependency cache entry is unsafe: ${file}`)
     return { artifact, file, bytes: verifyDependencyBytes(artifact, await readFile(file)) }
   }
-  const bytes = await new Promise((resolve, reject) => {
+  const bytes = await new Promise<Buffer>((resolve, reject) => {
     const request = https.get(artifact.url, {
       headers: { 'User-Agent': 'robotics-facility-build' },
     })
@@ -342,7 +414,7 @@ async function cachedDependency(directory, artifact) {
       request.destroy(new Error(`Download timed out: ${artifact.name}`)),
     )
     request.once('error', reject)
-    request.once('response', (response) => {
+    request.once('response', response => {
       if (response.statusCode !== 200 || response.headers.location) {
         response.resume()
         reject(new Error(`Could not download ${artifact.name}: HTTP ${response.statusCode}`))
@@ -357,8 +429,8 @@ async function cachedDependency(directory, artifact) {
         return
       }
       let length = 0
-      const chunks = []
-      response.on('data', (chunk) => {
+      const chunks: Buffer[] = []
+      response.on('data', chunk => {
         length += chunk.length
         if (length > artifact.sizeBytes)
           response.destroy(new Error(`Download exceeds locked size: ${artifact.name}`))
@@ -369,7 +441,7 @@ async function cachedDependency(directory, artifact) {
         try {
           resolve(verifyDependencyBytes(artifact, Buffer.concat(chunks)))
         } catch (error) {
-          reject(error)
+          reject(error instanceof Error ? error : new Error(String(error)))
         }
       })
     })
@@ -377,14 +449,14 @@ async function cachedDependency(directory, artifact) {
   try {
     await writeFile(file, bytes, { flag: 'wx' })
   } catch (error) {
-    if (error.code !== 'EEXIST') throw error
+    if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error
     return await cachedDependency(directory, artifact)
   }
   return { artifact, file, bytes }
 }
 
-export function sanitizeJavaProperties(output) {
-  const properties = {}
+export function sanitizeJavaProperties(output: string): JavaProperties {
+  const properties: JavaProperties = {}
   const fields = {
     'java.version': 'javaVersion',
     'java.vendor': 'javaVendor',
@@ -395,12 +467,15 @@ export function sanitizeJavaProperties(output) {
   }
   for (const line of output.split(/\r?\n/)) {
     const match = /^\s*([^=]+?)\s*=\s*(.*?)\s*$/.exec(line)
-    if (match && Object.hasOwn(fields, match[1])) properties[fields[match[1]]] = match[2]
+    if (match && Object.hasOwn(fields, match[1])) {
+      const key = match[1] as keyof typeof fields
+      properties[fields[key] as keyof JavaProperties] = match[2]
+    }
   }
   return properties
 }
 
-async function javaToolchain(javaHome) {
+async function javaToolchain(javaHome: string) {
   const javac = path.join(javaHome, 'bin', 'javac.exe')
   const java = path.join(javaHome, 'bin', 'java.exe')
   for (const file of [javac, java]) {
@@ -427,7 +502,19 @@ async function javaToolchain(javaHome) {
   return { javac, java, javacVersion, javaProperties }
 }
 
-export function makeBuildInfo({ recipeRevision, recipeSha256, toolchain, sources, files }) {
+export function makeBuildInfo({
+  recipeRevision,
+  recipeSha256,
+  toolchain,
+  sources,
+  files,
+}: {
+  recipeRevision: string
+  recipeSha256: string
+  toolchain: PurpleWaveBuildInfo['toolchain']
+  sources: PreparedSource[]
+  files: JavaFileRecord[]
+}): PurpleWaveBuildInfo {
   return {
     schemaVersion: 1,
     recipeRevision,
@@ -448,7 +535,12 @@ export async function buildPurpleWave({
   outputDir,
   javaHome = defaultJavaHome,
   dependencyDirectory,
-} = {}) {
+}: {
+  root?: string
+  outputDir: string
+  javaHome?: string
+  dependencyDirectory?: string
+}) {
   const repository = await realpath(root)
   const buildRoot = path.join(repository, '.build')
   const output = path.join(buildRoot, validateOutputDirectory(outputDir))
@@ -457,8 +549,8 @@ export async function buildPurpleWave({
 
   const recipe = await recipeProvenance(repository)
   const sourceLock = await readSourceLock(repository)
-  const sources = sourceIds.map((id) => {
-    const source = sourceLock.sources.find((candidate) => candidate.id === id)
+  const sources = sourceIds.map(id => {
+    const source = sourceLock.sources.find(candidate => candidate.id === id)
     if (!source) throw new Error(`source-lock.json is missing ${id}`)
     return source
   })
@@ -480,11 +572,11 @@ export async function buildPurpleWave({
     cacheAncestor = path.join(cacheAncestor, part)
     await safeDirectory(cacheAncestor, 'Java dependency cache', true)
   }
-  const dependencies = []
+  const dependencies: { artifact: DependencyArtifact; file: string; bytes: Buffer }[] = []
   for (const artifact of dependencyLock.artifacts)
     dependencies.push(await cachedDependency(cache, artifact))
 
-  const prepared = []
+  const prepared: PreparedSource[] = []
   for (const source of sources) {
     const directory = path.join(output, 'sources', source.id)
     await prepareSource({
@@ -495,7 +587,7 @@ export async function buildPurpleWave({
     prepared.push(await sourceProvenance(source, directory))
   }
 
-  const directories = new Map(prepared.map((item) => [item.source.id, item.directory]))
+  const directories = new Map(prepared.map(item => [item.source.id, item.directory]))
   const classes = path.join(output, 'classes')
   const macros = path.join(output, 'macroclasses')
   const compile = path.join(output, 'compile')
@@ -506,16 +598,16 @@ export async function buildPurpleWave({
   ])
   const javaSources = (
     await Promise.all([
-      files(path.join(directories.get('jbwapi'), 'src/main/java'), '.java'),
-      files(path.join(directories.get('jbweb'), 'src/main/java'), '.java'),
-      files(path.join(directories.get('javajps'), 'src/main/java'), '.java'),
-      files(path.join(directories.get('mjson'), 'src/java'), '.java'),
-      files(path.join(directories.get('purplewave'), 'src'), '.java'),
+      files(path.join(directories.get('jbwapi')!, 'src/main/java'), '.java'),
+      files(path.join(directories.get('jbweb')!, 'src/main/java'), '.java'),
+      files(path.join(directories.get('javajps')!, 'src/main/java'), '.java'),
+      files(path.join(directories.get('mjson')!, 'src/java'), '.java'),
+      files(path.join(directories.get('purplewave')!, 'src'), '.java'),
     ])
   ).flat()
   const [macroSources, scalaSources] = await Promise.all([
-    files(path.join(directories.get('purplewave'), 'src-macros'), '.scala'),
-    files(path.join(directories.get('purplewave'), 'src'), '.scala'),
+    files(path.join(directories.get('purplewave')!, 'src-macros'), '.scala'),
+    files(path.join(directories.get('purplewave')!, 'src'), '.scala'),
   ])
   const [javaArgs, macroArgs, scalaArgs] = await Promise.all([
     argumentFile(path.join(compile, 'java.args'), javaSources),
@@ -525,7 +617,7 @@ export async function buildPurpleWave({
 
   if (!javaHome) throw new Error('PurpleWave requires an explicit javaHome or JAVA_HOME')
   const tools = await javaToolchain(path.resolve(javaHome))
-  const allJars = dependencies.map((dependency) => dependency.file)
+  const allJars = dependencies.map(dependency => dependency.file)
   await run(tools.javac, [
     '-encoding',
     'UTF-8',
@@ -567,9 +659,11 @@ export async function buildPurpleWave({
   const bin = path.join(output, 'bin')
   const lib = path.join(bin, 'lib')
   await mkdir(lib, { recursive: true })
-  const runtime = dependencies.filter((dependency) => dependency.artifact.runtime)
+  const runtime = dependencies.filter(dependency => dependency.artifact.runtime)
   const jar = path.join(bin, 'PurpleWave.jar')
-  const entries = [['META-INF/MANIFEST.MF', makeManifest(runtime.map(({ artifact }) => artifact))]]
+  const entries: [string, Buffer][] = [
+    ['META-INF/MANIFEST.MF', makeManifest(runtime.map(({ artifact }) => artifact))],
+  ]
   for (const directory of [classes, macros])
     for (const file of await files(directory))
       entries.push([relativeTo(directory, file), await readFile(file)])
@@ -601,7 +695,7 @@ export async function buildPurpleWave({
       java: tools.javaProperties,
       scalaVersion: '2.12.20',
     },
-    sources: verified.map((item) => ({ ...item, directory: relativeTo(output, item.directory) })),
+    sources: verified.map(item => ({ ...item, directory: relativeTo(output, item.directory) })),
     files: buildFiles,
   })
   await writeFile(path.join(output, 'build-info.json'), JSON.stringify(buildInfo, null, 2) + '\n', {
@@ -615,14 +709,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   try {
     options = parseBuildArguments(process.argv.slice(2))
   } catch (error) {
-    console.error(error.message)
+    console.error(errorMessage(error))
     process.exitCode = 1
   }
   if (!process.exitCode)
-    buildPurpleWave(options)
+    buildPurpleWave(options!)
       .then(({ output }) => console.log(`Built PurpleWave in ${output}`))
-      .catch((error) => {
-        console.error(error.message)
+      .catch(error => {
+        console.error(errorMessage(error))
         process.exitCode = 1
       })
 }

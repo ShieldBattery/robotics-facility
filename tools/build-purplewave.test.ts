@@ -12,13 +12,13 @@ import {
   validateOutputDirectory,
   verifyDependencyBytes,
   verifyRecordedFile,
-} from './build-purplewave.mjs'
+} from './build-purplewave.ts'
 
 const lock = JSON.parse(
   await readFile(new URL('../jvm/dependencies.json', import.meta.url), 'utf8'),
 )
 
-test('records only safe Java toolchain properties', () => {
+await test('records only safe Java toolchain properties', () => {
   const properties = sanitizeJavaProperties(
     [
       'Property settings:',
@@ -45,11 +45,11 @@ test('records only safe Java toolchain properties', () => {
   assert.doesNotMatch(JSON.stringify(properties), /Travis|robotics-facility|PATH/)
 })
 
-test('accepts the locked Maven Central dependency set', () => {
+await test('accepts the locked Maven Central dependency set', () => {
   assert.strictEqual(validateDependencyLock(lock), lock)
 })
 
-test('rejects unsafe dependency paths and noncanonical download URLs', () => {
+await test('rejects unsafe dependency paths and noncanonical download URLs', () => {
   const artifact = lock.artifacts[0]
   assert.throws(
     () => validateDependencyLock({ ...lock, artifacts: [{ ...artifact, name: '../escape.jar' }] }),
@@ -65,7 +65,7 @@ test('rejects unsafe dependency paths and noncanonical download URLs', () => {
   )
 })
 
-test('verifies cached or downloaded bytes by both size and hash', () => {
+await test('verifies cached or downloaded bytes by both size and hash', () => {
   const artifact = {
     name: 'example.jar',
     sizeBytes: 3,
@@ -75,7 +75,7 @@ test('verifies cached or downloaded bytes by both size and hash', () => {
   assert.throws(() => verifyDependencyBytes(artifact, Buffer.from('abd')), /SHA-256 mismatch/)
 })
 
-test('folds manifest lines to Java 72-byte limits with CRLF continuations', () => {
+await test('folds manifest lines to Java 72-byte limits with CRLF continuations', () => {
   const manifest = makeManifest(
     Array.from({ length: 8 }, (_, index) => ({ name: `long-runtime-dependency-${index}.jar` })),
   ).toString()
@@ -85,7 +85,7 @@ test('folds manifest lines to Java 72-byte limits with CRLF continuations', () =
     assert.ok(Buffer.byteLength(line) <= 72)
 })
 
-test('detects a changed thin jar from its recorded hash', () => {
+await test('detects a changed thin jar from its recorded hash', () => {
   const bytes = Buffer.from('thin jar')
   const record = {
     path: path.posix.join('bin', 'PurpleWave.jar'),
@@ -96,7 +96,7 @@ test('detects a changed thin jar from its recorded hash', () => {
   assert.throws(() => verifyRecordedFile(record, Buffer.from('thin jar!')), /Built file changed/)
 })
 
-test('only accepts a safe new output directory', () => {
+await test('only accepts a safe new output directory', () => {
   assert.equal(validateOutputDirectory('purplewave-release-1'), 'purplewave-release-1')
   assert.deepEqual(parseBuildArguments(['purplewave-release-1', 'C:\\JDK 21']), {
     outputDir: 'purplewave-release-1',
@@ -106,7 +106,7 @@ test('only accepts a safe new output directory', () => {
     assert.throws(() => validateOutputDirectory(value), /safe directory name/)
 })
 
-test('writes deterministic JAR entries containing Scala dollar class names', async () => {
-  const entries = [['Lifecycle/Main$.class', Buffer.from('bytecode')]]
+await test('writes deterministic JAR entries containing Scala dollar class names', async () => {
+  const entries: [string, Buffer][] = [['Lifecycle/Main$.class', Buffer.from('bytecode')]]
   assert.deepEqual(await makeJar(entries), await makeJar([...entries].reverse()))
 })

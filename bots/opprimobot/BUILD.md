@@ -6,12 +6,12 @@ It can connect to either supported ShieldBattery game architecture.
 
 ## Build from this repository
 
-Use Node.js 24+, pnpm, and Git from a committed checkout:
+Use Node.js 24.12+, pnpm, and Git from a committed checkout:
 
     pnpm install --frozen-lockfile --ignore-scripts
     pnpm sources
-    node tools/build-opprimobot.mjs opprimobot-release
-    node tools/package-opprimobot.mjs .build/opprimobot-release opprimobot-sb-1 --review
+    node tools/build-opprimobot.ts opprimobot-release
+    node tools/package-opprimobot.ts .build/opprimobot-release opprimobot-sb-1 --review
 
 The output directory must not exist. An optional second builder argument supplies
 an already-downloaded boost_1_56_0.zip; it must match native/dependencies.json's
@@ -51,3 +51,7 @@ strategy history, statistics, profiling output, or terrain caches.
 The download contains no StarCraft files, maps, or opponent data. Source and
 patch hashes make the inputs auditable; byte-identical output across toolchain
 versions or checkout paths is not promised.
+
+Use the recipe revision recorded in a published package when reproducing that release.
+The TypeScript recipes on `main` require a fresh build directory and a new release ID;
+older `.mjs` build records and published archives are not rewritten by this migration.
