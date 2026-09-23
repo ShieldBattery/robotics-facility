@@ -85,17 +85,18 @@ strategy-variety slot, but human difficulty is still uncalibrated.
 
 **OpprimoBot** is another candidate for this slot. Its
 [author's README](https://github.com/jhagelback/OpprimoBot) describes all-race
-support with Terran strongest. Its SSCAIT description calls it weaker than the
-built-in AI, but that disabled tournament entry is not proof about a current
-source build. Accept the README's explicit MIT declaration for inclusion, retain
-the author's attribution and requested citation in the package and bot details,
-and identify any ShieldBattery modifications. Author outreach can help identify
-the recommended source/build; additional licensing permission is not an admission
-prerequisite. Source/dependency review, compatibility with the old BWAPI code, and
-live testing of the packaged build remain prerequisites for publication. The
-[compile-only admission review](opprimobot-admission.md) confirms a source build
-route through BWTA2, identifies the remaining polygon API port, and records
-required shutdown and persistence fixes before execution.
+support with Terran strongest, but the current review package offers Terran
+only. Its SSCAIT description calls it weaker than the built-in AI; that
+disabled tournament entry does not measure the patched ShieldBattery build.
+The package preserves the README's MIT declaration, author attribution,
+requested citation, dependency notices, and corresponding source. A locked
+Win32 build and review archive now rebuild offline, and early two-client live
+probes have checked startup and shutdown. A separate instrumented Terran probe
+has reached gas and later production after a bridge refinery fix, but has not
+finished a match. The [admission review](opprimobot-admission.md) records exact
+build and probe evidence. Full packaged-build games, bridge command
+compatibility, source/distribution approval, and human calibration remain
+open; the review archive is not approved for publication.
 
 For calibration, test the exact packaged configurations against newer human
 players, record player race/map, bot race, bot learning state, and package version,

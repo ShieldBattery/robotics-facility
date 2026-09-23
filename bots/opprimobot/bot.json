@@ -11,7 +11,10 @@
     ],
     "homepage": "https://github.com/jhagelback/OpprimoBot",
     "sourceUrl": "https://github.com/jhagelback/OpprimoBot",
-    "playStyleTags": [],
+    "playStyleTags": [
+      "bio",
+      "defensive"
+    ],
     "humanSkill": "uncalibrated",
     "externalRatings": []
   },
@@ -85,7 +88,7 @@
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "18cd404ba97fc20900366c8da49edf66bb22f9a7",
+    "revision": "b748042bd3f634aa782eaebdaa294018ddd1cef0",
     "instructions": "bots/opprimobot/BUILD.md"
   },
   "sourceReview": {
