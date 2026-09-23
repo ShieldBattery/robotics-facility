@@ -86,15 +86,16 @@ bridge, so adapting the source to a supported bridge and reviewing native
 dependencies are prerequisites; do not run the bundled DLLs as an assumed
 compatible/safe release.
 
-**OpprimoBot** is an alternative outreach lead for this slot. Its
+**OpprimoBot** is another candidate for this slot. Its
 [author's README](https://github.com/jhagelback/OpprimoBot) describes all-race
 support with Terran strongest. Its SSCAIT description calls it weaker than the
 built-in AI, but that disabled tournament entry is not proof about a current
-source build. The README names MIT while discussing research/education use and
-requiring a citation; a complete, unambiguous redistribution grant remains to be
-established, alongside compatibility with the old BWAPI code. Ask the author for
-recommended source/build and permission for modified local-play redistribution.
-Keep it off the publishable catalog until those questions are resolved.
+source build. Accept the README's explicit MIT declaration for inclusion, retain
+the author's attribution and requested citation in the package and bot details,
+and identify any ShieldBattery modifications. Author outreach can help identify
+the recommended source/build; additional licensing permission is not an admission
+prerequisite. Source/dependency review, compatibility with the old BWAPI code, and
+live testing of the packaged build remain prerequisites for publication.
 
 For calibration, test the exact packaged configurations against newer human
 players, record player race/map, bot race, bot learning state, and package version,
