@@ -1,6 +1,6 @@
 # OpprimoBot admission review
 
-Status on 2026-09-23: **source and isolated compile checkpoint**. A patched Win32 executable links, and the polygon helper test passes. The bot has not been launched or connected to StarCraft/BWAPI. The full locked build recipe, archive inspection, local distribution review, and live-game checks remain pending. No human-skill tier is established.
+Status on 2026-09-23: **source and isolated compile checkpoint**. A patched Win32 executable links, and the polygon helper test passes. The locked build, source archive rebuild, and initial concurrent startup/early-teardown probe pass. Full combat compatibility and distribution approval remain pending. No human-skill tier is established.
 
 ## Pinned source and intended role
 
@@ -38,3 +38,35 @@ BWTA2 supplies LGPL-3.0 text in COPYING. Static linking requires the full LGPL/G
 2. Run isolated fresh-process games for each race and normal and irregular maps. Include fast losses, wins, disconnects, concurrent instances, and shutdown. Check that no worker survives and no bot cache, log, strategy, statistics, or profiling files appear.
 3. Measure terrain analysis and per-frame path-query time on intended maps. Inspect file, process, shared-memory IPC, network, chat, and configuration behavior from the final package; verify no speed, quit, debug drawing, user input, or complete-map-information flag is active.
 4. Keep source/local-distribution review and catalog approval pending until package and live evidence is recorded. Measure the shipped race profiles against humans before assigning a difficulty label.
+
+## Initial locked build and live probe
+
+Recipe fb365c7 builds all three pinned source trees with MSVC 19.43 and the
+static CRT. The actual CMake geometry target passes (1/1). Its unpublished
+review ZIP had 376 entries and was 16,322,015 bytes; offline rebuilding caught
+an omitted BWTA2 OfflineExtractor/MapFileParser.h header. Recipe 18cd404 adds
+that required header without compiling the offline tools. A fresh full build
+and archive rebuild are required for that corrected recipe.
+
+The first source-reviewed executable was launched through an independent
+ShieldBattery feature/bwapi-compat worktree at 3e9411268, using freshly built
+x64 game DLLs and a separate muted profile. Local session
+3748529b-789f-48c6-b88a-0ce958eec5f1 ran two Terran instances plus an observer on
+Fighting Spirit 1.3. Both mined and trained workers. All seven common sync
+probes matched. A clean bot leave before four minutes delivered loss at frame
+1617 and win at frame 1622; both external processes and all three game clients
+exited. Neither bot work directory contained a file afterward. The game clients
+exited with code zero. This checks startup/concurrent isolation/early teardown,
+not the full Terran strategy or other races.
+
+The command audit found necessary bridge work before admission: the Terran
+strategy uses Build_Addon, Siege/Unsiege, Stim Packs, and Medic Healing, which
+were not encoded at that ShieldBattery revision. Keep compatibility unverified
+and publication pending until those behaviors are implemented and tested.
+
+Corrected recipe 18cd404 and review archive opprimobot-sb-2 completed the full
+offline rebuild from extracted package contents, including the nested Boost
+headers. The rebuilt executable linked and its geometry test passed (1/1).
+Archive SHA-256: 62e8affc5c47b468a0aeb0e5250581217620711de9b30ab42c8061b14b202aff;
+16,322,645 bytes, 377 outer entries. The package keeps source review pending and
+local distribution unreviewed, so it cannot be published as an approved release.
