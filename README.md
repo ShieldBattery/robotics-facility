@@ -5,11 +5,11 @@ Each bot retains its upstream license; this repository does not relicense bot co
 See [licensing and modification disclosure](docs/licensing-and-attribution.md) for
 package notices, modified-source delivery, and the bot detail display requirements.
 
-ZZZKBot, PurpleWave, and UAlbertaBot have reviewed experimental staging packages,
+ZZZKBot, PurpleWave, UAlbertaBot, and Marine Hell have reviewed experimental staging packages,
 including patched source, build instructions, and offline license/modification
-notices. See their [release reviews](docs/releases/). Marine Hell is a build-tested
-candidate undergoing package and gameplay review. The game bridge currently
-requires a ShieldBattery debug build.
+notices. See the [release reviews](docs/releases/) and [Marine Hell review](docs/marine-hell-admission.md).
+Marine Hell adds a defensive Terran infantry profile with Java 21 support.
+The game bridge currently requires a ShieldBattery debug build.
 
 Separate staging and production publishing Actions validate archives, sign catalogs,
 and publish to Spaces; they refuse empty/unapproved releases. See

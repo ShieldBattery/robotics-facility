@@ -1,12 +1,14 @@
-# Marine Hell admission checkpoint
+# Marine Hell admission review
 
 Status: scoped source review and local distribution approved, 2026-09-23.
-Fresh staging installation is verified separately after publication.
+Published in signed staging catalog revision 9; fresh app installation and
+x86 launch verified from the CDN package.
 
 ## Inputs and intended role
 
 - Upstream: [libor-vilimek/marine-hell at `672da02d0fcf2d4b3546d4a0f7770a9aa3a28e2e`](https://github.com/libor-vilimek/marine-hell/tree/672da02d0fcf2d4b3546d4a0f7770a9aa3a28e2e), Git tree `3a642842beb0712e11fac0a47bc34d01933c3759`. Original `src/TestBot1.java` SHA-256: `0e353f07ab45785573f787a1e84a9111942f016d9aabf64131ef71117e29ecd0`.
 - Downstream: [`0001-use-isolated-jbwapi.patch`](../patches/marine-hell/0001-use-isolated-jbwapi.patch), SHA-256 `f5673b4b6f0a7a67d61ba0be6ba44ebeaa3e674fb8aa3fa26dd8b4ceb9d1b663`. Patched `src/TestBot1.java` SHA-256: `bc1dfed429a1de47562b58fb4daf9169e78a96a8e3d000d9aa373fc1ae13ae48`. The patch applies cleanly to the upstream commit.
+- Bunker adapter: `0002-load-bunker-with-right-click.patch`, SHA-256 `8f38bd8e7cc9f96320321abdb582b5210ea2f15b6c1a24d119581c60e102ebfe`. Final patched Java source SHA-256 `818f5cce5496fea3265027a91a05e753993ea61ac20922a13e82ef3e3131ee60`; final executable JAR SHA-256 `c414bcab47675b0f8f332ee56cee1444b639ec037b22267287525cbad4bcdfef`.
 - Bridge candidate: reviewed JBWAPI source `d6003b0b3a6a27944c979fd8dbc6ec8e3c2c753f` (POM 1.5.1), with [instance-discovery patch](../patches/jbwapi/instance-discovery.patch) SHA-256 `82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1`. The Java dependency hashes are pinned in `jvm/dependencies.json`; the build records exact source, patch, toolchain, and recipe input digests.
 
 The author's [README](https://github.com/libor-vilimek/marine-hell/blob/672da02d0fcf2d4b3546d4a0f7770a9aa3a28e2e/readme.md) describes a simple Terran mass-Marine bot that gathers at a choke and attacks after about 50 Marines. This makes it a plausible lower-end variety candidate, not an established human difficulty tier. The original and this port have no calibrated human skill; keep `humanSkill` uncalibrated and restrict any initial profile to Terran 1v1.
@@ -92,4 +94,34 @@ Marine-count threshold. No learning, varied-opening, or human-skill label is inf
 `777703249cd4cdebb45ae4ab936600cc7f58af7804aa6d2d6c6c81cecb2e8688`.
 Every source, binary, notice, and working-directory byte matches the tested
 corrected review archive; only `package.json` changes for the release ID,
-profile evidence, and scoped approvals. Staging publication is pending.
+profile evidence, and scoped approvals. Published in signed staging catalog revision 9 through
+[workflow 35849089388](https://github.com/ShieldBattery/robotics-facility/actions/runs/35849089388).
+Independent CDN readback verified the current catalog, immutable catalog and
+publication receipt signatures, revision, cache headers, and exact ZIP bytes.
+Production was not changed.
+
+The corrected x64 pair reached frames 7707/7708 with four Marines loaded in each
+bunker. All 33 common sync probes through frame 7680 matched across three clients;
+both bots still had zero rejected commands at frame 7680. Normal observer quit
+stopped all owned SC:R and Java processes.
+
+## Installed package check
+
+The real Electron library refreshed signed revision 9, downloaded and installed
+`marine-hell-sb-4`, and exposed the bundled libffi notice and modification
+disclosure through the notice API. It automatically selected detected Java 21
+x64 (rather than the also-detected Java 8) and launched through
+`practiceGameStart` with x86 SC:R in session
+`4a855c53-6a6b-40db-8978-92033f032537`. The hidden bot reached frame 6103 with
+two Marines inside its bunker. All 28 common probes through frame 6480 matched;
+the last command sample had zero rejections. The library marked Marine Hell
+in use and did not report learning data. A process snapshot found no bot JVM
+TCP/UDP endpoints; sampled working set was about 226 MB.
+
+All 45 repository tests pass. Offline recompilation from the corrected archive
+and the package integrity negative checks pass. Catalog-unavailable launch and
+forced-crash behavior were not re-tested for this release.
+
+Normal human-client quit returned the library to no bots in use, both SC:R
+processes exited with code zero, and the JVM stopped. The dedicated test Electron
+instance was then closed; the user app and existing development servers remained running.

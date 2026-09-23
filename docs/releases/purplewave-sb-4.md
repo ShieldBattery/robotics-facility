@@ -1,7 +1,6 @@
 # PurpleWave sb.4 native dependency notice update
 
-Status: locally repackaged and validated on 2026-09-23; not published or
-signed. This is a notice-only successor to [sb.3](purplewave-sb-3.md), built
+Status: published in signed staging catalog revision 9 on 2026-09-23. This is a notice-only successor to [sb.3](purplewave-sb-3.md), built
 from its reviewed ZIP (19,382,241 bytes, SHA-256
 `748767387d6c1a633b8f9f6f2595e6e4af471b16eeff31a56bf39ce3c7c2dd55`).
 No Scala or Java bot binary was rebuilt or executed.
@@ -65,4 +64,6 @@ The local sb.4 artifact is 19,389,195 bytes, SHA-256
 its embedded package manifest SHA-256 is
 `e320952e34104cf8384c81df4a514036b443cb54dccf96c6c93cdec579c2c96c`.
 The local catalog and ZIP passed schema and archive validation. Staging
-publication, signing, and CDN readback have not occurred.
+publication succeeded in revision 9 through [workflow 35849089388](https://github.com/ShieldBattery/robotics-facility/actions/runs/35849089388).
+Independent readback verified current/immutable/receipt signatures and the exact
+CDN artifact bytes above. Production was not changed.

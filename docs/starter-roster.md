@@ -77,14 +77,11 @@ not establish that a new human player can beat them. The core roster still needs
 human playtesting at the lower end. Do not label ZZZKBot or UAlbertaBot Easy by
 assumption; narrow rushes can be especially punishing for newcomers.
 
-**Marine Hell** is a useful first research lead for this slot. Its
-[author README and MIT license](https://github.com/libor-vilimek/marine-hell)
-describe a deliberately simple bot that accumulates Marines before attacking.
-This is a concrete candidate for testing a less demanding practice opponent,
-not yet a human difficulty label. It ships the old `bwapi_bridge2_5.dll` Java
-bridge, so adapting the source to a supported bridge and reviewing native
-dependencies are prerequisites; do not run the bundled DLLs as an assumed
-compatible/safe release.
+**Marine Hell** now has a [reviewed staging package](marine-hell-admission.md)
+with Bio and Defensive tags. Its simple Terran strategy accumulates Marines
+behind a bunker before attacking. The source is ported to JBWAPI; the upstream
+BWMirror/JNI binaries are excluded. Java 21 x64 is required. This fills a useful
+strategy-variety slot, but human difficulty is still uncalibrated.
 
 **OpprimoBot** is another candidate for this slot. Its
 [author's README](https://github.com/jhagelback/OpprimoBot) describes all-race
@@ -95,7 +92,10 @@ the author's attribution and requested citation in the package and bot details,
 and identify any ShieldBattery modifications. Author outreach can help identify
 the recommended source/build; additional licensing permission is not an admission
 prerequisite. Source/dependency review, compatibility with the old BWAPI code, and
-live testing of the packaged build remain prerequisites for publication.
+live testing of the packaged build remain prerequisites for publication. The
+[compile-only admission review](opprimobot-admission.md) confirms a source build
+route through BWTA2, identifies the remaining polygon API port, and records
+required shutdown and persistence fixes before execution.
 
 For calibration, test the exact packaged configurations against newer human
 players, record player race/map, bot race, bot learning state, and package version,
