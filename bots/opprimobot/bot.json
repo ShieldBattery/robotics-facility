@@ -3,7 +3,7 @@
   "bot": {
     "id": "opprimobot",
     "name": "OpprimoBot",
-    "description": "A classic all-race bot by Johan Hagelbäck. The initial ShieldBattery profile is being tested for local Terran play.",
+    "description": "A classic Terran opponent that builds infantry backed by bunkers and siege tanks. Human difficulty is not yet calibrated.",
     "authors": [
       {
         "name": "Johan Hagelbäck"
@@ -31,18 +31,18 @@
     "formats": [
       {
         "id": "one-v-one",
-        "support": "unverified",
-        "notes": "Live package verification pending."
+        "support": "verified",
+        "notes": "Local Terran combat against ZZZKBot on Fighting Spirit 1.3 with x86 and x64 SC:R. See admission review for exact bridge and package versions."
       },
       {
         "id": "teams",
         "support": "unverified",
-        "notes": "Live package verification pending."
+        "notes": "Not tested."
       },
       {
         "id": "free-for-all",
         "support": "unverified",
-        "notes": "Live package verification pending."
+        "notes": "Not tested."
       }
     ],
     "mapConstraints": [
@@ -57,12 +57,12 @@
     "name": "MIT",
     "sourceId": "opprimobot",
     "path": "README.md",
-    "notes": "Upstream README MIT declaration accepted for inclusion; preserve author attribution and requested research citation. Dependency/relink package review pending."
+    "notes": "Upstream README MIT declaration accepted for inclusion. The package preserves author attribution and requested research citation, dependency notices, exact patched source, and rebuilding material."
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "Source and live package review pending."
+      "status": "approved",
+      "evidence": "docs/opprimobot-admission.md: pinned source/dependency review, corresponding-source rebuild, and local x86/x64 combat validation."
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -70,7 +70,7 @@
     }
   },
   "compatibility": {
-    "status": "unverified",
+    "status": "prototype-tested",
     "bwapiVersion": "4.4.0",
     "protocol": 10003,
     "botArchitecture": "x86",
@@ -80,9 +80,9 @@
     ],
     "evidence": "docs/opprimobot-admission.md",
     "limitations": [
-      "BWTA2 source port and fixed no-learning profile; live verification pending.",
-      "Only the initial Terran profile is offered for review.",
-      "Partial BWAPI bridge; legacy unit limits required."
+      "Terran only; other upstream races and teams/FFA have not been verified.",
+      "Requires ShieldBattery Terran BWAPI compatibility update bd63be767; partial BWAPI bridge and legacy unit limits.",
+      "Fighting Spirit 1.3 tested; irregular maps and late-game spell behavior need broader playtesting."
     ]
   },
   "build": {
@@ -92,7 +92,7 @@
     "instructions": "bots/opprimobot/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "docs/opprimobot-admission.md"
+    "status": "approved",
+    "evidence": "docs/opprimobot-admission.md and docs/opprimobot-bwta-review.md; exact patched source and dependency headers rebuild from the package."
   }
 }

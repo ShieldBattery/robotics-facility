@@ -83,20 +83,15 @@ behind a bunker before attacking. The source is ported to JBWAPI; the upstream
 BWMirror/JNI binaries are excluded. Java 21 x64 is required. This fills a useful
 strategy-variety slot, but human difficulty is still uncalibrated.
 
-**OpprimoBot** is another candidate for this slot. Its
-[author's README](https://github.com/jhagelback/OpprimoBot) describes all-race
-support with Terran strongest, but the current review package offers Terran
-only. Its SSCAIT description calls it weaker than the built-in AI; that
-disabled tournament entry does not measure the patched ShieldBattery build.
-The package preserves the README's MIT declaration, author attribution,
-requested citation, dependency notices, and corresponding source. A locked
-Win32 build and review archive now rebuild offline, and early two-client live
-probes have checked startup and shutdown. A separate instrumented Terran probe
-has reached gas and later production after a bridge refinery fix, but has not
-finished a match. The [admission review](opprimobot-admission.md) records exact
-build and probe evidence. Full packaged-build games, bridge command
-compatibility, source/distribution approval, and human calibration remain
-open; the review archive is not approved for publication.
+**OpprimoBot** has a source-built Terran profile approved for local staging
+play, with Bio and Defensive tags. Its upstream supports all races, but only
+Terran is offered after packaged combat tests on both SC:R architectures.
+The [admission review](opprimobot-admission.md) records source/dependency
+notices, offline rebuilding, construction/ability bridge fixes, synchronization,
+and cleanup evidence. Strategy-history learning and terrain cache/logs are
+disabled. Human difficulty remains uncalibrated; the disabled SSCAIT entry's
+comparison with the built-in AI does not measure this patched build.
+Other races, team/FFA modes, and irregular maps remain unverified.
 
 For calibration, test the exact packaged configurations against newer human
 players, record player race/map, bot race, bot learning state, and package version,

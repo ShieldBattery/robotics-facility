@@ -1,6 +1,6 @@
 # OpprimoBot admission review
 
-Status on 2026-09-23: **locked source-build and early live-integration checkpoint**. The patched Win32 client builds, its review archive rebuilds from packaged source, and an initial concurrent startup/early-teardown probe passes. A separate ongoing Terran bridge probe has reached gas and later production. Full-match compatibility, final-package validation, and distribution approval remain pending. No human-skill tier is established.
+Status on 2026-09-23: **approved for local Terran staging distribution; prototype-tested**. The source-built executable completed local combat games against ZZZKBot on x86 and x64 SC:R, with matching sync probes and clean shutdown. Exact corresponding source rebuilds from the review archive. Other races, team/FFA games, irregular maps, and late-game spell behavior still need broader playtesting. Human skill is uncalibrated.
 
 ## Pinned source and intended role
 
@@ -41,7 +41,7 @@ The OpprimoBot README declares MIT licensing, credits Dr. Johan Hagelbäck, and 
 
 BWTA2 supplies LGPL-3.0 text in COPYING. Static linking requires the full LGPL/GPL texts, exact corresponding BWTA2 and BWAPI source, modifications, dependency headers, and practical rebuilding/relinking material in the package. BWTA2's bundled filesystem helper also has a separate Wenzel Jakob BSD two-clause notice: the exact original text is now in bots/opprimobot/BWTA2-FILESYSTEM-LICENSE.txt. Boost uses its own Boost Software License 1.0; BWAPI's smallsha1 BSD notice must also travel with the archive. The unused Opprimo CThread files credit Ciprian Miclaus separately and are excluded from the selected corresponding-source bundle; they are not compiled or needed to relink this profile. BWTA2 requests, but does not require, citation of Uriarte and Ontanon's AIIDE 2016 terrain-analysis paper.
 
-## Admission evidence still required
+## Scope and follow-up validation
 
 1. Rebuild and review the final package after any bot recipe or bridge changes;
    confirm its source-lock patch hashes, toolchain, Boost inventory, binary
@@ -54,9 +54,9 @@ BWTA2 supplies LGPL-3.0 text in COPYING. Static linking requires the full LGPL/G
    Inspect file, process, shared-memory IPC, network, chat, and configuration
    behavior from the final package; verify no speed, quit, debug drawing, user
    input, or complete-map-information flag is active.
-4. Keep source/local-distribution review and catalog approval pending until
-   final-package and live evidence is recorded. Measure the shipped Terran
-   profile against humans before assigning a difficulty label.
+4. Local distribution is approved for the tested Terran profile. Public
+   competition approval remains separate. Measure the shipped profile against
+   humans before assigning a difficulty label.
 
 ## Live probes and bridge progress
 
@@ -80,9 +80,12 @@ assigned gas workers before construction completed. That backlink was fixed in
 a private ShieldBattery worktree. Instrumented two-Terran x64 session
 cf6805e7-92ef-4df0-aec4-5f0feba4f85d then observed gas after refinery
 completion, followed by factory, machine shop, comsat, and unit production.
-The session had not finished when recorded. It used an instrumented probe and
-a private bridge worktree, so it is not final packaged-build or full-match
-admission evidence.
+The probe reached siege tanks and medics. All 70 common synchronization probes
+matched through frame 16560. A normal bot quit delivered loss at frame 16776
+and win at frame 16781; all three game clients exited and both work directories
+remained empty. This verifies production and deliberate midgame teardown, not
+an autonomous combat result. It used an instrumented probe and a private bridge
+worktree, so final packaged-build combat validation remains outstanding.
 
 ## Play-style labels
 
@@ -92,3 +95,30 @@ and supporting tanks. The live refinery probe reached both occupied bunkers and
 that mixed army. This supports the Bio and Defensive labels for the offered
 Terran profile. Supporting factory units alone do not establish a Mech label,
 and neither tag establishes human difficulty.
+
+## Packaged combat checkpoint
+
+The executable extracted from review archive `opprimobot-sb-3` is 1,260,544
+bytes, SHA-256 `9d32d951a2403269002fbcefa0a0cd2272b75a127403faca35759e43be7d0d14`.
+It was tested with the bridge changes committed as ShieldBattery `bd63be767`
+(the tested game source is identical to that commit). Both game DLLs were
+rebuilt with `game/build.bat`; 34 BWAPI regression tests passed on each
+architecture, with clippy and formatting checks passing. The source-only
+visibility tests cover cloaked observations and prevent revealing detector-gated
+fields; this is not a live validation of every late-game spell.
+
+- **x86:** local session `1abb552a-c464-4b99-b9ae-a73b057912f0`, Terran Opprimo
+  versus Zerg ZZZKBot on Fighting Spirit 1.3. Natural defeat at frame 5087,
+  opposing win at 5092. All 22 common sync probes matched through frame 5040.
+  Opprimo submitted 94 accepted commands and zero rejected commands.
+- **x64:** session `ca993f2a-6575-487f-8e00-8387a1bf07a2`, same matchup/map.
+  Natural defeat at frame 6234, opposing win at 6239. All 26 common sync
+  probes matched through frame 6000. Opprimo submitted 122 accepted commands
+  and zero rejected commands.
+
+In both games Opprimo delivered MatchEnd, disconnected, and exited; all owned
+game clients and the opposing supervised bot exited too. Opprimo's working
+directory remained empty. Its external process used about 21 MB of working
+set in one early-game observation, excluding SC:R; this is not a performance
+bound or a broad benchmark. The two earlier concurrent Terran probes cover
+fresh-process isolation, early quit, and midgame production/teardown.
