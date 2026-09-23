@@ -25,7 +25,6 @@ const excluded = [
   'SparCraft/source/Timer.h',
   'SparCraft/source/TutorialCode.cpp',
   'UAlbertaBot/Source/research/',
-  'UAlbertaBot/Source/stardraft/',
   'UAlbertaBot/Source/StarDraftMap.hpp',
 ]
 const omit = (name) => excluded.some((entry) => name === entry || name.startsWith(entry))
