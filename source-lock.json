@@ -88,6 +88,32 @@
           "sha256": "8f38bd8e7cc9f96320321abdb582b5210ea2f15b6c1a24d119581c60e102ebfe"
         }
       ]
+    },
+    {
+      "id": "opprimobot",
+      "repository": "https://github.com/jhagelback/OpprimoBot.git",
+      "revision": "65eeb7e0c838e47df5027c8a746248bd30299640",
+      "patches": [
+        {
+          "path": "patches/opprimobot/0001-bwta2-compatibility.patch",
+          "sha256": "196d346df1d473df9fbbb345b9f493081472fb270e68bc8de22fb4502d9a1b2b"
+        },
+        {
+          "path": "patches/opprimobot/0002-single-match-runtime.patch",
+          "sha256": "6f1e0667b46700d2cfa547ec8769b4972c44c379497fe225ff647fbe93cf81a5"
+        }
+      ]
+    },
+    {
+      "id": "bwta2",
+      "repository": "https://bitbucket.org/auriarte/bwta2.git",
+      "revision": "4222ab0d9b5d49362e4893ffb5fbcdcbeff359ec",
+      "patches": [
+        {
+          "path": "patches/bwta2/0001-isolate-runtime.patch",
+          "sha256": "b4d12564ca8da46e8835dc8c97ad9da4992f5d150dcbc4a2af90bcf0c98b61b1"
+        }
+      ]
     }
   ]
 }

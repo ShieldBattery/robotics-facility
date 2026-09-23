@@ -1,0 +1,160 @@
+diff --git a/SCProjects/OpprimoBot/Source/AIloop.cpp b/SCProjects/OpprimoBot/Source/AIloop.cpp
+index 37f9956..9297417 100644
+--- a/SCProjects/OpprimoBot/Source/AIloop.cpp
++++ b/SCProjects/OpprimoBot/Source/AIloop.cpp
+@@ -271,7 +271,7 @@ void AIloop::drawTerrainData()
+ 		//we will iterate through all the regions and draw the polygon outline of it in white.
+ 		for(BWTA::Region* r : BWTA::getRegions())
+ 		{
+-			BWTA::Polygon p = r->getPolygon();
++			const BWTA::Polygon& p = r->getPolygon();
+ 			for(int j = 0; j < (int)p.size(); j++)
+ 			{
+ 				Position point1=p[j];
+diff --git a/SCProjects/OpprimoBot/Source/Influencemap/MapManager.cpp b/SCProjects/OpprimoBot/Source/Influencemap/MapManager.cpp
+index 2c85009..d52d3eb 100644
+--- a/SCProjects/OpprimoBot/Source/Influencemap/MapManager.cpp
++++ b/SCProjects/OpprimoBot/Source/Influencemap/MapManager.cpp
+@@ -2,6 +2,7 @@
+ #include "../Managers/AgentManager.h"
+ #include "../Managers/ExplorationManager.h"
+ #include "../MainAgents/BaseAgent.h"
++#include "../Utils/PolygonUtils.h"
+ 
+ MapManager* MapManager::instance = NULL;
+ 
+@@ -126,7 +127,7 @@ MRegion* MapManager::getMapFor(Position p)
+ {
+ 	for (auto &mr : map)
+ 	{
+-		if (mr->region->getPolygon().isInside(p))
++		if (PolygonUtils::contains(mr->region->getPolygon(), p))
+ 		{
+ 			return mr;
+ 		}
+@@ -258,7 +259,7 @@ int MapManager::getOwnGroundInfluenceIn(TilePosition pos)
+ {
+ 	for (MRegion* cm : map)
+ 	{
+-		if (cm->region->getPolygon().isInside(Position(pos)))
++		if (PolygonUtils::contains(cm->region->getPolygon(), Position(pos)))
+ 		{
+ 			return cm->inf_own_ground;
+ 		}
+@@ -270,7 +271,7 @@ int MapManager::getEnemyGroundInfluenceIn(TilePosition pos)
+ {
+ 	for (MRegion* cm : map)
+ 	{
+-		if (cm->region->getPolygon().isInside(Position(pos)))
++		if (PolygonUtils::contains(cm->region->getPolygon(), Position(pos)))
+ 		{
+ 			return cm->inf_en_ground;
+ 		}
+@@ -282,7 +283,7 @@ bool MapManager::hasOwnInfluenceIn(TilePosition pos)
+ {
+ 	for (MRegion* cm : map)
+ 	{
+-		if (cm->inf_own_buildings > 0 && cm->region->getPolygon().isInside(Position(pos)))
++		if (cm->inf_own_buildings > 0 && PolygonUtils::contains(cm->region->getPolygon(), Position(pos)))
+ 		{
+ 			return true;
+ 		}
+@@ -294,7 +295,7 @@ bool MapManager::hasEnemyInfluenceIn(TilePosition pos)
+ {
+ 	for (MRegion* cm : map)
+ 	{
+-		if (cm->inf_en_buildings > 0 && cm->region->getPolygon().isInside(Position(pos)))
++		if (cm->inf_en_buildings > 0 && PolygonUtils::contains(cm->region->getPolygon(), Position(pos)))
+ 		{
+ 			return true;
+ 		}
+diff --git a/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp b/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
+index 8c18a9d..6320c3f 100644
+--- a/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
++++ b/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
+@@ -1,4 +1,5 @@
+ #include "ExplorationManager.h"
++#include "../Utils/PolygonUtils.h"
+ #include "BuildingPlacer.h"
+ 
+ ExplorationManager* ExplorationManager::instance = NULL;
+@@ -212,7 +213,7 @@ int ExplorationManager::getSpottedInfluenceInRegion(const BWTA::Region* region)
+ 	int im = 0;
+ 	for (auto &a : enemy)
+ 	{
+-		if (region->getPolygon().isInside(a->getPosition()))
++		if (PolygonUtils::contains(region->getPolygon(), a->getPosition()))
+ 		{
+ 			im += a->getType().buildScore();
+ 		}
+diff --git a/SCProjects/OpprimoBot/Source/OpprimoBot.cpp b/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
+index 763bcbd..2299584 100644
+--- a/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
++++ b/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
+@@ -38,7 +38,6 @@ void OpprimoBot::onStart()
+ 	//Broodwar->enableFlag(Flag::CompleteMapInformation);
+ 
+ 	//Analyze map using BWTA
+-	BWTA::readMap();
+ 	analyzed = false;
+ 	analysis_just_finished = false;
+ 	//CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AnalyzeThread, NULL, 0, NULL); //Threaded version
+diff --git a/SCProjects/OpprimoBot/Source/Utils/PolygonUtils.h b/SCProjects/OpprimoBot/Source/Utils/PolygonUtils.h
+new file mode 100644
+index 0000000..72a248e
+--- /dev/null
++++ b/SCProjects/OpprimoBot/Source/Utils/PolygonUtils.h
+@@ -0,0 +1,53 @@
++#ifndef __POLYGON_UTILS_H__
++#define __POLYGON_UTILS_H__
++
++#include <set>
++#include <BWTA.h>
++#include <cstdint>
++
++namespace PolygonUtils
++{
++	inline bool pointOnSegment(const BWAPI::Position& point, const BWAPI::Position& a,
++		const BWAPI::Position& b)
++	{
++		const int64_t cross = int64_t(b.x - a.x) * (point.y - a.y)
++			- int64_t(b.y - a.y) * (point.x - a.x);
++		return cross == 0
++			&& point.x >= (a.x < b.x ? a.x : b.x)
++			&& point.x <= (a.x > b.x ? a.x : b.x)
++			&& point.y >= (a.y < b.y ? a.y : b.y)
++			&& point.y <= (a.y > b.y ? a.y : b.y);
++	}
++
++	// Polygon edges are inside so region membership does not flicker on a shared boundary.
++	inline bool contains(const BWTA::Polygon& polygon, const BWAPI::Position& point)
++	{
++		if (polygon.size() < 3)
++		{
++			return false;
++		}
++
++		bool inside = false;
++		for (size_t i = 0, previous = polygon.size() - 1; i < polygon.size(); previous = i++)
++		{
++			const BWAPI::Position& a = polygon[previous];
++			const BWAPI::Position& b = polygon[i];
++			if (pointOnSegment(point, a, b))
++			{
++				return true;
++			}
++			if ((a.y > point.y) != (b.y > point.y))
++			{
++				const int64_t left = int64_t(point.x - a.x) * (b.y - a.y);
++				const int64_t right = int64_t(b.x - a.x) * (point.y - a.y);
++				if ((b.y > a.y && left < right) || (b.y < a.y && left > right))
++				{
++					inside = !inside;
++				}
++			}
++		}
++		return inside;
++	}
++}
++
++#endif

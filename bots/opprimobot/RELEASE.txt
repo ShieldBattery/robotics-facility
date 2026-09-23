@@ -1,0 +1,66 @@
+OpprimoBot source snapshot 65eeb7e0c838e47df5027c8a746248bd30299640
+ShieldBattery package sb.N
+
+Original bot: OpprimoBot by Dr. Johan Hagelbäck
+Upstream: https://github.com/jhagelback/OpprimoBot
+Package maintainer: ShieldBattery (https://shieldbattery.net)
+This is a modified build; upstream authors have not endorsed this package.
+
+The original README declares the bot MIT-licensed and requests this reference:
+Johan Hagelbäck. "Potential-Field Based navigation in Starcraft". In Proceedings
+of 2012 IEEE Conference on Computational Intelligence and Games (CIG), 2012.
+The original README and source author notices are preserved in this download.
+
+Modified by ShieldBattery on 2026-09-23:
+- Port the terrain API to source-built BWTA2, including an integer polygon
+  containment helper with an explicit boundary-inside rule.
+- Run the module in a BWAPI 4.4 external client, using the static MSVC runtime.
+  The process exits after one completed match or bridge disconnection.
+- Perform terrain initialization before adding initial units to the agent graph.
+- Replace the unsafe background pathfinding worker with at most one queued
+  path calculation per game callback. Individual queries are not time-limited.
+- Make module cleanup unconditional and idempotent, correct singleton and squad
+  ownership, and free exploration records during shutdown.
+- Disable user input, chat commands and output, speed changes, debug overlays,
+  and the bot's fixed-time match termination.
+- Disable strategy history, statistics and profiling storage. Every match uses
+  the upstream strategy chosen for empty history; this package does not learn.
+- Remove BWTA2 terrain cache/log writes and obsolete cache serializers. Build
+  only its Release terrain library, without offline or debug-drawing features.
+- Remove BWTA2's unused obsolete Boost dissolve include and build with the
+  verified Boost 1.56.0 headers. No old bundled binary libraries are shipped.
+- Select the BWAPI discovery table through validated SB_BWAPI_INSTANCE.
+
+Licenses and corresponding source
+
+OpprimoBot's MIT declaration is in its original README; the standard MIT text is
+included as OPPRIMOBOT-MIT.txt. Source author notices remain intact. BWAPI and
+BWTA2 are used under GNU LGPL version 3; both LGPL and GPL version 3 texts are
+included. BWTA2's filesystem helper has its own BSD-2-Clause notice. Boost uses
+the Boost Software License 1.0, and BWAPI's smallsha1 has its preserved BSD
+notice. The ShieldBattery host and build recipe are MIT-licensed.
+
+BWTA2 also requests acknowledgement of Alberto Uriarte and Santiago Ontanon,
+"Improving Terrain Analysis and Applications to RTS Game AI", AIIDE 2016.
+
+The exact selected source, modifications, dependency headers, notices, and
+recipe needed to modify, rebuild, and relink the executable are included under
+source/. See source/BUILD.md. No extra source download or payment is required.
+You may modify the LGPL libraries and relink this application with them, and
+reverse-engineer the combined work to debug those modifications as permitted
+by the LGPL. Source/build-info.json records source, patch, and recipe hashes.
+
+Runtime and compatibility
+
+Use a separate writable working directory and a fresh process for every match.
+The profile has no persistent bot learning state. The read/write directories
+remain available for launcher infrastructure. Source review does not provide
+an operating-system sandbox.
+
+The profile is for local 1v1 legacy-unit-limit melee using ShieldBattery's
+experimental BWAPI 4.4 bridge. Human skill is uncalibrated; tournament ratings
+of other upstream builds do not establish this package's human difficulty.
+Public competition approval is separate from local distribution.
+
+Versioned release archives:
+https://github.com/ShieldBattery/robotics-facility/releases

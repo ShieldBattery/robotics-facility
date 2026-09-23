@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "artifacts": [
+    {
+      "name": "boost_1_56_0.zip",
+      "url": "https://archives.boost.io/release/1.56.0/source/boost_1_56_0.zip",
+      "sha256": "be168dd499a4929bb9e4ce8b3fc9d6d08a9d1ac2da9f51e70d1945f4acb23041",
+      "sizeBytes": 161050696,
+      "license": "Boost Software License 1.0"
+    }
+  ]
+}

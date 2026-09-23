@@ -257,10 +257,18 @@ int main() {
 
       for (const auto& event : BWAPI::Broodwar->getEvents()) {
         dispatch(event, module);
+#ifdef SB_SINGLE_MATCH
+        if (event.getType() == BWAPI::EventType::MatchEnd) {
+          return 0;
+        }
+#endif
       }
     }
 
     module.reset();
+#ifdef SB_SINGLE_MATCH
+    return 0;
+#endif
     std::cout << "Disconnected; reconnecting..." << std::endl;
   }
 }

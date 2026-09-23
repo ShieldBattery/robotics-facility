@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "opprimobot",
+    "name": "OpprimoBot",
+    "description": "A classic all-race bot by Johan Hagelbäck. The initial ShieldBattery profile is being tested for local Terran play.",
+    "authors": [
+      {
+        "name": "Johan Hagelbäck"
+      }
+    ],
+    "homepage": "https://github.com/jhagelback/OpprimoBot",
+    "sourceUrl": "https://github.com/jhagelback/OpprimoBot",
+    "playStyleTags": [],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": [
+    "bwapi",
+    "opprimobot",
+    "bwta2"
+  ],
+  "profile": {
+    "selectableRaces": [
+      "terran"
+    ],
+    "randomRace": "unsupported",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "unverified",
+        "notes": "Live package verification pending."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Live package verification pending."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Live package verification pending."
+      }
+    ],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
+    "learning": {
+      "mode": "none",
+      "notes": "Fixed fresh-history profile: strategy history, result statistics, profiler output and terrain cache/logs are disabled."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "opprimobot",
+    "path": "README.md",
+    "notes": "Upstream README MIT declaration accepted for inclusion; preserve author attribution and requested research citation. Dependency/relink package review pending."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "Source and live package review pending."
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Track separately from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86",
+    "gameArchitectures": [
+      "x86",
+      "x86_64"
+    ],
+    "evidence": "docs/opprimobot-admission.md",
+    "limitations": [
+      "BWTA2 source port and fixed no-learning profile; live verification pending.",
+      "Only the initial Terran profile is offered for review.",
+      "Partial BWAPI bridge; legacy unit limits required."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "85ea5e30076d78c6b6f16a585f88d9a116d686ee",
+    "instructions": "bots/opprimobot/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "docs/opprimobot-admission.md"
+  }
+}

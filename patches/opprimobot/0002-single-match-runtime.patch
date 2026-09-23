@@ -1,0 +1,1003 @@
+diff --git a/SCProjects/OpprimoBot/Source/AIloop.cpp b/SCProjects/OpprimoBot/Source/AIloop.cpp
+index 9297417..82def24 100644
+--- a/SCProjects/OpprimoBot/Source/AIloop.cpp
++++ b/SCProjects/OpprimoBot/Source/AIloop.cpp
+@@ -17,12 +17,7 @@ AIloop::AIloop()
+ 	debugPF = false;
+ 	debugBP = false;
+ 	debugSQ = -1;
+-	debug = true;
+-
+-	for (auto &u : Broodwar->self()->getUnits())
+-	{
+-		AgentManager::getInstance()->addAgent(u);
+-	}
++	debug = false;
+ }
+ 
+ AIloop::~AIloop()
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Commander.cpp b/SCProjects/OpprimoBot/Source/Commander/Commander.cpp
+index 74e2ea9..ef13546 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Commander.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/Commander.cpp
+@@ -318,6 +318,7 @@ void Commander::removeSquad(int id)
+ 		if (sq->getID() == id)
+ 		{
+ 			sq->disband();
++			delete sq;
+ 			squads.erase(squads.begin() + i);
+ 			return;
+ 		}
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Commander.h b/SCProjects/OpprimoBot/Source/Commander/Commander.h
+index 15ad5fd..eb929e9 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Commander.h
++++ b/SCProjects/OpprimoBot/Source/Commander/Commander.h
+@@ -77,7 +77,7 @@ public:
+ 	void computeActionsBase();
+ 
+ 	/** Destructor. */
+-	~Commander();
++	virtual ~Commander();
+ 
+ 	/** Returns the instance of the class. */
+ 	static Commander* getInstance();
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Protoss/ProtossMain.cpp b/SCProjects/OpprimoBot/Source/Commander/Protoss/ProtossMain.cpp
+index 196c16e..ed6e1e1 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Protoss/ProtossMain.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/Protoss/ProtossMain.cpp
+@@ -37,11 +37,7 @@ ProtossMain::ProtossMain()
+ 
+ ProtossMain::~ProtossMain()
+ {
+-	for (Squad* s : squads)
+-	{
+-		delete s;
+-	}
+-	instance = NULL;
++	// The base Commander owns and destroys the squad list.
+ }
+ 
+ void ProtossMain::computeActions()
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Squad.h b/SCProjects/OpprimoBot/Source/Commander/Squad.h
+index 3ab3083..3b1a786 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Squad.h
++++ b/SCProjects/OpprimoBot/Source/Commander/Squad.h
+@@ -41,6 +41,7 @@ protected:
+ public:
+ 	/** Default constructor. */
+ 	Squad();
++	virtual ~Squad() = default;
+ 	
+ 	/** Creates a squad with a unique id, a type (Offensive, Defensive, Exploration, Support),
+ 	 * a name (for example AirAttackSquad, MainGroundSquad).
+diff --git a/SCProjects/OpprimoBot/Source/Commander/StrategySelector.cpp b/SCProjects/OpprimoBot/Source/Commander/StrategySelector.cpp
+index 57314bf..96ceec0 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/StrategySelector.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/StrategySelector.cpp
+@@ -3,20 +3,18 @@
+ #include "Terran/TerranMain.h"
+ #include "Zerg/LurkerRush.h"
+ #include "Zerg/ZergMain.h"
+-#include <fstream>
+ 
+ StrategySelector* StrategySelector::instance = NULL;
+ 
+ StrategySelector::StrategySelector()
+ {
+-	active = true;
++	active = false;
+ 
+ 	strategies.push_back(Strategy(Races::Protoss, ProtossMain::getStrategyId()));
+ 	strategies.push_back(Strategy(Races::Terran, TerranMain::getStrategyId()));
+ 	strategies.push_back(Strategy(Races::Zerg, LurkerRush::getStrategyId()));
+ 	strategies.push_back(Strategy(Races::Zerg, ZergMain::getStrategyId()));
+ 	
+-	loadStats();
+ }
+ 
+ StrategySelector* StrategySelector::getInstance()
+@@ -35,7 +33,7 @@ StrategySelector::~StrategySelector()
+ 
+ void StrategySelector::enable()
+ {
+-	active = true;
++	active = false;
+ }
+ 
+ void StrategySelector::disable()
+@@ -134,32 +132,7 @@ void StrategySelector::printInfo()
+ 
+ void StrategySelector::loadStats()
+ {
+-	string filename = getFilename();
+-
+-	ifstream inFile;
+-	inFile.open(filename.c_str());
+-	if (!inFile)
+-	{
+-		//No file found.
+-		return;
+-	}
+-	else
+-	{
+-		string line;
+-		char buffer[256];
+-		while (!inFile.eof())
+-		{
+-			inFile.getline(buffer, 256);
+-			if (buffer[0] != ';')
+-			{	
+-				stringstream ss;
+-				ss << buffer;
+-				line = ss.str();
+-				addEntry(line);
+-			}
+-		}
+-		inFile.close();
+-	}
++	// This profile does not read or persist match history or diagnostics.
+ }
+ 
+ void StrategySelector::addEntry(string line)
+@@ -248,114 +221,10 @@ string StrategySelector::getWriteFilename()
+ 
+ void StrategySelector::addResult(int win)
+ {
+-	if (!active) return;
+-
+-	string opponentRace = Broodwar->enemy()->getRace().getName();
+-	string mapHash = Broodwar->mapHash();
+-
+-	//Check if we have the entry already
+-	for (int i = 0; i < (int)stats.size(); i++)
+-	{
+-		if (mapHash == stats.at(i).mapHash && opponentRace == stats.at(i).opponentRace && currentStrategyId == stats.at(i).strategyId)
+-		{
+-			stats.at(i).total++;
+-			if (win == 0) stats.at(i).lost++;
+-			if (win == 1) stats.at(i).won++;
+-			if (win == 2) stats.at(i).draw++;
+-			return;
+-		}
+-	}
+-
+-	StrategyStats s = StrategyStats();
+-	s.total++;
+-	if (win == 0) s.lost++;
+-	if (win == 1) s.won++;
+-	if (win == 2) s.draw++;
+-	s.strategyId = currentStrategyId;
+-	s.mapHash = mapHash;
+-	s.mapName = Broodwar->mapFileName();
+-	s.ownRace = Broodwar->self()->getRace().getName();
+-	s.opponentRace = opponentRace;
+-	stats.push_back(s);
++	// This profile does not read or persist match history or diagnostics.
+ }
+ 
+ void StrategySelector::saveStats()
+ {
+-	if (!active) return;
+-
+-	//Fill entries in stats file for combinations that have
+-	//not yet been played.
+-	string mapHash = Broodwar->mapHash();
+-	string opponentRace = Broodwar->enemy()->getRace().getName();
+-	string ownRace = Broodwar->self()->getRace().getName();
+-
+-	for (int i = 0; i < (int)strategies.size(); i++)
+-	{
+-		bool found = false;
+-		for (int s = 0; s < (int)stats.size(); s++)
+-		{
+-			if (strategies.at(i).strategyId == stats.at(s).strategyId && mapHash == stats.at(s).mapHash && opponentRace == stats.at(s).opponentRace)
+-			{
+-				//Matches
+-				found = true;
+-				break;
+-			}
+-		}
+-
+-		if (!found)
+-		{
+-			//Only fill in the strategies for
+-			//the same race
+-			if (ownRace == strategies.at(i).race.getName())
+-			{
+-				//Add entry
+-				StrategyStats s = StrategyStats();
+-				s.mapHash = mapHash;
+-				s.mapName = Broodwar->mapFileName();
+-				s.opponentRace = opponentRace;
+-				s.ownRace = strategies.at(i).race.getName();
+-				s.strategyId = strategies.at(i).strategyId;
+-
+-				stats.push_back(s);
+-			}
+-		}
+-	}
+-
+-	//Save the file
+-	string filename = getWriteFilename();
+-
+-	ofstream outFile;
+-	outFile.open(filename.c_str());
+-	if (!outFile)
+-	{
+-		Broodwar << "Error writing to stats file!" << endl;
+-	}
+-	else
+-	{
+-		for (int i = 0; i < (int)stats.size(); i++)
+-		{
+-			stringstream s2;
+-			s2 << stats.at(i).strategyId;
+-			s2 << ";";
+-			s2 << stats.at(i).ownRace;
+-			s2 << ";";
+-			s2 << stats.at(i).opponentRace;
+-			s2 << ";";
+-			s2 << stats.at(i).won;
+-			s2 << ";";
+-			s2 << stats.at(i).lost;
+-			s2 << ";";
+-			s2 << stats.at(i).draw;
+-			s2 << ";";
+-			s2 << stats.at(i).total;
+-			s2 << ";";
+-			s2 << stats.at(i).mapName;
+-			s2 << ";";
+-			s2 << stats.at(i).mapHash;
+-			s2 << ";\n";
+-
+-			outFile << s2.str();
+-		}
+-		outFile.close();
+-	}
++	// This profile does not read or persist match history or diagnostics.
+ }
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Terran/TerranMain.cpp b/SCProjects/OpprimoBot/Source/Commander/Terran/TerranMain.cpp
+index b6b4c77..58a534b 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Terran/TerranMain.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/Terran/TerranMain.cpp
+@@ -3,6 +3,7 @@
+ #include "../../Managers/AgentManager.h"
+ #include "../ExplorationSquad.h"
+ #include "../RushSquad.h"
++#include <algorithm>
+ 
+ TerranMain::TerranMain()
+ {
+@@ -54,11 +55,10 @@ TerranMain::TerranMain()
+ 
+ TerranMain::~TerranMain()
+ {
+-	for (Squad* s : squads)
++	if (std::find(squads.begin(), squads.end(), sc1) == squads.end())
+ 	{
+-		delete s;
++		delete sc1;
+ 	}
+-	instance = NULL;
+ }
+ 
+ void TerranMain::computeActions()
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Zerg/LurkerRush.cpp b/SCProjects/OpprimoBot/Source/Commander/Zerg/LurkerRush.cpp
+index ce45a69..525d325 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Zerg/LurkerRush.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/Zerg/LurkerRush.cpp
+@@ -4,6 +4,7 @@
+ #include "../RushSquad.h"
+ #include "../ExplorationSquad.h"
+ #include "../../Managers/ExplorationManager.h"
++#include <algorithm>
+ 
+ LurkerRush::LurkerRush()
+ {
+@@ -44,11 +45,10 @@ LurkerRush::LurkerRush()
+ 
+ LurkerRush::~LurkerRush()
+ {
+-	for (Squad* s : squads)
++	if (std::find(squads.begin(), squads.end(), sc2) == squads.end())
+ 	{
+-		delete s;
++		delete sc2;
+ 	}
+-	instance = NULL;
+ }
+ 
+ void LurkerRush::computeActions()
+diff --git a/SCProjects/OpprimoBot/Source/Commander/Zerg/ZergMain.cpp b/SCProjects/OpprimoBot/Source/Commander/Zerg/ZergMain.cpp
+index fa44568..90b6662 100644
+--- a/SCProjects/OpprimoBot/Source/Commander/Zerg/ZergMain.cpp
++++ b/SCProjects/OpprimoBot/Source/Commander/Zerg/ZergMain.cpp
+@@ -4,6 +4,7 @@
+ #include "../RushSquad.h"
+ #include "../ExplorationSquad.h"
+ #include "../../Managers/ExplorationManager.h"
++#include <algorithm>
+ 
+ ZergMain::ZergMain()
+ {
+@@ -38,11 +39,10 @@ ZergMain::ZergMain()
+ 
+ ZergMain::~ZergMain()
+ {
+-	for (Squad* s : squads)
++	if (std::find(squads.begin(), squads.end(), sc2) == squads.end())
+ 	{
+-		delete s;
++		delete sc2;
+ 	}
+-	instance = NULL;
+ }
+ 
+ void ZergMain::computeActions()
+diff --git a/SCProjects/OpprimoBot/Source/MainAgents/AgentFactory.cpp b/SCProjects/OpprimoBot/Source/MainAgents/AgentFactory.cpp
+index b939425..5141f0c 100644
+--- a/SCProjects/OpprimoBot/Source/MainAgents/AgentFactory.cpp
++++ b/SCProjects/OpprimoBot/Source/MainAgents/AgentFactory.cpp
+@@ -45,7 +45,7 @@ AgentFactory::AgentFactory()
+ AgentFactory::~AgentFactory()
+ {
+ 	instanceFlag = false;
+-	delete instance;
++	instance = NULL;
+ }
+ 
+ AgentFactory* AgentFactory::getInstance()
+diff --git a/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp b/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
+index 6320c3f..f931ec8 100644
+--- a/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
++++ b/SCProjects/OpprimoBot/Source/Managers/ExplorationManager.cpp
+@@ -21,6 +21,8 @@ ExplorationManager::ExplorationManager()
+ 
+ ExplorationManager::~ExplorationManager()
+ {
++	for (auto item : enemy) delete item;
++	for (auto item : explore) delete item;
+ 	instance = NULL;
+ }
+ 
+diff --git a/SCProjects/OpprimoBot/Source/OpprimoBot.cpp b/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
+index 2299584..9fb8a34 100644
+--- a/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
++++ b/SCProjects/OpprimoBot/Source/OpprimoBot.cpp
+@@ -14,6 +14,7 @@
+ #include "Utils/Statistics.h"
+ 
+ #include "Managers/AgentManager.h"
++#include "MainAgents/AgentFactory.h"
+ #include <Shlwapi.h>
+ 
+ using namespace BWAPI;
+@@ -24,232 +25,85 @@ bool leader = false;
+ 
+ void OpprimoBot::onStart()
+ {
+-	//Enable/disable file writing stuff
+ 	Profiler::getInstance()->disable();
+ 	Statistics::getInstance()->disable();
+ 	StrategySelector::getInstance()->disable();
++	BWTA::analyze();
++	analyzed = true;
++	analysis_just_finished = true;
+ 
+-	Profiler::getInstance()->start("OnInit");
+-
+-	//Needed for text commands to work
+-	Broodwar->enableFlag(Flag::UserInput);
+-
+-	//Uncomment to enable complete map information
+-	//Broodwar->enableFlag(Flag::CompleteMapInformation);
+-
+-	//Analyze map using BWTA
+-	analyzed = false;
+-	analysis_just_finished = false;
+-	//CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AnalyzeThread, NULL, 0, NULL); //Threaded version
+-	AnalyzeThread();
+-
+-	profile = false;
+-
+-	//Init our singleton agents
+ 	AgentManager::getInstance();
+ 	BuildingPlacer::getInstance();
+ 	Constructor::getInstance();
+ 	Upgrader::getInstance();
+ 	ResourceManager::getInstance();
+ 	Pathfinder::getInstance();
++	MapManager::getInstance();
++	ExplorationManager::getInstance();
++	NavigationAgent::getInstance();
++	AgentFactory::getInstance();
++	Config::getInstance();
++	Commander::getInstance();
+ 
+-	//Fill pathfinder
+ 	for (BaseLocation* base : getBaseLocations())
+ 	{
+-		TilePosition pos = base->getTilePosition();
+-		Pathfinder::getInstance()->requestPath(Broodwar->self()->getStartLocation(), pos);
++		Pathfinder::getInstance()->requestPath(Broodwar->self()->getStartLocation(), base->getTilePosition());
+ 	}
+-
+-	MapManager::getInstance();
+-	
+-	//Add the units we have from start to agent manager
+-	for (auto &u : Broodwar->self()->getUnits())
++	for (auto &unit : Broodwar->self()->getUnits())
+ 	{
+-		AgentManager::getInstance()->addAgent(u);
++		AgentManager::getInstance()->addAgent(unit);
+ 	}
+-
+ 	running = true;
+-
+-	Broodwar->setCommandOptimizationLevel(2); //0--3
+-
+-	//Debug mode. Active panels.
+-	Commander::getInstance()->toggleSquadsDebug();
+-	Commander::getInstance()->toggleBuildplanDebug();
+-	Upgrader::getInstance()->toggleDebug();
+-	loop.toggleUnitDebug();
+-	//loop.toggleBPDebug();
+-	//End Debug mode
+-
+-	//Set speed
+-	speed = 0;
+-	Broodwar->setLocalSpeed(speed);
+-
+-	Profiler::getInstance()->end("OnInit");
++	Broodwar->setCommandOptimizationLevel(2);
+ }
+ 
+ void OpprimoBot::gameStopped()
+ {
+-	Pathfinder::getInstance()->stop();
+-	Profiler::getInstance()->dumpToFile();
++	if (!running) return;
+ 	running = false;
+-
+-	//Delete singletons
+ 	delete Pathfinder::getInstance();
+-	delete Profiler::getInstance();
++	delete Commander::getInstance();
+ 	delete AgentManager::getInstance();
+ 	delete BuildingPlacer::getInstance();
+ 	delete ResourceManager::getInstance();
+ 	delete Constructor::getInstance();
+-	delete Commander::getInstance();
++	delete Upgrader::getInstance();
+ 	delete ExplorationManager::getInstance();
+ 	delete NavigationAgent::getInstance();
+ 	delete StrategySelector::getInstance();
+ 	delete MapManager::getInstance();
++	delete Statistics::getInstance();
++	delete AgentFactory::getInstance();
++	delete Config::getInstance();
++	delete Profiler::getInstance();
+ }
+ 
+ void OpprimoBot::onEnd(bool isWinner)
+ {
+-	if (Broodwar->elapsedTime() / 60 < 4) return;
+-
+-	int win = 0;
+-	if (isWinner) win = 1;
+-	if (Broodwar->elapsedTime() / 60 >= 80) win = 2;
+-
+-	StrategySelector::getInstance()->addResult(win);
+-	StrategySelector::getInstance()->saveStats();
+-	Statistics::getInstance()->saveResult(win);
+-
+ 	gameStopped();
+ }
+ 
+ void OpprimoBot::onFrame()
+ {
+-	Profiler::getInstance()->start("OnFrame");
+-
+-	if (!running)
+-	{
+-		//Game over. Do nothing.
+-		return;
+-	}
++	if (!running) return;
+ 	if (!Broodwar->isInGame())
+ 	{
+-		//Not in game. Do nothing.
+ 		gameStopped();
+ 		return;
+ 	}
+-	if (Broodwar->isReplay())
+-	{
+-		//Replay. Do nothing.
+-		return;
+-	}
+-
+-	if (Broodwar->elapsedTime() / 60 >= 81)
+-	{
+-		//Stalled game. Leave it.
+-		Broodwar->leaveGame();
+-		return;
+-	}
+-
++	if (Broodwar->isReplay()) return;
++	Pathfinder::getInstance()->update();
+ 	loop.computeActions();
+-	loop.show_debug();
+-
+-	Config::getInstance()->displayBotName();
+-
+-	Profiler::getInstance()->end("OnFrame");
+ }
+ 
+ void OpprimoBot::onSendText(std::string text)
+ {
+-	if (text == "a")
+-	{
+-		Commander::getInstance()->forceAttack();
+-	}
+-	else if (text == "p")
+-	{
+-		profile = !profile;
+-	}
+-	else if (text == "d")
+-	{
+-		loop.toggleDebug();
+-	}
+-	else if (text == "pf" && NavigationAgent::pathfinding_version == 2)
+-	{
+-		loop.togglePFDebug();
+-	}
+-	else if (text == "bp")
+-	{
+-		loop.toggleBPDebug();
+-	}
+-	else if (text == "spf")
+-	{
+-		NavigationAgent::pathfinding_version++;
+-		if (NavigationAgent::pathfinding_version > 2) NavigationAgent::pathfinding_version = 0;
+-	}
+-	else if (text.substr(0, 2) == "sq")
+-	{
+-		if (text == "sq")
+-		{
+-			loop.setDebugSQ(-1);
+-		}
+-		else
+-		{
+-			int id = atoi(&text[2]);
+-			loop.setDebugSQ(id);
+-		}
+-	}
+-	else if (text == "+")
+-	{
+-		speed -= 4;
+-		if (speed < 0)
+-		{
+-			speed = 0;
+-		}
+-		Broodwar << "Changed game speed: " << speed << endl;
+-		Broodwar->setLocalSpeed(speed);
+-	}
+-	else if (text == "++")
+-	{
+-		speed = 0;
+-		Broodwar << "Changed game speed: " << speed << endl;
+-		Broodwar->setLocalSpeed(speed);
+-	}
+-	else if (text == "-")
+-	{
+-		speed += 4;
+-		Broodwar << "Changed game speed: " << speed << endl;
+-		Broodwar->setLocalSpeed(speed);
+-	}
+-	else if (text == "--")
+-	{
+-		speed = 24;
+-		Broodwar << "Changed game speed: " << speed << endl;
+-		Broodwar->setLocalSpeed(speed);
+-	}
+-	else if (text == "t")
+-	{
+-		Upgrader::getInstance()->toggleDebug();
+-	}
+-	else if (text == "s")
+-	{
+-		Commander::getInstance()->toggleSquadsDebug();
+-	}
+-	else if (text == "b")
+-	{
+-		Commander::getInstance()->toggleBuildplanDebug();
+-	}
+-	else if (text == "i")
+-	{
+-		loop.toggleUnitDebug();
+-	}
+-	else
+-	{
+-		Broodwar << "You typed '" << text << "'!" << endl;
+-	}
++
+ }
+ 
+ void OpprimoBot::onReceiveText(BWAPI::Player player, std::string text)
+ {
+-	Broodwar << player->getName() << " said '" << text << "'" << endl;
++
+ }
+ 
+ void OpprimoBot::onPlayerLeft(BWAPI::Player player)
+@@ -259,15 +113,7 @@ void OpprimoBot::onPlayerLeft(BWAPI::Player player)
+ 
+ void OpprimoBot::onNukeDetect(BWAPI::Position target)
+ {
+-	if (target != Positions::Unknown)
+-	{
+-		TilePosition t = TilePosition(target);
+-		Broodwar << "Nuclear Launch Detected at (" << t.x << "," << t.y << ")" << endl;
+-	}
+-	else
+-	{
+-		Broodwar << "Nuclear Launch Detected" << endl;
+-	}
++
+ }
+ 
+ void OpprimoBot::onUnitDiscover(BWAPI::Unit unit)
+@@ -350,18 +196,10 @@ void OpprimoBot::onUnitRenegade(BWAPI::Unit unit)
+ 
+ void OpprimoBot::onSaveGame(std::string gameName)
+ {
+-	Broodwar << "The game was saved to '" << gameName << "'" << endl;
+-}
+-
+-DWORD WINAPI AnalyzeThread()
+-{
+-	BWTA::analyze();
+ 
+-	analyzed = true;
+-	analysis_just_finished = true;
+-	return 0;
+ }
+ 
++
+ bool BotTournamentModule::onAction(int actionType, void *parameter)
+ {
+ 	switch (actionType)
+@@ -401,7 +239,10 @@ bool BotTournamentModule::onAction(int actionType, void *parameter)
+ 
+ void BotTournamentModule::onFirstAdvertisement()
+ {
+-	leader = true;
+-	Broodwar->sendText("Welcome to " TOURNAMENT_NAME "!");
+-	Broodwar->sendText("Brought to you by " SPONSORS ".");
++
++}
++
++OpprimoBot::~OpprimoBot()
++{
++	gameStopped();
+ }
+diff --git a/SCProjects/OpprimoBot/Source/OpprimoBot.h b/SCProjects/OpprimoBot/Source/OpprimoBot.h
+index fd0b298..aea2f2e 100644
+--- a/SCProjects/OpprimoBot/Source/OpprimoBot.h
++++ b/SCProjects/OpprimoBot/Source/OpprimoBot.h
+@@ -14,7 +14,6 @@ class BotTournamentModule : public BWAPI::TournamentModule
+ 	virtual void onFirstAdvertisement();
+ };
+ 
+-DWORD WINAPI AnalyzeThread();
+ 
+ /** This class contains the main game loop and all events that is broadcasted from the Starcraft engine
+ * using BWAPI. See the BWAPI documentation for more info.
+@@ -23,12 +22,12 @@ DWORD WINAPI AnalyzeThread();
+ class OpprimoBot : public BWAPI::AIModule
+ {
+ private:
+-	bool running;
+-	bool profile;
++	bool running = false;
+ 	void gameStopped();
+ 
+ public:
+ 	// Virtual functions for callbacks, leave these as they are.
++	~OpprimoBot() override;
+ 	virtual void onStart();
+ 	virtual void onEnd(bool isWinner);
+ 	virtual void onFrame();
+@@ -48,6 +47,5 @@ public:
+ 	virtual void onUnitComplete(BWAPI::Unit unit);
+ 	// Everything below this line is safe to modify.
+ 
+-	int speed;
+ 	AIloop loop;
+ };
+diff --git a/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.cpp b/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.cpp
+index c4afa27..132c4db 100644
+--- a/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.cpp
++++ b/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.cpp
+@@ -7,14 +7,11 @@ Pathfinder* Pathfinder::instance = NULL;
+ 
+ Pathfinder::Pathfinder()
+ {
+-	running = true;
+-	CreateThread();
++
+ }
+ 
+ Pathfinder::~Pathfinder()
+ {
+-	running = false;
+-	
+ 	for (auto &p : pathObj)
+ 	{	
+ 		delete p;
+@@ -89,33 +86,16 @@ vector<TilePosition> Pathfinder::getPath(TilePosition start, TilePosition end)
+ 	return vector<TilePosition>();
+ }
+ 
+-void Pathfinder::stop()
+-{
+-	running = false;
+-}
+-
+-bool Pathfinder::isRunning()
+-{
+-	if (!Broodwar->isInGame()) running = false;
+-	return running;
+-}
+-
+-unsigned long Pathfinder::Process (void* parameter)
++void Pathfinder::update()
+ {
+-	while (running)
++	// BWTA and the request cache are used only by the callback thread.
++	// Limit work to one pending query per frame so queued paths do not stall a turn together.
++	for (auto &p : pathObj)
+ 	{
+-		if (!isRunning()) return 0;
+-		for (auto &p : pathObj)
++		if (!p->isFinished())
+ 		{
+-			if (!isRunning()) return 0;
+-			if (!p->isFinished())
+-			{
+-				p->calculatePath();
+-			}
++			p->calculatePath();
++			return;
+ 		}
+-		Sleep(5);
+ 	}
+-
+-	return 0;
+ }
+-
+diff --git a/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.h b/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.h
+index 8b23aae..7b81260 100644
+--- a/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.h
++++ b/SCProjects/OpprimoBot/Source/Pathfinding/Pathfinder.h
+@@ -3,7 +3,6 @@
+ 
+ #include "../MainAgents/BaseAgent.h"
+ #include "PathObj.h"
+-#include "../Utils/cthread.h"
+ 
+ using namespace BWAPI;
+ using namespace BWTA;
+@@ -17,23 +16,21 @@ public:
+ /** This class is used to find a path betweed two tiles in the game world. Currently it uses the 
+  * A-star implementation in BWTA, but it can easily be changed to another algorithm if needed.
+  *
+- * The pathfinder is threaded, so agents have to request a path that is put in a queue. Agents have to
++ * The callback thread processes one queued path per update. Agents must
+  * check the isReady() method to find out when the path finding is finished.
+  *
+  * Author: Johan Hagelback (johan.hagelback@gmail.com)
+  */
+-class Pathfinder : public CThread {
++class Pathfinder {
+ 
+ private:
+ 	Pathfinder();
+ 	static Pathfinder* instance;
+-	bool running;
+ 
+ 	PathObjSet pathObj;
+ 
+ 	PathObj* getPathObj(TilePosition start, TilePosition end);
+ 
+-	bool isRunning();
+ 
+ public:
+ 	/** Destructor */
+@@ -52,11 +49,8 @@ public:
+ 	/** Returns the path between two positions. */
+ 	vector<TilePosition> getPath(TilePosition start, TilePosition end);
+ 
+-	/** Stops the pathfinder thread. */
+-	void stop();
+-
+-	/** Thread update method. */
+-	unsigned long Process (void* parameter);
++	/** Computes at most one queued path on the callback thread. */
++	void update();
+ };
+ 
+ #endif
+diff --git a/SCProjects/OpprimoBot/Source/Utils/Config.cpp b/SCProjects/OpprimoBot/Source/Utils/Config.cpp
+index 9aaf7d5..71fd149 100644
+--- a/SCProjects/OpprimoBot/Source/Utils/Config.cpp
++++ b/SCProjects/OpprimoBot/Source/Utils/Config.cpp
+@@ -23,7 +23,7 @@ Config::Config()
+ 
+ Config::~Config()
+ {
+-	delete instance;
++	instance = NULL;
+ }
+ 
+ Config* Config::getInstance()
+diff --git a/SCProjects/OpprimoBot/Source/Utils/Profiler.cpp b/SCProjects/OpprimoBot/Source/Utils/Profiler.cpp
+index 1ee1ee7..8c29fa3 100644
+--- a/SCProjects/OpprimoBot/Source/Utils/Profiler.cpp
++++ b/SCProjects/OpprimoBot/Source/Utils/Profiler.cpp
+@@ -1,13 +1,12 @@
+ #include "Profiler.h"
+ #include <iostream>
+-#include <fstream>
+ 
+ bool Profiler::instanceFlag = false;
+ Profiler* Profiler::instance = NULL;
+ 
+ Profiler::Profiler()
+ {
+-	active = true;
++	active = false;
+ }
+ 
+ Profiler::~Profiler()
+@@ -16,6 +15,8 @@ Profiler::~Profiler()
+ 	{	
+ 		delete o;
+ 	}
++	instance = NULL;
++	instanceFlag = false;
+ }
+ 
+ Profiler* Profiler::getInstance()
+@@ -30,7 +31,7 @@ Profiler* Profiler::getInstance()
+ 
+ void Profiler::enable()
+ {
+-	active = true;
++	active = false;
+ }
+ 
+ void Profiler::disable()
+@@ -78,48 +79,5 @@ void Profiler::end(string mId)
+ 
+ void Profiler::dumpToFile()
+ {
+-	if (!active) return;
+-
+-	ofstream ofile;
+-	ofile.open("bwapi-data\\AI\\Profiling_OpprimoBot.html");
+-	
+-	ofile << "<html><head>\n";
+-	ofile << "<style type='text/css'>\n";
+-	ofile << "body{ background-color: #999999;}\n";
+-	ofile << "table { background-color: white; border: 1px solid; width: 800;}\n";
+-	ofile << "tr {border: 1px solid;}\n";
+-	ofile << "td.h {background-color: #ccccff; text-align: center;}\n";
+-	ofile << "td {background-color: white; text-align: center;}\n";
+-	ofile << "</style>\n";
+-	ofile << "<title>OpprimoBot Profiler</title></head><body>\n";
+-	ofile << "<table>";
+-
+-	ofile << "<tr><td class='h'>";
+-	ofile << "Id";
+-	ofile << "</td><td class='h'>";
+-	ofile << "AvgCallTime";
+-	ofile << "</td><td class='h'>";
+-	ofile << "TotalTime";
+-	ofile << "</td><td class='h'>";
+-	ofile << "Calls";
+-	ofile << "</td><td class='h'>";
+-	ofile << "MaxTime";
+-	ofile << "</td><td class='h'>";
+-	ofile << "TO_10sec";
+-	ofile << "</td><td class='h'>";
+-	ofile << "TO_1sec";
+-	ofile << "</td><td class='h'>";
+-	ofile << "TO_55ms";
+-	ofile << "</td>";
+-	ofile << "</tr>\n";
+-
+-	for (ProfilerObj* o : obj)
+-	{
+-		ofile << o->getDumpStr().c_str();
+-	}
+-
+-	ofile << "</table>";
+-	ofile << "</body></html>";
+-
+-	ofile.close();
++	// This profile does not read or persist match history or diagnostics.
+ }
+\ No newline at end of file
+diff --git a/SCProjects/OpprimoBot/Source/Utils/Statistics.cpp b/SCProjects/OpprimoBot/Source/Utils/Statistics.cpp
+index 299224b..3383190 100644
+--- a/SCProjects/OpprimoBot/Source/Utils/Statistics.cpp
++++ b/SCProjects/OpprimoBot/Source/Utils/Statistics.cpp
+@@ -1,11 +1,10 @@
+ #include "Statistics.h"
+-#include <fstream>
+ 
+ Statistics* Statistics::instance = NULL;
+ 
+ Statistics::Statistics()
+ {
+-	active = true;
++	active = false;
+ }
+ 
+ Statistics* Statistics::getInstance()
+@@ -24,7 +23,7 @@ Statistics::~Statistics()
+ 
+ void Statistics::enable()
+ {
+-	active = true;
++	active = false;
+ }
+ 
+ void Statistics::disable()
+@@ -44,44 +43,5 @@ string Statistics::getFilename()
+ 
+ void Statistics::saveResult(int win)
+ {
+-	if (!active) return;
+-
+-	stringstream ss;
+-	ss << Broodwar->self()->getRace().getName();
+-	ss << ";";
+-	ss << Broodwar->enemy()->getRace().getName();
+-	ss << ";";
+-	ss << Broodwar->mapFileName();
+-	ss << ";";
+-	if (win == 1) ss << "Won";
+-	if (win == 0) ss << "Lost";
+-	if (win == 2) ss << "Draw";
+-	ss << ";";
+-	ss << Broodwar->self()->getUnitScore();
+-	ss << ";";
+-	ss << Broodwar->self()->getBuildingScore();
+-	ss << ";";
+-	ss << Broodwar->self()->getKillScore();
+-	ss << ";";
+-	ss << Broodwar->enemy()->getUnitScore();
+-	ss << ";";
+-	ss << Broodwar->enemy()->getBuildingScore();
+-	ss << ";";
+-	ss << Broodwar->enemy()->getKillScore();
+-	ss << "\n";
+-
+-	//Save the file
+-	string filename = getFilename();
+-
+-	ofstream outFile;
+-	outFile.open(filename.c_str(), ios::out | ios::app); 
+-	if (!outFile)
+-	{
+-		Broodwar << "Error writing to stats file!" << endl;
+-	}
+-	else
+-	{
+-		outFile << ss.str();
+-		outFile.close();
+-	}
++	// This profile does not read or persist match history or diagnostics.
+ }

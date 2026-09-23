@@ -222,6 +222,22 @@ export function makeBuildInfo({
   }
 }
 
+export const opprimoRecipePaths = Object.freeze([
+  ...recipePaths,
+  'native/opprimobot.cmake',
+  'native/opprimobot-compat.hpp',
+  'native/opprimobot-tests.cpp',
+  'native/dependencies.json',
+  'tools/build-zzzkbot.mjs',
+  'tools/build-opprimobot.mjs',
+  'tools/package-opprimobot.mjs',
+  'bots/opprimobot/BUILD.md',
+  'bots/opprimobot/RELEASE.txt',
+  'bots/opprimobot/OPPRIMOBOT-MIT.txt',
+  'bots/opprimobot/BWTA2-FILESYSTEM-LICENSE.txt',
+  'bots/ualbertabot/SMALLSHA1-LICENSE.txt',
+])
+
 export const ualbertaRecipePaths = Object.freeze([
   ...recipePaths,
   'native/ualbertabot.cmake',
@@ -242,12 +258,25 @@ export function buildZzzkbot(options) {
   return buildNativeBot({ ...options, botId: 'zzzkbot' })
 }
 
-export async function buildNativeBot({ rootDir = process.cwd(), outputName, botId }) {
-  if (!['zzzkbot', 'ualbertabot'].includes(botId)) throw new Error('Unsupported native bot')
-  const sourceIds = ['bwapi', botId]
-  const inputs = botId === 'ualbertabot' ? ualbertaRecipePaths : recipePaths
-  const target = botId === 'ualbertabot' ? 'UAlbertaBot' : 'ZZZKBotClient'
-  const sourceVariable = botId === 'ualbertabot' ? 'UALBERTABOT' : 'ZZZKBOT'
+export async function buildNativeBot({
+  rootDir = process.cwd(), outputName, botId, prepareDependencies,
+}) {
+  if (!['zzzkbot', 'ualbertabot', 'opprimobot'].includes(botId)) {
+    throw new Error('Unsupported native bot')
+  }
+  if ((botId === 'opprimobot') !== (typeof prepareDependencies === 'function')) {
+    throw new Error('OpprimoBot requires its verified Boost preparation step')
+  }
+  const sourceIds = botId === 'opprimobot' ? ['bwapi', 'bwta2', 'opprimobot'] : ['bwapi', botId]
+  const inputs = botId === 'opprimobot'
+    ? opprimoRecipePaths
+    : botId === 'ualbertabot' ? ualbertaRecipePaths : recipePaths
+  const target = botId === 'opprimobot'
+    ? 'OpprimoBot'
+    : botId === 'ualbertabot' ? 'UAlbertaBot' : 'ZZZKBotClient'
+  const sourceVariable = botId === 'ualbertabot'
+    ? 'UALBERTABOT'
+    : botId === 'opprimobot' ? 'OPPRIMOBOT' : 'ZZZKBOT'
 
   const root = await realpath(rootDir)
   const name = validateOutputName(outputName)
@@ -261,6 +290,8 @@ export async function buildNativeBot({ rootDir = process.cwd(), outputName, botI
     if (!source) throw new Error(`source-lock.json is missing ${id}`)
     return source
   })
+
+  const dependencies = prepareDependencies ? await prepareDependencies({ root, output }) : undefined
 
   const prepared = []
   for (const source of selectedSources) {
@@ -288,6 +319,10 @@ export async function buildNativeBot({ rootDir = process.cwd(), outputName, botI
     `-DSB_NATIVE_BOT=${botId}`,
     `-D${sourceVariable}_SOURCE_DIR=${path.join(output, 'sources', botId)}`,
     `-D${sourceVariable}_OUTPUT_DIR=${path.join(output, 'bin')}`,
+    ...(botId === 'opprimobot' ? [
+      `-DBWTA2_SOURCE_DIR=${path.join(output, 'sources', 'bwta2')}`,
+      `-DOPPRIMOBOT_BOOST_DIR=${dependencies.includeDir}`,
+    ] : []),
   ])
   await run('cmake', [
     '--build',
@@ -327,6 +362,9 @@ export async function buildNativeBot({ rootDir = process.cwd(), outputName, botI
       directory: relativeToRoot(output, source.directory),
     })),
   })
+  if (dependencies) {
+    buildInfo.dependencies = await dependencies.verify()
+  }
   await writeFile(path.join(output, 'build-info.json'), JSON.stringify(buildInfo, null, 2) + '\n', {
     flag: 'wx',
   })
