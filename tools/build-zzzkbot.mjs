@@ -229,6 +229,13 @@ export const ualbertaRecipePaths = Object.freeze([
   'tools/build-zzzkbot.mjs',
   'tools/build-ualbertabot.mjs',
   'bots/ualbertabot/UAlbertaBot_Config.txt',
+  'tools/package-ualbertabot.mjs',
+  'bots/ualbertabot/BUILD.md',
+  'bots/ualbertabot/RELEASE.txt',
+  'bots/ualbertabot/UALBERTABOT-MIT.txt',
+  'bots/ualbertabot/RAPIDJSON-MIT.txt',
+  'bots/ualbertabot/MSINTTYPES-BSD-3-Clause.txt',
+  'bots/ualbertabot/SMALLSHA1-LICENSE.txt',
 ])
 
 export function buildZzzkbot(options) {

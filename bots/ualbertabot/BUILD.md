@@ -1,15 +1,42 @@
-# ualbertabot build status
+# UAlbertaBot build and source package
 
-The exact source IDs, ShieldBattery recipe revision, and prototype evidence are
-recorded in `bot.json`. Run `pnpm sources` from the repository root to fetch the
-pinned upstream checkouts. Licenses remain in those upstream trees at the paths
-recorded in the candidate metadata; include all required dependency notices and
-source material before distributing an artifact.
+Requires Windows, CMake 3.21+, and Visual Studio 2022 with the C++ Win32 toolset
+and Windows SDK. The external client is 32-bit and uses the static MSVC runtime,
+so the package does not require a separately installed Visual C++ redistributable.
 
-The runnable build recipe remains in ShieldBattery's `tools/bwapi/README.md` at
-commit `980037a028c78a9c0285d34337b6fbd8ddeb9ff0`. It builds Release Win32 with
-Visual Studio and CMake. Source paths are configurable in the CMake recipes, so
-`.sources/` can supply the inputs. This is not yet a standalone recipe in this repo.
+## Build from this repository
 
-The current profile describes the tested configuration, not every capability of
-the upstream project. No release archive or catalog installation is approved yet.
+Use Node.js 24+, pnpm, and Git:
+
+    pnpm install --frozen-lockfile --ignore-scripts
+    pnpm sources
+    node tools/build-ualbertabot.mjs ualbertabot-release
+    node tools/package-ualbertabot.mjs .build/ualbertabot-release ualbertabot-sb-1 --review
+
+The build directory must not exist. The builder prepares independent copies of
+the pinned BWAPI and UAlbertaBot source trees, applies ordered hashed patches,
+verifies their index and working trees, and records the source trees and
+executable hash in build-info.json. --review creates a review ZIP whose metadata
+remains pending. Normal packaging requires approved source and local distribution
+reviews. Neither command uploads anything. A release ID identifies one set of
+bytes and must not be reused.
+
+## Rebuild the source in a downloaded package
+
+The source directory has the patched compilation inputs, notices, and native
+recipe needed to rebuild and relink the executable. With the prerequisites
+installed, run from that directory:
+
+    cmake -S native -B rebuild -G "Visual Studio 17 2022" -A Win32 -DSB_NATIVE_BOT=ualbertabot -DBWAPI_SOURCE_DIR="$PWD/bwapi" -DUALBERTABOT_SOURCE_DIR="$PWD/ualbertabot"
+    cmake --build rebuild --config Release --target UAlbertaBot --parallel
+
+The result is rebuild/bin/UAlbertaBot.exe. Copy it and
+bots/ualbertabot/UAlbertaBot_Config.txt into a fresh working directory, then
+create bwapi-data/AI, bwapi-data/read, and bwapi-data/write below that directory.
+Use a fresh bot process for every match. ShieldBattery supplies SB_BWAPI_INSTANCE
+when it launches the external client. The package contains no StarCraft files,
+maps, or opponent data.
+
+The ZIP encoder uses stable ordering, timestamps, and permissions. The source
+pins, patches, and build record make the inputs reproducible; byte-identical
+output across toolchain versions or checkout paths is not promised.

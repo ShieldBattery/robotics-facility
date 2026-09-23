@@ -3,7 +3,7 @@
   "bot": {
     "id": "ualbertabot",
     "name": "UAlbertaBot",
-    "description": "The stock configuration uses a Terran marine rush.",
+    "description": "A Terran MarineRush opponent with a fixed opening and no learning between games.",
     "authors": [
       {
         "name": "David Churchill"
@@ -11,7 +11,10 @@
     ],
     "homepage": "https://github.com/davechurchill/ualbertabot",
     "sourceUrl": "https://github.com/davechurchill/ualbertabot",
-    "playStyleTags": ["cheese", "bio"],
+    "playStyleTags": [
+      "cheese",
+      "bio"
+    ],
     "humanSkill": "uncalibrated",
     "externalRatings": [
       {
@@ -25,9 +28,14 @@
       }
     ]
   },
-  "sourceIds": ["ualbertabot", "bwapi"],
+  "sourceIds": [
+    "ualbertabot",
+    "bwapi"
+  ],
   "profile": {
-    "selectableRaces": ["terran"],
+    "selectableRaces": [
+      "terran"
+    ],
     "randomRace": "unsupported",
     "formats": [
       {
@@ -46,10 +54,12 @@
         "notes": "Not tested."
       }
     ],
-    "mapConstraints": ["Legacy SC:R unit limits required by the experimental bridge."],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
     "learning": {
       "mode": "none",
-      "notes": "Pinned StrategyManager::setLearnedStrategy returns immediately. Stock config still reads/writes per-opponent result counters in bwapi-data/read and write; reset must restore both inputs and outputs."
+      "notes": "Strategy learning is inactive in the pinned source. The packaged fixed configuration disables opponent result storage and opponent-specific overrides; in-game chat cannot change these settings."
     }
   },
   "license": {
@@ -73,22 +83,24 @@
     "bwapiVersion": "4.4.0",
     "protocol": 10003,
     "botArchitecture": "x86",
-    "gameArchitectures": ["x86_64"],
+    "gameArchitectures": [
+      "x86_64"
+    ],
     "evidence": "ShieldBattery docs/bwapi-compatibility-research.md and tools/bwapi/README.md at build.revision.",
     "limitations": [
-      "Debug-only opt-in bridge; partial BWAPI semantics.",
-      "No managed hidden local-match runner yet.",
-      "Fresh bot process per match."
+      "Partial BWAPI semantics; legacy unit limits required.",
+      "Fresh bot process per match.",
+      "The packaged Terran profile requires live verification on both SC:R architectures before publication."
     ]
   },
   "build": {
-    "status": "recipe-in-shieldbattery",
-    "repository": "https://github.com/ShieldBattery/ShieldBattery.git",
-    "revision": "980037a028c78a9c0285d34337b6fbd8ddeb9ff0",
-    "instructions": "tools/bwapi/README.md"
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "4c4903236d654c5e9d27d6c17f2a319ce6e4d913",
+    "instructions": "bots/ualbertabot/BUILD.md"
   },
   "sourceReview": {
     "status": "pending",
-    "evidence": "docs/source-review-and-state.md records a scoped persistence review, unresolved filename handling, and remaining dependency/runtime review. Not approved for catalog distribution."
+    "evidence": "Fixed configuration and chat setters reviewed; opponent result storage disabled. Package dependency notices and live verification remain under review before publication."
   }
 }

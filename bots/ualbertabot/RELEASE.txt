@@ -1,0 +1,61 @@
+UAlbertaBot pinned source snapshot 558899d8793456f4a6ec4196efbb5235552e24db
+ShieldBattery package sb.N
+
+Original bot: UAlbertaBot by David Churchill
+Upstream source: https://github.com/davechurchill/ualbertabot
+BWAPI 4.4.0 source: 7687da8abc4726f8366401f11ab648d421385793
+Package maintainer: ShieldBattery (https://shieldbattery.net)
+This is a modified build; upstream authors have not endorsed this package.
+
+Modified by ShieldBattery on 2026-09-23:
+- The packaged configuration is a quiet Terran MarineRush: it disables complete
+  map information, user input, debug drawing and output, StrategyIO result
+  storage, and opponent-specific strategy overrides.
+- In-game chat cannot change the packaged configuration, file paths, or features.
+- The external client returns after one completed match. Launch a new process for
+  each match.
+- The former BOSS/SparCraft timer implementation is not included or compiled.
+  The native recipe supplies an independent std::chrono implementation with the
+  required public API.
+- BWAPI selects its bridge discovery table through SB_BWAPI_INSTANCE and rejects
+  malformed identifiers.
+- All native targets use the static MSVC runtime.
+
+The package does not calibrate a human skill level. Any external tournament
+rating describes a different observed upstream deployment, not this pinned and
+modified binary.
+
+Licenses and corresponding source
+
+The executable links BWAPI under GNU LGPL version 3. The LGPL and GPL version 3
+texts are included here. UAlbertaBot, BOSS, and SparCraft are covered by the
+upstream UAlbertaBot MIT license unless a preserved source notice says otherwise.
+RapidJSON is MIT-licensed; msinttypes and BWAPI's smallsha1 are BSD-3-Clause.
+The ShieldBattery native recipe is MIT-licensed. Preserve notices in the source
+files and in this package.
+
+The complete selected source used for this executable, applied patches, notices,
+and CMake recipe are included in this download under source/. See source/BUILD.md
+for instructions to rebuild, modify, or relink the native executable. No extra
+source download or payment is required. Microsoft Visual Studio C++ tools, the
+Windows SDK, and CMake are build prerequisites and are not bundled source.
+
+Source and patch hashes and the recipe revision are recorded in package.json and
+source/build-info.json. Release archives are versioned at:
+https://github.com/ShieldBattery/robotics-facility/releases
+
+Runtime state
+
+The launcher must create a separate writable work directory for every concurrent
+bot. The packaged configuration does not enable strategy learning or opponent
+result storage. work/bwapi-data/read and work/bwapi-data/write remain writable
+only for BWAPI/profile infrastructure. UAlbertaBot_Config.txt in the work directory
+holds configuration; keep it intact when resetting the two writable folders.
+The bot process is not sandboxed; source review does not create an OS security
+boundary.
+
+Experimental compatibility
+
+Use a 1v1 legacy-limit melee game with ShieldBattery's experimental BWAPI 4.4
+bridge. This remains a prototype compatibility path, not full BWAPI API
+conformance. Public competition eligibility is separate from this package.
