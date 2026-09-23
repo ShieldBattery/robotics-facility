@@ -27,7 +27,12 @@
       "id": "ualbertabot",
       "repository": "https://github.com/davechurchill/ualbertabot.git",
       "revision": "558899d8793456f4a6ec4196efbb5235552e24db",
-      "patches": []
+      "patches": [
+        {
+          "path": "patches/ualbertabot/0001-fixed-config-and-single-match.patch",
+          "sha256": "357d4933d8207bb18b3ceaf472545420d90531de014efe4b7d051916e4248a71"
+        }
+      ]
     },
     {
       "id": "purplewave",

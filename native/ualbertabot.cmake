@@ -126,7 +126,7 @@ add_executable(UAlbertaBot
 )
 
 foreach(target IN ITEMS UabBoss UabSparCraft UAlbertaBot)
-  target_compile_features(${target} PRIVATE cxx_std_17)
+  target_compile_features(${target} PRIVATE cxx_std_14)
   target_compile_definitions(${target} PRIVATE WIN32 NDEBUG NOMINMAX _CRT_SECURE_NO_WARNINGS)
   target_compile_options(${target} PRIVATE /W3 /MP)
   target_include_directories(${target} PRIVATE "${BWAPI_SOURCE_DIR}/bwapi/include")

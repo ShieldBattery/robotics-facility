@@ -1,0 +1,36 @@
+diff --git a/UAlbertaBot/Source/UAlbertaBotModule.cpp b/UAlbertaBot/Source/UAlbertaBotModule.cpp
+index 3d259b3..2954628 100644
+--- a/UAlbertaBot/Source/UAlbertaBotModule.cpp
++++ b/UAlbertaBot/Source/UAlbertaBotModule.cpp
+@@ -131,7 +131,7 @@ void UAlbertaBotModule::onUnitMorph(BWAPI::Unit unit)
+ 
+ void UAlbertaBotModule::onSendText(std::string text) 
+ { 
+-	ParseUtils::ParseTextCommand(text);
++    // Packaged bots use their fixed configuration; chat cannot change file paths or features.
+ }
+ 
+ void UAlbertaBotModule::onUnitCreate(BWAPI::Unit unit)
+diff --git a/UAlbertaBot/Source/main.cpp b/UAlbertaBot/Source/main.cpp
+index aba50dd..0c91cc4 100644
+--- a/UAlbertaBot/Source/main.cpp
++++ b/UAlbertaBot/Source/main.cpp
+@@ -35,7 +35,7 @@ void UAlbertaBot_PlayGame()
+ 			{
+ 				case BWAPI::EventType::MatchStart:      { bot.onStart();					  break; }
+ 				case BWAPI::EventType::MatchFrame:      { bot.onFrame();                      break; }
+-				case BWAPI::EventType::MatchEnd:        { bot.onEnd(e.isWinner());            break; }
++				case BWAPI::EventType::MatchEnd:        { bot.onEnd(e.isWinner());            return; }
+ 				case BWAPI::EventType::UnitShow:        { bot.onUnitShow(e.getUnit());        break; }
+ 				case BWAPI::EventType::UnitHide:        { bot.onUnitHide(e.getUnit());        break; }
+ 				case BWAPI::EventType::UnitCreate:      { bot.onUnitCreate(e.getUnit());      break; }
+@@ -105,7 +105,8 @@ int main(int argc, char * argv[])
+ 			{
+ 				std::cout << "Playing game " << gameCount++ << " on map " << BWAPI::Broodwar->mapFileName() << "\n";
+ 
+-				UAlbertaBot_PlayGame();
++				UAlbertaBot_PlayGame();
++                return 0;
+ 			}
+ 		}
+ 
