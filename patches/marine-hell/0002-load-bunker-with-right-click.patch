@@ -1,0 +1,12 @@
+﻿diff --git a/src/TestBot1.java b/src/TestBot1.java
+--- a/src/TestBot1.java
++++ b/src/TestBot1.java
+@@ -291,7 +291,7 @@ public class TestBot1 extends DefaultBWListener {
+ 			k++;
+ 
+ 			if (bunker != null && bunker.getLoadedUnits().size() < 4 && k < 5) {
+-				marine.load(bunker);
++				marine.rightClick(bunker);
+ 			}
+ 			
+ 			if (workerAttacked != null){

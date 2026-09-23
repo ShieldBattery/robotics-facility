@@ -15,6 +15,7 @@ const requiredRecipePaths = [
   'source-lock.json',
   'jvm/dependencies.json',
   'patches/marine-hell/0001-use-isolated-jbwapi.patch',
+  'patches/marine-hell/0002-load-bunker-with-right-click.patch',
   'patches/jbwapi/instance-discovery.patch',
   'tools/build-marine-hell.mjs',
   'tools/build-purplewave.mjs',
@@ -257,7 +258,7 @@ export async function packageMarineHell({
       {
         modifier: 'ShieldBattery',
         date: '2026-09-23',
-        summary: 'Ported Marine Hell from BWMirror to JBWAPI, removed game-speed and debug effects, and added crash guards while retaining the mass-Marine strategy.',
+        summary: 'Ported Marine Hell from BWMirror to JBWAPI, removed game-speed and debug effects, added crash guards, and adapted bunker loading to native right-click while retaining the mass-Marine strategy.',
         scope: 'bot',
       },
       {

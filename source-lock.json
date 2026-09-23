@@ -82,6 +82,10 @@
         {
           "path": "patches/marine-hell/0001-use-isolated-jbwapi.patch",
           "sha256": "f5673b4b6f0a7a67d61ba0be6ba44ebeaa3e674fb8aa3fa26dd8b4ceb9d1b663"
+        },
+        {
+          "path": "patches/marine-hell/0002-load-bunker-with-right-click.patch",
+          "sha256": "be34abf0a690cd025c32eda894b45af461c1e6ab29b893d7e55cb536b241bcfc"
         }
       ]
     }

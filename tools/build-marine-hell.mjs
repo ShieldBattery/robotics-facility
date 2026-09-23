@@ -15,6 +15,7 @@ const recipePaths = [
   'source-lock.json',
   'jvm/dependencies.json',
   'patches/marine-hell/0001-use-isolated-jbwapi.patch',
+  'patches/marine-hell/0002-load-bunker-with-right-click.patch',
   'patches/jbwapi/instance-discovery.patch',
   'tools/build-marine-hell.mjs',
   'tools/build-purplewave.mjs',
