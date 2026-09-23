@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { validate, validateRepository } from './validate.mjs'
 
 test('checked-in source lock, candidates, and catalog validate', () => {
-  assert.equal(validateRepository(), 3)
+  assert.equal(validateRepository(), 4)
 })
 test('unknown schema versions and catalog fields are rejected', () => {
   assert.throws(() => validate('catalog', { schemaVersion: 2, revision: 0, bots: [] }))
