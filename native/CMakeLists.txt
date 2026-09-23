@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(shieldbattery-zzzkbot LANGUAGES CXX)
+project(shieldbattery-bot-client LANGUAGES CXX)
+
+set(SB_NATIVE_BOT "zzzkbot" CACHE STRING "Native bot to build")
+if(NOT SB_NATIVE_BOT STREQUAL "zzzkbot" AND NOT SB_NATIVE_BOT STREQUAL "ualbertabot")
+  message(FATAL_ERROR "Unsupported native bot: ${SB_NATIVE_BOT}")
+endif()
 
 if(NOT WIN32 OR NOT MSVC)
-  message(FATAL_ERROR "ZZZKBotClient requires Windows and the Microsoft C++ compiler.")
+  message(FATAL_ERROR "Native bot clients require Windows and the Microsoft C++ compiler.")
 endif()
 
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -28,9 +33,7 @@ set(ZZZKBOT_OUTPUT_DIR
 foreach(required_path IN ITEMS
     "${BWAPI_SOURCE_DIR}/bwapi/include/BWAPI.h"
     "${BWAPI_SOURCE_DIR}/bwapi/BWAPIClient/Source/Client.cpp"
-    "${BWAPI_SOURCE_DIR}/bwapi/BWAPILIB/Source/BWAPI.cpp"
-    "${ZZZKBOT_SOURCE_DIR}/ZZZKBot/Source/Dll.cpp"
-    "${ZZZKBOT_SOURCE_DIR}/ZZZKBot/Source/ZZZKBotAIModule.cpp")
+    "${BWAPI_SOURCE_DIR}/bwapi/BWAPILIB/Source/BWAPI.cpp")
   if(NOT EXISTS "${required_path}")
     message(FATAL_ERROR "Missing prepared source input: ${required_path}")
   endif()
@@ -124,6 +127,11 @@ target_include_directories(BWAPIClient PRIVATE
   "${BWAPI_SOURCE_DIR}/bwapi/Storm"
   "${BWAPI_SOURCE_DIR}/bwapi/Util/Source"
   "${BWAPI_SOURCE_DIR}/bwapi/Shared")
+
+if(SB_NATIVE_BOT STREQUAL "ualbertabot")
+  include("${CMAKE_CURRENT_LIST_DIR}/ualbertabot.cmake")
+  return()
+endif()
 
 set(ZZZKBOT_SOURCE_ROOT "${ZZZKBOT_SOURCE_DIR}/ZZZKBot/Source")
 add_executable(ZZZKBotClient

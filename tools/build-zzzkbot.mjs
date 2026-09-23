@@ -9,7 +9,6 @@ import { prepareSource, provenanceName } from './prepare-source.mjs'
 
 const outputNamePattern = /^[a-z0-9][a-z0-9-]*$/
 const reservedWindowsDeviceNames = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/
-const sourceIds = ['bwapi', 'zzzkbot']
 const recipePaths = [
   'native/CMakeLists.txt',
   'native/host.cpp',
@@ -136,7 +135,7 @@ async function sha256(file) {
     .digest('hex')
 }
 
-async function recipeProvenance(root) {
+async function recipeProvenance(root, recipePaths) {
   const [revision, tracked, changed] = await Promise.all([
     runGit(['-C', root, 'rev-parse', 'HEAD']),
     runGit(['-C', root, 'ls-files', '--', ...recipePaths]),
@@ -223,13 +222,31 @@ export function makeBuildInfo({
   }
 }
 
-export async function buildZzzkbot({ rootDir = process.cwd(), outputName }) {
+export const ualbertaRecipePaths = Object.freeze([
+  ...recipePaths,
+  'native/ualbertabot.cmake',
+  'tools/build-zzzkbot.mjs',
+  'tools/build-ualbertabot.mjs',
+  'bots/ualbertabot/UAlbertaBot_Config.txt',
+])
+
+export function buildZzzkbot(options) {
+  return buildNativeBot({ ...options, botId: 'zzzkbot' })
+}
+
+export async function buildNativeBot({ rootDir = process.cwd(), outputName, botId }) {
+  if (!['zzzkbot', 'ualbertabot'].includes(botId)) throw new Error('Unsupported native bot')
+  const sourceIds = ['bwapi', botId]
+  const inputs = botId === 'ualbertabot' ? ualbertaRecipePaths : recipePaths
+  const target = botId === 'ualbertabot' ? 'UAlbertaBot' : 'ZZZKBotClient'
+  const sourceVariable = botId === 'ualbertabot' ? 'UALBERTABOT' : 'ZZZKBOT'
+
   const root = await realpath(rootDir)
   const name = validateOutputName(outputName)
   const output = path.join(root, '.build', name)
   await assertMissingDirectory(output)
 
-  const recipe = await recipeProvenance(root)
+  const recipe = await recipeProvenance(root, inputs)
   const lock = await readSourceLock(root)
   const selectedSources = sourceIds.map((id) => {
     const source = lock.sources.find((candidate) => candidate.id === id)
@@ -249,7 +266,7 @@ export async function buildZzzkbot({ rootDir = process.cwd(), outputName }) {
   }
 
   const cmakeDirectory = path.join(output, 'cmake')
-  const executablePath = path.join(output, 'bin', 'ZZZKBotClient.exe')
+  const executablePath = path.join(output, 'bin', `${target}.exe`)
   await run('cmake', [
     '-S',
     path.join(root, 'native'),
@@ -260,8 +277,9 @@ export async function buildZzzkbot({ rootDir = process.cwd(), outputName }) {
     '-A',
     'Win32',
     `-DBWAPI_SOURCE_DIR=${path.join(output, 'sources', 'bwapi')}`,
-    `-DZZZKBOT_SOURCE_DIR=${path.join(output, 'sources', 'zzzkbot')}`,
-    `-DZZZKBOT_OUTPUT_DIR=${path.join(output, 'bin')}`,
+    `-DSB_NATIVE_BOT=${botId}`,
+    `-D${sourceVariable}_SOURCE_DIR=${path.join(output, 'sources', botId)}`,
+    `-D${sourceVariable}_OUTPUT_DIR=${path.join(output, 'bin')}`,
   ])
   await run('cmake', [
     '--build',
@@ -269,7 +287,7 @@ export async function buildZzzkbot({ rootDir = process.cwd(), outputName }) {
     '--config',
     'Release',
     '--target',
-    'ZZZKBotClient',
+    target,
     '--parallel',
   ])
 
@@ -286,7 +304,7 @@ export async function buildZzzkbot({ rootDir = process.cwd(), outputName }) {
   for (const preparedSource of prepared) {
     verified.push(await sourceProvenance(preparedSource.source, preparedSource.directory))
   }
-  const recipeAfterBuild = await recipeProvenance(root)
+  const recipeAfterBuild = await recipeProvenance(root, inputs)
   if (recipeAfterBuild.revision !== recipe.revision || recipeAfterBuild.sha256 !== recipe.sha256) {
     throw new Error('The build recipe or source-lock.json changed during compilation')
   }
