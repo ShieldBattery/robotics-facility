@@ -12,7 +12,8 @@
     "homepage": "https://github.com/libor-vilimek/marine-hell",
     "sourceUrl": "https://github.com/libor-vilimek/marine-hell",
     "playStyleTags": [
-      "bio"
+      "bio",
+      "defensive"
     ],
     "humanSkill": "uncalibrated",
     "externalRatings": []
@@ -29,18 +30,18 @@
     "formats": [
       {
         "id": "one-v-one",
-        "support": "unverified",
-        "notes": "Compile checkpoint only; no packaged live match yet."
+        "support": "verified",
+        "notes": "Local Terran games on Fighting Spirit with x86 and x64 SC:R; x64 bunker adapter verified. See release review for exact versions and boundaries."
       },
       {
         "id": "teams",
         "support": "unverified",
-        "notes": "Compile checkpoint only; no packaged live match yet."
+        "notes": "Not tested."
       },
       {
         "id": "free-for-all",
         "support": "unverified",
-        "notes": "Compile checkpoint only; no packaged live match yet."
+        "notes": "Not tested."
       }
     ],
     "mapConstraints": [
@@ -55,12 +56,12 @@
     "name": "MIT",
     "sourceId": "marine-hell",
     "path": "LICENSE",
-    "notes": "Upstream MIT; dependency and packaged notice review pending."
+    "notes": "MIT source and patched source included; JBWAPI/Java BWEM MIT, JNA Apache-2.0 option, and embedded libffi MIT notices included."
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "No release package or dependency notice review yet."
+      "status": "approved",
+      "evidence": "Scoped source, dependency notice, archived source rebuild and local gameplay review: https://github.com/ShieldBattery/robotics-facility/blob/marine-hell-sb-4/docs/marine-hell-admission.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -68,7 +69,7 @@
     }
   },
   "compatibility": {
-    "status": "unverified",
+    "status": "prototype-tested",
     "bwapiVersion": "4.4.0",
     "protocol": 10003,
     "botArchitecture": "x86_64",
@@ -76,21 +77,23 @@
       "x86",
       "x86_64"
     ],
-    "evidence": "docs/marine-hell-admission.md",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/marine-hell-sb-4/docs/marine-hell-admission.md",
     "limitations": [
-      "JBWAPI source port; not yet verified in a live match.",
-      "The initial package requires the tested Java 21 x64 runtime.",
-      "Intended Terran 1v1 profile; other formats unverified."
+      "Partial BWAPI semantics; legacy unit limits required.",
+      "Java 21 x64 required, including with x86 SC:R.",
+      "Terran 1v1 tested on Fighting Spirit; other maps and formats are unverified.",
+      "Bunker entry uses a source adapter to native right-click; general BWAPI Load is not supported.",
+      "Human skill has not been calibrated."
     ]
   },
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "bca419e984234d1a162a500589b5803f4616f252",
+    "revision": "de430f11fc7cbb2730b4691c1c75ff17264b0bdf",
     "instructions": "bots/marine-hell/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "docs/marine-hell-admission.md records the port and remaining package/runtime checks."
+    "status": "approved",
+    "evidence": "Source and artifact effects reviewed; independent archive audit, local x86/x64 games and corrected bunker occupancy verified. Not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/marine-hell-sb-4/docs/marine-hell-admission.md"
   }
 }

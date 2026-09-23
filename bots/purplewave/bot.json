@@ -68,7 +68,7 @@
   "permissions": {
     "localDistribution": {
       "status": "approved",
-      "evidence": "Pinned source and dependency licenses reviewed; original notices, downstream changes, patched source, and build inputs included. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
+      "evidence": "Prior local distribution review plus native dependency notice correction: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -98,6 +98,6 @@
   },
   "sourceReview": {
     "status": "approved",
-    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
+    "evidence": "Prior source review and unchanged executable bytes; native dependency notice correction: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
   }
 }

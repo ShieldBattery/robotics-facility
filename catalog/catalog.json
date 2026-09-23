@@ -828,6 +828,232 @@
             "manifestSha256": "38c3be4fee7013e0810e251ea72bee01c8f90a93367c6b4da572f6df785155d9",
             "format": "zip"
           }
+        },
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "purplewave",
+            "releaseId": "purplewave-sb-4",
+            "version": "2026.09.22-sb.4",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86_64"
+            },
+            "runtime": {
+              "kind": "java",
+              "major": 21,
+              "architecture": "x86_64",
+              "jvmArguments": [
+                "-Xms128m",
+                "-Xmx1024m"
+              ]
+            },
+            "launch": {
+              "entrypoint": "bin/PurpleWave.jar",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "protoss",
+                "terran",
+                "zerg"
+              ],
+              "randomRace": "unverified",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "verified",
+                  "notes": "All three upstream races are enabled. Protoss completed a local x64 match and x86 smoke tests; Terran and Zerg have not yet had dedicated SC:R bridge game tests. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-3/docs/releases/purplewave-sb-3.md"
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "persistent",
+                "notes": "Opponent history, placement caches, and logs stay in the isolated profile. Reset read and write to the empty baseline to clear learning; compatible history is preserved across updates."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "purplewave",
+                "repository": "https://github.com/dgant/PurpleWave.git",
+                "revision": "a57d2511cc4f6318c2a2d61a504e8f58a7b090af",
+                "patches": [
+                  {
+                    "path": "patches/purplewave/0001-isolate-runtime-state.patch",
+                    "sha256": "633cf667b7993d8d3c5419e77552d77d7eab73ac28aa560cf06d9a734ec854e0"
+                  }
+                ]
+              },
+              {
+                "id": "jbwapi",
+                "repository": "https://github.com/JavaBWAPI/JBWAPI.git",
+                "revision": "d6003b0b3a6a27944c979fd8dbc6ec8e3c2c753f",
+                "patches": [
+                  {
+                    "path": "patches/jbwapi/instance-discovery.patch",
+                    "sha256": "82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1"
+                  }
+                ]
+              },
+              {
+                "id": "jbweb",
+                "repository": "https://github.com/MrTate/JBWEB.git",
+                "revision": "167e4566d7078e98abd62bf4028042db665d167c",
+                "patches": []
+              },
+              {
+                "id": "javajps",
+                "repository": "https://github.com/MrTate/JavaJPS.git",
+                "revision": "8b910841a0b45d04f20e5bcdd6e7fb3b873c653e",
+                "patches": []
+              },
+              {
+                "id": "mjson",
+                "repository": "https://github.com/bolerio/mjson.git",
+                "revision": "e7a4da2daa6e17a63ec057948bc30818e8f44686",
+                "patches": []
+              }
+            ],
+            "licenses": [
+              {
+                "name": "scala-library-2.12.20.jar: LICENSE",
+                "noticePath": "notices/scala-library-2.12.20.jar-LICENSE"
+              },
+              {
+                "name": "scala-library-2.12.20.jar: NOTICE",
+                "noticePath": "notices/scala-library-2.12.20.jar-NOTICE"
+              },
+              {
+                "name": "scala-reflect-2.12.20.jar: LICENSE",
+                "noticePath": "notices/scala-reflect-2.12.20.jar-LICENSE"
+              },
+              {
+                "name": "scala-reflect-2.12.20.jar: NOTICE",
+                "noticePath": "notices/scala-reflect-2.12.20.jar-NOTICE"
+              },
+              {
+                "name": "jna-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "jna-platform-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-platform-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "commons-lang3-3.8.1.jar: META-INF-LICENSE.txt",
+                "noticePath": "notices/commons-lang3-3.8.1.jar-META-INF-LICENSE.txt"
+              },
+              {
+                "name": "commons-lang3-3.8.1.jar: META-INF-NOTICE.txt",
+                "noticePath": "notices/commons-lang3-3.8.1.jar-META-INF-NOTICE.txt"
+              },
+              {
+                "name": "MIT - PurpleWave",
+                "noticePath": "notices/purplewave-license.md"
+              },
+              {
+                "name": "MIT - JBWAPI",
+                "noticePath": "notices/jbwapi-LICENSE"
+              },
+              {
+                "name": "MIT/X11 - Java BWEM",
+                "noticePath": "notices/jbwapi-src-main-java-bwem-LICENSE.txt"
+              },
+              {
+                "name": "MIT - JBWEB",
+                "noticePath": "notices/jbweb-LICENSE"
+              },
+              {
+                "name": "MIT - JavaJPS, including Kevin Sheehan attribution",
+                "noticePath": "notices/javajps-README.md"
+              },
+              {
+                "name": "Apache-2.0 - mjson",
+                "noticePath": "notices/mjson-LICENSE.txt"
+              },
+              {
+                "name": "Attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              },
+              {
+                "name": "libffi - bundled in JNA jnidispatch native libraries",
+                "noticePath": "notices/JNA-THIRD-PARTY-NOTICES.txt"
+              }
+            ],
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-22",
+                "summary": "Isolated saved state, encoded opponent filenames and history, disabled visualizer auto-launch, and adapted the build for Java 21.",
+                "scope": "bot"
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-22",
+                "summary": "Patched JBWAPI instance discovery and updated the Scala/JNA runtime dependencies. Original dependency notices and patched source are included.",
+                "scope": "dependency"
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "summary": "Added the libffi copyright and permission notice for native code bundled in JNA; gameplay binaries and configuration are unchanged.",
+                "scope": "dependency"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "Previously approved local distribution; sb4 includes the libffi native notice: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Separate from local distribution; author outreach planned by Travis."
+              }
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "Previously approved source and sb4 native notice correction: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
+            },
+            "writableDirectories": [
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "bac6f6b1c26a9b99e06c22b08f311561ee35321b",
+                "patches": []
+              },
+              "recipePath": "tools/build-purplewave.mjs",
+              "toolchain": "{\"javacVersion\":\"javac 21.0.11\",\"java\":{\"javaVendor\":\"Eclipse Adoptium\",\"javaVersion\":\"21.0.11\",\"javaVmName\":\"OpenJDK 64-Bit Server VM\",\"javaVmVersion\":\"21.0.11+10-LTS\",\"osArchitecture\":\"amd64\",\"dataModel\":\"64\"},\"scalaVersion\":\"2.12.20\"}"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/purplewave-sb-4/purplewave-sb-4.zip",
+            "sha256": "d6ee2468d4534a6f500650f34c54ff0824c6c0ccef6e6c47f5de69d09c9b2c10",
+            "sizeBytes": 19389195,
+            "manifestSha256": "e320952e34104cf8384c81df4a514036b443cb54dccf96c6c93cdec579c2c96c",
+            "format": "zip"
+          }
         }
       ]
     },
@@ -1032,6 +1258,203 @@
             "sha256": "e0666438fe54fbebd9ee1b59c4ed2576ff34d2cc1fccbe1c64bce8193ca1d0f7",
             "sizeBytes": 1710587,
             "manifestSha256": "03b2fdf4ae00c8f9e5f78b42d6eca28c84a644bc434759bf5dd3493878a95548",
+            "format": "zip"
+          }
+        }
+      ]
+    },
+    {
+      "bot": {
+        "id": "marine-hell",
+        "name": "Marine Hell",
+        "description": "A simple Terran bot that gathers a large Marine army before attacking. Human difficulty is not yet calibrated.",
+        "authors": [
+          {
+            "name": "libor-vilimek"
+          }
+        ],
+        "homepage": "https://github.com/libor-vilimek/marine-hell",
+        "sourceUrl": "https://github.com/libor-vilimek/marine-hell",
+        "playStyleTags": [
+          "bio",
+          "defensive"
+        ],
+        "humanSkill": "uncalibrated",
+        "externalRatings": []
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "marine-hell",
+            "releaseId": "marine-hell-sb-4",
+            "version": "2026.09.23-sb.4",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86_64"
+            },
+            "runtime": {
+              "kind": "java",
+              "major": 21,
+              "architecture": "x86_64",
+              "jvmArguments": [
+                "-Xms32m",
+                "-Xmx512m",
+                "-Djava.io.tmpdir=tmp",
+                "-Djna.tmpdir=tmp"
+              ]
+            },
+            "launch": {
+              "entrypoint": "bin/MarineHell.jar",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "terran"
+              ],
+              "randomRace": "unsupported",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "verified",
+                  "notes": "Local Terran games on Fighting Spirit with x86 and x64 SC:R; x64 bunker adapter verified. See release review for exact versions and boundaries."
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "none",
+                "notes": "No persistence or learning API in the single-file bot source."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "marine-hell",
+                "repository": "https://github.com/libor-vilimek/marine-hell.git",
+                "revision": "672da02d0fcf2d4b3546d4a0f7770a9aa3a28e2e",
+                "patches": [
+                  {
+                    "path": "patches/marine-hell/0001-use-isolated-jbwapi.patch",
+                    "sha256": "f5673b4b6f0a7a67d61ba0be6ba44ebeaa3e674fb8aa3fa26dd8b4ceb9d1b663"
+                  },
+                  {
+                    "path": "patches/marine-hell/0002-load-bunker-with-right-click.patch",
+                    "sha256": "8f38bd8e7cc9f96320321abdb582b5210ea2f15b6c1a24d119581c60e102ebfe"
+                  }
+                ]
+              },
+              {
+                "id": "jbwapi",
+                "repository": "https://github.com/JavaBWAPI/JBWAPI.git",
+                "revision": "d6003b0b3a6a27944c979fd8dbc6ec8e3c2c753f",
+                "patches": [
+                  {
+                    "path": "patches/jbwapi/instance-discovery.patch",
+                    "sha256": "82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "MIT - Marine Hell",
+                "noticePath": "notices/marine-hell-LICENSE"
+              },
+              {
+                "name": "MIT - JBWAPI",
+                "noticePath": "notices/jbwapi-LICENSE"
+              },
+              {
+                "name": "MIT/X11 - Java BWEM",
+                "noticePath": "notices/jbwapi-src-main-java-bwem-LICENSE.txt"
+              },
+              {
+                "name": "jna-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "jna-platform-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-platform-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "Apache-2.0 license for JNA and JNA Platform",
+                "noticePath": "notices/APACHE-2.0-LICENSE.txt"
+              },
+              {
+                "name": "MIT - libffi bundled in JNA native support",
+                "noticePath": "notices/JNA-THIRD-PARTY-NOTICES.txt"
+              },
+              {
+                "name": "Marine Hell attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "summary": "Ported Marine Hell from BWMirror to JBWAPI, removed game-speed and debug effects, added crash guards, and adapted bunker loading to native right-click while retaining the mass-Marine strategy.",
+                "scope": "bot"
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "summary": "Patched JBWAPI instance discovery, selected JNA 5.18.1, and isolated JVM temporary files in the per-instance working copy.",
+                "scope": "dependency"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "Scoped source, dependency notice, archived source rebuild and local gameplay review: https://github.com/ShieldBattery/robotics-facility/blob/marine-hell-sb-4/docs/marine-hell-admission.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "Source and artifact effects reviewed; independent archive audit, local x86/x64 games and corrected bunker occupancy verified. Not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/marine-hell-sb-4/docs/marine-hell-admission.md"
+            },
+            "writableDirectories": [
+              "work/tmp",
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "de430f11fc7cbb2730b4691c1c75ff17264b0bdf",
+                "patches": []
+              },
+              "recipePath": "tools/build-marine-hell.mjs",
+              "toolchain": "{\"javacVersion\":\"javac 21.0.11\",\"java\":{\"javaVendor\":\"Eclipse Adoptium\",\"javaVersion\":\"21.0.11\",\"javaVmName\":\"OpenJDK 64-Bit Server VM\",\"javaVmVersion\":\"21.0.11+10-LTS\",\"osArchitecture\":\"amd64\",\"dataModel\":\"64\"},\"targetRelease\":8}"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/marine-hell-sb-4/marine-hell-sb-4.zip",
+            "sha256": "777703249cd4cdebb45ae4ab936600cc7f58af7804aa6d2d6c6c81cecb2e8688",
+            "sizeBytes": 3784197,
+            "manifestSha256": "641d96e84f6735ece703f6a41628c37c9b5940ad736760875231909adae42ac0",
             "format": "zip"
           }
         }
