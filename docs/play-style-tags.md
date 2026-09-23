@@ -95,6 +95,41 @@ BananaBrain and its race variants, and PurpleCheese, were also considered. We
 have not established enough primary, release-specific strategy evidence to assign
 them tags here. Do not inherit another bot's tags on the basis of a family name.
 
+## PurpleWave release tags (2026-09-23)
+
+The offered `purplewave-sb-1` and `purplewave-sb-2` profiles share the same
+Protoss strategy configuration and upstream revision
+`a57d2511cc4f6318c2a2d61a504e8f58a7b090af`. Their identity tags are:
+
+- **Micro-heavy**: the normal unit-action pipeline runs specialized combat
+  control, including Reaver/Shuttle unloading, danger avoidance, and cooldown
+  management. See [Fight](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Micro/Actions/Combat/Fight.scala)
+  and [BeReaver](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Micro/Actions/Protoss/BeReaver.scala).
+- **Reactive**: scouting an enemy fast expansion changes the active PvP plan
+  between expansion and several pressure responses; these decisions issue
+  different build orders during the game. See
+  [PvPOpeningVsFE](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Gameplans/Protoss/PvP/PvPOpeningVsFE.scala).
+- **Varied openings**: the shipped configuration uses the default playbook's
+  history-aware strategy selection. Its legal branches include distinct Robo,
+  Dark Templar, expansion, and multi-Gateway openings. See
+  [Playbook](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Strategery/Playbook.scala),
+  [StrategySelectionGreedy](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Strategery/Selection/StrategySelectionGreedy.scala),
+  and [PvPStrategies](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Strategery/Strategies/Protoss/PvPStrategies.scala).
+
+These are source-based editorial descriptions, not measured frequencies of
+particular builds in ShieldBattery games. Macro, Cheese, and composition-specific
+tags are omitted because the repertoire contains those capabilities without
+establishing them as defining traits of this profile.
+
+Upstream supports all three races in this same source tree: its
+[README](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/readme.md)
+names PurpleWave (Protoss), PurpleSpirit (Terran), and PurpleSwarm (Zerg), and
+[StandardGameplan](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Gameplans/All/StandardGameplan.scala)
+dispatches to each race's game plans. The catalog's Protoss-only restriction
+records the scope of our SC:R bridge verification; Terran and Zerg require game
+testing before expanding the advertised capability. The tags above describe the
+offered Protoss profile rather than inheriting behavior from the other races.
+
 ## Validation and app integration
 
 Candidate and catalog validation share the allowlist and reject unknown IDs,

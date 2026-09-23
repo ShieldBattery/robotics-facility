@@ -190,7 +190,11 @@
         ],
         "homepage": "https://github.com/dgant/PurpleWave",
         "sourceUrl": "https://github.com/dgant/PurpleWave",
-        "playStyleTags": [],
+        "playStyleTags": [
+          "micro-heavy",
+          "reactive",
+          "varied-openings"
+        ],
         "humanSkill": "uncalibrated",
         "externalRatings": []
       },
