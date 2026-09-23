@@ -3,7 +3,7 @@
   "bot": {
     "id": "purplewave",
     "name": "PurpleWave",
-    "description": "A Protoss opponent by Dan Gant with a broad strategy repertoire and persistent opponent history.",
+    "description": "An all-race opponent by Dan Gant with a broad strategy repertoire, precise unit control, and persistent opponent history.",
     "authors": [
       {
         "name": "Dan Gant",
@@ -29,14 +29,16 @@
   ],
   "profile": {
     "selectableRaces": [
-      "protoss"
+      "protoss",
+      "terran",
+      "zerg"
     ],
     "randomRace": "unverified",
     "formats": [
       {
         "id": "one-v-one",
         "support": "verified",
-        "notes": "Java 21 x64 client won a complete local x64 match; x86 instance/sync smoke verified. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md"
+        "notes": "All three upstream races are enabled. Protoss completed a local x64 match and x86 smoke tests; Terran and Zerg have not yet had dedicated SC:R bridge game tests. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-3/docs/releases/purplewave-sb-3.md"
       },
       {
         "id": "teams",
@@ -85,7 +87,7 @@
     "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md",
     "limitations": [
       "Experimental partial BWAPI semantics.",
-      "Only Protoss is offered initially; other races and formats remain unverified."
+      "Terran and Zerg are enabled from upstream support; dedicated SC:R bridge game verification is pending. Other game formats remain unverified."
     ]
   },
   "build": {

@@ -125,10 +125,10 @@ Upstream supports all three races in this same source tree: its
 [README](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/readme.md)
 names PurpleWave (Protoss), PurpleSpirit (Terran), and PurpleSwarm (Zerg), and
 [StandardGameplan](https://github.com/dgant/PurpleWave/blob/a57d2511cc4f6318c2a2d61a504e8f58a7b090af/src/Gameplans/All/StandardGameplan.scala)
-dispatches to each race's game plans. The catalog's Protoss-only restriction
-records the scope of our SC:R bridge verification; Terran and Zerg require game
-testing before expanding the advertised capability. The tags above describe the
-offered Protoss profile rather than inheriting behavior from the other races.
+dispatches to each race's game plans. The sb.1 and sb.2 packages offer only Protoss. The sb.3 package enables all three
+races from upstream support; dedicated Terran/Zerg SC:R bridge game verification
+is pending. The concrete tag examples above were traced through the Protoss
+profile; individual openings and micro techniques differ by race.
 
 ## Validation and app integration
 
