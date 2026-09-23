@@ -1459,6 +1459,231 @@
           }
         }
       ]
+    },
+    {
+      "bot": {
+        "id": "opprimobot",
+        "name": "OpprimoBot",
+        "description": "A classic Terran opponent that builds infantry backed by bunkers and siege tanks. Human difficulty is not yet calibrated.",
+        "authors": [
+          {
+            "name": "Johan Hagelbäck"
+          }
+        ],
+        "homepage": "https://github.com/jhagelback/OpprimoBot",
+        "sourceUrl": "https://github.com/jhagelback/OpprimoBot",
+        "playStyleTags": [
+          "bio",
+          "defensive"
+        ],
+        "humanSkill": "uncalibrated",
+        "externalRatings": []
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "opprimobot",
+            "releaseId": "opprimobot-sb-1",
+            "version": "snapshot-65eeb7e-sb.1",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86"
+            },
+            "runtime": {
+              "kind": "native"
+            },
+            "launch": {
+              "entrypoint": "bin/OpprimoBot.exe",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "terran"
+              ],
+              "randomRace": "unsupported",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "verified",
+                  "notes": "Local Terran combat against ZZZKBot on Fighting Spirit 1.3 with x86 and x64 SC:R. See admission review for exact bridge and package versions."
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "none",
+                "notes": "Fixed fresh-history profile: strategy history, result statistics, profiler output and terrain cache/logs are disabled."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "bwapi",
+                "repository": "https://github.com/bwapi/bwapi.git",
+                "revision": "7687da8abc4726f8366401f11ab648d421385793",
+                "patches": [
+                  {
+                    "path": "patches/bwapi/instance-discovery.patch",
+                    "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+                  }
+                ]
+              },
+              {
+                "id": "opprimobot",
+                "repository": "https://github.com/jhagelback/OpprimoBot.git",
+                "revision": "65eeb7e0c838e47df5027c8a746248bd30299640",
+                "patches": [
+                  {
+                    "path": "patches/opprimobot/0001-bwta2-compatibility.patch",
+                    "sha256": "196d346df1d473df9fbbb345b9f493081472fb270e68bc8de22fb4502d9a1b2b"
+                  },
+                  {
+                    "path": "patches/opprimobot/0002-single-match-runtime.patch",
+                    "sha256": "6f1e0667b46700d2cfa547ec8769b4972c44c379497fe225ff647fbe93cf81a5"
+                  }
+                ]
+              },
+              {
+                "id": "bwta2",
+                "repository": "https://bitbucket.org/auriarte/bwta2.git",
+                "revision": "4222ab0d9b5d49362e4893ffb5fbcdcbeff359ec",
+                "patches": [
+                  {
+                    "path": "patches/bwta2/0001-isolate-runtime.patch",
+                    "sha256": "b4d12564ca8da46e8835dc8c97ad9da4992f5d150dcbc4a2af90bcf0c98b61b1"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "MIT (OpprimoBot)",
+                "noticePath": "notices/OpprimoBot-MIT.txt"
+              },
+              {
+                "name": "OpprimoBot README and citation",
+                "noticePath": "notices/OpprimoBot-README.md"
+              },
+              {
+                "name": "LGPL-3.0 (BWAPI)",
+                "noticePath": "notices/BWAPI-LGPL-3.0.txt"
+              },
+              {
+                "name": "GPL-3.0 license text",
+                "noticePath": "notices/GPL-3.0.txt"
+              },
+              {
+                "name": "BSD-3-Clause (smallsha1)",
+                "noticePath": "notices/SMALLSHA1-LICENSE.txt"
+              },
+              {
+                "name": "LGPL-3.0 (BWTA2)",
+                "noticePath": "notices/BWTA2-LGPL-3.0.txt"
+              },
+              {
+                "name": "BSD-style (BWTA2 filesystem)",
+                "noticePath": "notices/BWTA2-FILESYSTEM-LICENSE.txt"
+              },
+              {
+                "name": "Boost Software License 1.0",
+                "noticePath": "notices/Boost-LICENSE_1_0.txt"
+              },
+              {
+                "name": "MIT (ShieldBattery native recipe)",
+                "noticePath": "notices/ShieldBattery-MIT.txt"
+              },
+              {
+                "name": "Attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "docs/opprimobot-admission.md: pinned source/dependency review, corresponding-source rebuild, and local x86/x64 combat validation."
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Disabled game speed, user input, debug display, chat controls, and the bot timer; the external client exits after one match."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Disabled strategy history, result and profiler persistence, and replaced the Pathfinder worker with at most one synchronous path calculation per callback."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "dependency",
+                "summary": "BWTA2 is source-built for BWAPI 4.4 with terrain cache and log writes disabled."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "dependency",
+                "summary": "BWAPI selects the match discovery table through SB_BWAPI_INSTANCE and rejects malformed instance identifiers."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "The native Win32 recipe links the static MSVC runtime."
+              }
+            ],
+            "writableDirectories": [
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "b748042bd3f634aa782eaebdaa294018ddd1cef0",
+                "patches": []
+              },
+              "recipePath": "native/CMakeLists.txt",
+              "toolchain": "{\"cmake\":\"cmake version 3.31.0\\n\\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\",\"generator\":\"Visual Studio 17 2022\",\"architecture\":\"Win32\",\"configuration\":\"Release\",\"msvcRuntime\":\"static\",\"compiler\":\"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x86/cl.exe\",\"compilerId\":\"MSVC\",\"compilerVersion\":\"19.43.34810.0\",\"windowsSdkVersion\":\"10.0.26100.0\"}"
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "docs/opprimobot-admission.md and docs/opprimobot-bwta-review.md; exact patched source and dependency headers rebuild from the package."
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/opprimobot-sb-1/opprimobot-sb-1.zip",
+            "sha256": "c11c0b1733ba84b6fb635e118632a0b88fd52b53dcd4e50402c5ea01573dff99",
+            "sizeBytes": 16323772,
+            "manifestSha256": "732e1b55e24da7ff064b83d2980fb9dc60e9d736f7d1b85be64f3da82cefce92",
+            "format": "zip"
+          }
+        }
+      ]
     }
   ]
 }

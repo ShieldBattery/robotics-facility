@@ -122,3 +122,12 @@ directory remained empty. Its external process used about 21 MB of working
 set in one early-game observation, excluding SC:R; this is not a performance
 bound or a broad benchmark. The two earlier concurrent Terran probes cover
 fresh-process isolation, early quit, and midgame production/teardown.
+
+## Release artifact
+
+`opprimobot-sb-1.zip`: SHA-256
+`c11c0b1733ba84b6fb635e118632a0b88fd52b53dcd4e50402c5ea01573dff99`,
+16,323,772 bytes, 377 entries. Every entry is byte-identical to the tested
+review-3 archive except `package.json`, which records the stable release ID
+and committed local-distribution/source-review approvals. The final package
+passed archive verification, catalog validation, and all 49 publisher tests.
