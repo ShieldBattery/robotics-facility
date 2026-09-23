@@ -4,6 +4,7 @@ import { isDeepStrictEqual } from 'node:util'
 import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import yauzl from 'yauzl'
 import { opprimoRecipePaths } from './build-zzzkbot.mjs'
 import { indexedFiles, makeArchive } from './package-zzzkbot.mjs'
 import { archivePath, sha256, verifyArchive } from './publication-archive.mjs'
@@ -18,6 +19,7 @@ const boostInventory = 'deps/boost-header-inventory.json'
 const boostArchive = 'deps/boost_1_56_0.zip'
 const boostFileLimit = 4 * 1024 * 1024
 const boostExpandedLimit = 120 * 1024 * 1024
+const boostArchiveRoot = 'boost_1_56_0'
 
 function samePath(a, b) {
   return path.normalize(a).toLowerCase() === path.normalize(b).toLowerCase()
@@ -124,6 +126,103 @@ async function addRecipe({ entries, info, root }) {
   }
 }
 
+function boostArchivePath(name) {
+  if (name.includes('\\') || name.includes(':') || name.includes('\0')) {
+    throw new Error('Unsafe Boost archive path: ' + name)
+  }
+  const parts = name.replace(/\/$/, '').split('/')
+  if (parts[0] !== boostArchiveRoot ||
+      parts.some(part => !part || part === '.' || part === '..')) {
+    throw new Error('Unsafe Boost archive path: ' + name)
+  }
+  return parts.slice(1).join('/')
+}
+
+async function verifyBoostArchiveEntries(bytes, expectedFiles) {
+  const expected = new Map(expectedFiles.map(file => [file.path, file]))
+  await new Promise((resolve, reject) => {
+    yauzl.fromBuffer(bytes, {
+      lazyEntries: true,
+      strictFileNames: true,
+      validateEntrySizes: true,
+    }, (openError, zip) => {
+      if (openError) return reject(openError)
+      let finished = false
+      const seen = new Set()
+      const fail = error => {
+        if (finished) return
+        finished = true
+        zip.close()
+        reject(error)
+      }
+      zip.on('error', fail)
+      zip.on('end', () => {
+        if (finished) return
+        if (seen.size !== expected.size) {
+          fail(new Error('Pinned Boost archive and header inventory differ'))
+          return
+        }
+        finished = true
+        resolve()
+      })
+      zip.on('entry', entry => {
+        try {
+          const relative = boostArchivePath(entry.fileName)
+          const directory = entry.fileName.endsWith('/')
+          const fileType = (entry.externalFileAttributes >>> 16) & 0o170000
+          if (entry.generalPurposeBitFlag & 1 ||
+              (fileType && fileType !== (directory ? 0o040000 : 0o100000))) {
+            throw new Error('Unsafe Boost archive entry: ' + entry.fileName)
+          }
+          if (directory) {
+            if (entry.uncompressedSize !== 0) {
+              throw new Error('Boost archive directory has data: ' + entry.fileName)
+            }
+            zip.readEntry()
+            return
+          }
+          if (relative !== 'LICENSE_1_0.txt' && !relative.startsWith('boost/')) {
+            zip.readEntry()
+            return
+          }
+          archivePath(relative)
+          const item = expected.get(relative)
+          if (!item || seen.has(relative) || entry.uncompressedSize !== item.sizeBytes ||
+              item.sizeBytes > boostFileLimit) {
+            throw new Error('Pinned Boost archive and header inventory differ: ' + relative)
+          }
+          seen.add(relative)
+          zip.openReadStream(entry, (streamError, stream) => {
+            if (streamError) return fail(streamError)
+            const hash = createHash('sha256')
+            let size = 0
+            stream.on('error', fail)
+            stream.on('data', chunk => {
+              size += chunk.length
+              if (size > item.sizeBytes) {
+                stream.destroy(new Error('Boost archive entry exceeds inventory size: ' + relative))
+              } else {
+                hash.update(chunk)
+              }
+            })
+            stream.on('end', () => {
+              if (finished) return
+              if (size !== item.sizeBytes || hash.digest('hex') !== item.sha256) {
+                fail(new Error('Pinned Boost archive header differs: ' + relative))
+                return
+              }
+              zip.readEntry()
+            })
+          })
+        } catch (error) {
+          fail(error)
+        }
+      })
+      zip.readEntry()
+    })
+  })
+}
+
 export async function verifiedBoostFiles(buildDirectory, boost, dependencyLock) {
   const artifact = dependencyLock?.artifacts?.[0]
   if (
@@ -187,6 +286,7 @@ export async function verifiedBoostFiles(buildDirectory, boost, dependencyLock) 
       boost.headerCount !== boost.files.length - 1 || boost.extractedBytes !== totalBytes) {
     throw new Error('Boost header inventory is incomplete')
   }
+  await verifyBoostArchiveEntries(archiveBytes, boost.files)
   return files
 }
 
@@ -209,17 +309,26 @@ export async function packageOpprimobot({
   await assertRealFile(path.join(directory, 'build-info.json'))
   const info = await json(path.join(directory, 'build-info.json'))
   if (info.schemaVersion !== 1) throw new Error('Invalid build-info schema version')
-  const candidate = await json(path.join(repository, 'bots/opprimobot/bot.json'))
+  const candidatePath = 'bots/opprimobot/bot.json'
+  const candidateBytes = await readFile(path.join(repository, candidatePath))
+  const candidate = JSON.parse(candidateBytes.toString('utf8'))
   validate('candidate', candidate)
   if (candidate.bot.id !== 'opprimobot' ||
       candidate.sourceIds.length !== sourceIds.length ||
       !isDeepStrictEqual(new Set(candidate.sourceIds), new Set(sourceIds))) {
     throw new Error('Opprimo candidate identity or source set changed')
   }
-  if (!review &&
-      (candidate.sourceReview.status !== 'approved' ||
-       candidate.permissions.localDistribution.status !== 'approved')) {
-    throw new Error('Source and distribution review must be approved before packaging')
+  if (!review) {
+    const committed = execFileSync('git', ['-C', repository, 'show', 'HEAD:' + candidatePath])
+    if (candidateBytes.toString('utf8').replaceAll('\r\n', '\n') !==
+        committed.toString('utf8').replaceAll('\r\n', '\n') ||
+        candidate.build.revision !== info.recipeRevision) {
+      throw new Error('Approved candidate must be committed and match the build recipe revision')
+    }
+    if (candidate.sourceReview.status !== 'approved' ||
+        candidate.permissions.localDistribution.status !== 'approved') {
+      throw new Error('Source and distribution review must be approved before packaging')
+    }
   }
   if (info.executable !== 'bin/OpprimoBot.exe') {
     throw new Error('Build has an unexpected executable path')
