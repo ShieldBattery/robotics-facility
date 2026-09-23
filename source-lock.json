@@ -30,7 +30,7 @@
       "patches": [
         {
           "path": "patches/ualbertabot/0001-fixed-config-and-single-match.patch",
-          "sha256": "357d4933d8207bb18b3ceaf472545420d90531de014efe4b7d051916e4248a71"
+          "sha256": "c718310701c2d3bdb5299f9755463116ecad3cf9072a9681c9393d3bc81db03c"
         }
       ]
     },

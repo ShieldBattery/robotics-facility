@@ -1,3 +1,159 @@
+diff --git a/BOSS/source/BOSS.h b/BOSS/source/BOSS.h
+index 6d561c6..cd05207 100644
+--- a/BOSS/source/BOSS.h
++++ b/BOSS/source/BOSS.h
+@@ -7,7 +7,7 @@
+ #include "CombatSearch_Bucket.h"
+ #include "CombatSearch_BestResponse.h"
+ #include "ActionTypeData.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "ActionType.h"
+ #include "Tools.h"
+ #include "DFBB_BuildOrderSmartSearch.h"
+diff --git a/BOSS/source/CombatSearch.h b/BOSS/source/CombatSearch.h
+index f8944f6..5f0d40e 100644
+--- a/BOSS/source/CombatSearch.h
++++ b/BOSS/source/CombatSearch.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "Common.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "Eval.h"
+ #include "BuildOrder.h"
+ #include "CombatSearchParameters.h"
+diff --git a/BOSS/source/CombatSearchResults.h b/BOSS/source/CombatSearchResults.h
+index 2480d44..a8dbf04 100644
+--- a/BOSS/source/CombatSearchResults.h
++++ b/BOSS/source/CombatSearchResults.h
+@@ -4,7 +4,7 @@
+ #include "PrerequisiteSet.h"
+ #include "GameState.h"
+ #include "ActionType.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ 
+ namespace BOSS
+ {
+diff --git a/BOSS/source/CombatSearch_BestResponse.h b/BOSS/source/CombatSearch_BestResponse.h
+index 8f76141..13c422e 100644
+--- a/BOSS/source/CombatSearch_BestResponse.h
++++ b/BOSS/source/CombatSearch_BestResponse.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "Common.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "Eval.h"
+ #include "BuildOrder.h"
+ #include "CombatSearch.h"
+diff --git a/BOSS/source/CombatSearch_Bucket.h b/BOSS/source/CombatSearch_Bucket.h
+index 3013445..48932e2 100644
+--- a/BOSS/source/CombatSearch_Bucket.h
++++ b/BOSS/source/CombatSearch_Bucket.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "Common.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "Eval.h"
+ #include "BuildOrder.h"
+ #include "CombatSearch.h"
+diff --git a/BOSS/source/CombatSearch_Integral.h b/BOSS/source/CombatSearch_Integral.h
+index 56947a8..b0ad599 100644
+--- a/BOSS/source/CombatSearch_Integral.h
++++ b/BOSS/source/CombatSearch_Integral.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "Common.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "Eval.h"
+ #include "BuildOrder.h"
+ #include "CombatSearch.h"
+diff --git a/BOSS/source/DFBB_BuildOrderSmartSearch.h b/BOSS/source/DFBB_BuildOrderSmartSearch.h
+index aa6db2c..126a963 100644
+--- a/BOSS/source/DFBB_BuildOrderSmartSearch.h
++++ b/BOSS/source/DFBB_BuildOrderSmartSearch.h
+@@ -3,7 +3,7 @@
+ #include "Common.h"
+ #include "GameState.h"
+ #include "DFBB_BuildOrderStackSearch.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ 
+ namespace BOSS
+ {
+diff --git a/BOSS/source/DFBB_BuildOrderStackSearch.h b/BOSS/source/DFBB_BuildOrderStackSearch.h
+index 64bcf02..063a7d5 100644
+--- a/BOSS/source/DFBB_BuildOrderStackSearch.h
++++ b/BOSS/source/DFBB_BuildOrderStackSearch.h
+@@ -4,7 +4,7 @@
+ #include "ActionType.h"
+ #include "DFBB_BuildOrderSearchResults.h"
+ #include "DFBB_BuildOrderSearchParameters.h"
+-#include "Timer.hpp"
++#include <ualberta-timer.hpp>
+ #include "Tools.h"
+ #include "BuildOrder.h"
+ 
+diff --git a/SparCraft/source/AlphaBetaSearch.h b/SparCraft/source/AlphaBetaSearch.h
+index dc3480b..7f5d8d3 100644
+--- a/SparCraft/source/AlphaBetaSearch.h
++++ b/SparCraft/source/AlphaBetaSearch.h
+@@ -3,7 +3,7 @@
+ #include <limits>
+ 
+ #include "AllPlayers.h"
+-#include "Timer.h"
++#include <ualberta-timer.hpp>
+ #include "GameState.h"
+ #include "Action.h"
+ #include "Array.hpp"
+diff --git a/SparCraft/source/Game.h b/SparCraft/source/Game.h
+index aea44a1..6759941 100644
+--- a/SparCraft/source/Game.h
++++ b/SparCraft/source/Game.h
+@@ -7,7 +7,7 @@
+ #include "Action.h"
+ #include "UnitScriptData.h"
+ #include <memory>
+-#include "Timer.h"
++#include <ualberta-timer.hpp>
+ 
+ namespace SparCraft
+ {
+diff --git a/SparCraft/source/UCTSearch.h b/SparCraft/source/UCTSearch.h
+index cd20ce8..c268818 100644
+--- a/SparCraft/source/UCTSearch.h
++++ b/SparCraft/source/UCTSearch.h
+@@ -2,7 +2,7 @@
+ 
+ #include <limits>
+ 
+-#include "Timer.h"
++#include <ualberta-timer.hpp>
+ #include "GameState.h"
+ #include "Action.h"
+ #include "GraphViz.hpp"
+diff --git a/UAlbertaBot/Source/TimerManager.h b/UAlbertaBot/Source/TimerManager.h
+index b51b830..d7cf374 100644
+--- a/UAlbertaBot/Source/TimerManager.h
++++ b/UAlbertaBot/Source/TimerManager.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "Common.h"
+-#include "../../BOSS/source/Timer.hpp"
++#include <ualberta-timer.hpp>
+ 
+ namespace UAlbertaBot
+ {
 diff --git a/UAlbertaBot/Source/UAlbertaBotModule.cpp b/UAlbertaBot/Source/UAlbertaBotModule.cpp
 index 3d259b3..2954628 100644
 --- a/UAlbertaBot/Source/UAlbertaBotModule.cpp

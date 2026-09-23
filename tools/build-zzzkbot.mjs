@@ -225,6 +225,7 @@ export function makeBuildInfo({
 export const ualbertaRecipePaths = Object.freeze([
   ...recipePaths,
   'native/ualbertabot.cmake',
+  'native/ualberta-timer.hpp',
   'tools/build-zzzkbot.mjs',
   'tools/build-ualbertabot.mjs',
   'bots/ualbertabot/UAlbertaBot_Config.txt',
