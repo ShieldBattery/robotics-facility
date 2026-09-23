@@ -1,0 +1,34 @@
+# Infested Artosis admission review
+
+Status: source feasibility review only, 2026-09-23. No build, upstream script,
+bot binary, or live match was run. `sourceReview` and `localDistribution` remain
+pending; this note does not approve catalog publication or public competition.
+
+## Pinned inputs and role
+
+- Bot source: [`BradEwing/InfestedArtosis` at `203bdaa97da0ec8088dbfdf7514a625f954536fa`](https://github.com/BradEwing/InfestedArtosis/tree/203bdaa97da0ec8088dbfdf7514a625f954536fa). The isolated research clone was clean at that commit.
+- Requested JBWAPI 2.2.0 tag: `0680856df175f15330c18e0148a0fb87b27d454d` in [`JavaBWAPI/JBWAPI`](https://github.com/JavaBWAPI/JBWAPI/tree/2.2.0). This is a proposed source pin, not yet a built or reviewed replacement dependency.
+- The [POM](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/pom.xml) targets Java 8 and packages `Bot` as a JAR with dependencies. It requests JBWAPI 2.2.0, Agent Starcraft Simulator (`com.github.Bytekeeper:ass:1.1`), Lombok 1.18.48 (`provided`), JetBrains annotations 26.1.0, JUnit 5.14.4 (`test`), and dotenv-java 2.3.2. Exact transitive artifacts and digests still need a resolved dependency inventory.
+- [README](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/README.md#L6) identifies a Zerg bot with macro, scouting, and adaptive opener/unit-mix selection. [BuildOrderFactory](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/strategy/BuildOrderFactory.java#L73) registers aggressive and economic openers and matchup builds. Human difficulty and the exact shipped build's strength are **uncalibrated**; do not label it beginner or derive a human rating from ladder results.
+
+## Source behavior and required adaptations
+
+[`Bot.main`](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/Bot.java#L246) creates one `BWClient` and calls `startGame()`. JBWAPI 2.2.0 defaults to `autoContinue=false` after a completed game, but its connection loop can reconnect after a disconnect. The Windows connector uses BWAPI's local shared-memory game list and named pipe. No active Java network client or child-process creation call was found in `src/main/java`; upstream workflows and batch scripts were not executed and are outside the runtime recipe.
+
+The [reviewed PurpleWave JBWAPI instance patch](../patches/jbwapi/instance-discovery.patch) targets JBWAPI commit `d6003b0b3a6a27944c979fd8dbc6ec8e3c2c753f` (POM version 1.5.1). It cannot apply unchanged to 2.2.0: the Windows game-list mapping moved from `Client.java` to `ClientConnectionW32.getGameTable()`. Port the same validated `SB_BWAPI_INSTANCE` naming rule there, record a new patch hash, and verify simultaneous-instance selection. JBWAPI 2.2.0 also prints game-table rows and connection messages to stdout; review its output against the bot runner's quiet-operation requirement. Its protocol constant is `10003`, but source agreement alone does not prove an SC:R match works.
+
+[`LearningManager`](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/learning/LearningManager.java#L89) constructs `{opponentName}_{opponentRace}.csv` from the raw enemy name. [`LearningHistoryRepository`](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/learning/LearningHistoryRepository.java#L17) reads `bwapi-data/read` and writes `bwapi-data/write`; it does not read its own write file. The write directory must already exist. Every completed match attempts a write, but I/O failure is swallowed at [game end](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/learning/LearningManager.java#L115). A malformed CSV numeric field can throw an unchecked exception during startup ([GameRecord.java](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/learning/GameRecord.java#L38)). Encode and bound opponent filenames, reject path escapes and reparse points, contain bad history, provision per-instance directories, and copy or promote compatible writes into the next game's read snapshot. Keep reset and updates aligned with the [profile state policy](source-review-and-state.md#persistence-contract-and-reset).
+
+[`Config`](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/config/Config.java#L60) reads an optional `.env` plus environment/JVM settings for strategy overrides, debug drawing, auto-observer, and telemetry. Missing `.env` is ignored; malformed entries are not explicitly ignored. Telemetry flags default off. Enabled loggers write CSVs under `bwapi-data/write` through [TelemetryWriter](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/src/main/java/telemetry/TelemetryWriter.java#L23). Do not ship development overrides in the default profile.
+
+## Distribution evidence and acceptance
+
+The bot's [MIT license](https://github.com/BradEwing/InfestedArtosis/blob/203bdaa97da0ec8088dbfdf7514a625f954536fa/LICENSE) credits Jasper Geurtz and Brad Ewing. JBWAPI and Agent Starcraft Simulator have MIT notices; dotenv-java and JetBrains annotations use Apache 2.0. The bundled `BWAPI.dll` has SHA-256 `f2e0f937e9592157656118fa7e5ff30c2327694ed56c1d8f55687972ad97d308`, identical to the previously reviewed PurpleWave copy. BWAPI's LGPLv3 notice and replacement/source obligations require release-specific treatment. Resolve the JitPack `ass:1.1` source revision and every runtime/transitive JAR, preserve their exact notices, and review the flattened assembly JAR before assigning local-distribution approval. Java itself is not assumed bundled.
+
+Acceptance before catalog admission:
+
+1. Pin every source/artifact and hash, inspect the resolved dependency tree and build-time plugin behavior, build in an isolated environment, and record exact source/patch/build provenance and complete notices.
+2. Port and test JBWAPI 2.2.0 instance discovery; verify protocol, commands, lifecycle, quiet output, and x86/x64 SC:R matches with the built artifact.
+3. Patch and test opponent-name storage, malformed CSV/config, per-instance read/write promotion, repeated matches, reset, updates, and concurrent workers without shared writable history.
+4. Trace file, process, and network activity for fresh install, normal match, malformed inputs, crash/shutdown, offline run, and reset; compare it with the declared package permissions.
+5. Review the final package and source disclosures under [licensing and attribution policy](licensing-and-attribution.md); benchmark the shipped profile against humans before assigning any difficulty tier.

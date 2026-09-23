@@ -1,0 +1,261 @@
+diff --git a/src/TestBot1.java b/src/TestBot1.java
+index 02fbd4c..95312e1 100644
+--- a/src/TestBot1.java
++++ b/src/TestBot1.java
+@@ -1,7 +1,6 @@
+ import java.util.ArrayList;
+ import java.util.HashSet;
+ import java.util.List;
+-import java.util.Random;
+ import java.util.Set;
+ 
+ import bwapi.*;
+@@ -10,8 +9,7 @@ import bwta.BaseLocation;
+ 
+ public class TestBot1 extends DefaultBWListener {
+ 
+-	private Mirror mirror = new Mirror();
+-
++	private BWClient bwClient;
+ 	private Game game;
+ 
+ 	private Player self;
+@@ -19,7 +17,6 @@ public class TestBot1 extends DefaultBWListener {
+ 	private int frameskip = 0;
+ 	private int cyclesForSearching = 0;
+ 	private int maxCyclesForSearching = 0;
+-	private int enemies = 0;
+ 	private int searchingScv = 0;
+ 	private int searchingTimeout = 0;
+ 	private boolean dontBuild = false;
+@@ -27,8 +24,6 @@ public class TestBot1 extends DefaultBWListener {
+ 	Unit bunkerBuilder;
+ 	Unit searcher;
+ 
+-	private String debugText = "";
+-
+ 	private enum Strategy {
+ 		WaitFor50, AttackAtAllCost
+ 	};
+@@ -38,13 +33,8 @@ public class TestBot1 extends DefaultBWListener {
+ 	private Set<Position> enemyBuildingMemory = new HashSet<>();
+ 
+ 	public void run() {
+-		mirror.getModule().setEventListener(this);
+-		mirror.startGame();
+-	}
+-
+-	@Override
+-	public void onUnitCreate(Unit unit) {
+-		
++		bwClient = new BWClient(this);
++		bwClient.startGame();
+ 	}
+ 
+ 	@Override
+@@ -52,7 +42,6 @@ public class TestBot1 extends DefaultBWListener {
+ 		frameskip = 0;
+ 		cyclesForSearching = 0;
+ 		maxCyclesForSearching = 0;
+-		enemies = 0;
+ 		searchingScv = 0;
+ 		searchingTimeout = 0;
+ 		dontBuild = false;
+@@ -60,29 +49,18 @@ public class TestBot1 extends DefaultBWListener {
+ 		bunkerBuilder = null;
+ 		searcher = null;
+ 
+-		game = mirror.getGame();
++		game = bwClient.getGame();
+ 		self = game.self();
+-		game.setLocalSpeed(0);
+ 
+ 		// Use BWTA to analyze map
+-		// This may take a few minutes if the map is processed first time!
+ 
+-		BWTA.readMap();
++		BWTA.readMap(game);
+ 		BWTA.analyze();
+ 
+-		int i = 0;
+ 	}
+ 
+ 	@Override
+ 	public void onFrame() {
+-		// game.setTextSize(10);
+-		game.drawTextScreen(10, 10, "Playing as " + self.getName() + " - " + self.getRace());
+-		game.drawTextScreen(10, 20, "Units: " + self.getUnits().size() + "; Enemies: " + enemyBuildingMemory.size());
+-		game.drawTextScreen(10, 30,
+-				"Cycles for buildings: " + cyclesForSearching + "; Max cycles: " + maxCyclesForSearching);
+-		game.drawTextScreen(10, 40, "Elapsed time: " + game.elapsedTime() + "; Strategy: " + selectedStrategy);
+-		game.drawTextScreen(10, 50, debugText);
+-		game.drawTextScreen(10, 60, "supply: " + self.supplyTotal() + " used: " + self.supplyUsed());
+ 		/*
+ 		 * if (game.elapsedTime() > 2001) { int x = (game.elapsedTime() / 500) %
+ 		 * 2; if (x == 0) { selectedStrategy = Strategy.FindEnemy; } else {
+@@ -93,14 +71,11 @@ public class TestBot1 extends DefaultBWListener {
+ 			dontBuild = true;
+ 		}
+ 
+-		game.setLocalSpeed(0);
+-
+ 		if (maxCyclesForSearching < cyclesForSearching) {
+ 			maxCyclesForSearching = cyclesForSearching;
+ 		}
+ 		cyclesForSearching = 0;
+ 
+-		StringBuilder units = new StringBuilder("My units:\n");
+ 		List<Unit> workers = new ArrayList<>();
+ 		List<Unit> barracks = new ArrayList<>();
+ 		Unit commandCenter = null;
+@@ -119,10 +94,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			searcher = null;
+ 		}
+ 
+-		if (searcher != null) {
+-			game.drawTextMap(searcher.getPosition(), "Mr. Searcher");
+-		}
+-
+ 		// iterate through my units
+ 		for (Unit myUnit : self.getUnits()) {
+ 			// units.append(myUnit.getType()).append("
+@@ -150,7 +121,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			}
+ 
+ 			if (myUnit.isUnderAttack() && myUnit.canAttack()) {
+-				game.setLocalSpeed(1);
+ 				myUnit.attack(myUnit.getPosition());
+ 			}
+ 
+@@ -187,7 +157,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			}
+ 			
+ 			if (myUnit.isUnderAttack() && myUnit.canAttack()) {
+-				game.setLocalSpeed(1);
+ 				myUnit.attack(myUnit.getPosition());
+ 			}
+ 			
+@@ -200,33 +169,28 @@ public class TestBot1 extends DefaultBWListener {
+ 			bunkerBuilder = workers.get(10);
+ 		}
+ 
+-		if (bunker == null && barracks.size() >= 1 && workers.size() > 10 && dontBuild == false) {
+-			game.setLocalSpeed(20);
++		if (bunker == null && barracks.size() >= 1 && workers.size() > 10
++				&& bunkerBuilder != null && dontBuild == false) {
+ 
+ 			if (timeout < 200) {
+-				game.drawTextMap(bunkerBuilder.getPosition(), "Moving to create bunker " + timeout + "/400");
+-				bunkerBuilder.move(BWTA.getNearestChokepoint(bunkerBuilder.getPosition()).getCenter());
++				bunkerBuilder.move(nearestChokepointOrStart(bunkerBuilder.getPosition()));
+ 				timeout++;
+ 			} else {
+-				game.drawTextMap(bunkerBuilder.getPosition(), "Buiding bunker");
+ 				TilePosition buildTile = getBuildTile(bunkerBuilder, UnitType.Terran_Barracks,
+ 						bunkerBuilder.getTilePosition());
+ 				if (buildTile != null) {
+ 					bunkerBuilder.build(UnitType.Terran_Bunker, buildTile);
+ 				}
+ 			}
+-		} else if (workers.size() > 10) {
+-			game.setLocalSpeed(10);
+-			game.drawTextMap(workers.get(10).getPosition(), "He will build bunker");
+ 		}
+ 
+ 		if (bunker != null && bunkerBuilder != null && bunkerBuilder.isRepairing() == false) {
+-			game.drawTextMap(bunkerBuilder.getPosition(), "Reparing bunker");
+ 			bunkerBuilder.repair(bunker);
+ 		}
+ 
+-		if (commandCenter.getTrainingQueue().isEmpty() && workers.size() < 20 && self.minerals() >= 50) {
+-			commandCenter.build(UnitType.AllUnits.Terran_SCV);
++		if (commandCenter != null && commandCenter.getTrainingQueue().isEmpty()
++				&& workers.size() < 20 && self.minerals() >= 50) {
++			commandCenter.build(UnitType.Terran_SCV);
+ 		}
+ 
+ 		frameskip++;
+@@ -268,7 +232,7 @@ public class TestBot1 extends DefaultBWListener {
+ 
+ 		for (Unit barrack : barracks) {
+ 			if (barrack.getTrainingQueue().isEmpty()) {
+-				barrack.build(UnitType.AllUnits.Terran_Marine);
++				barrack.build(UnitType.Terran_Marine);
+ 			}
+ 		}
+ 
+@@ -281,7 +245,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			allLocations.add(b);
+ 		}
+ 
+-		Random random = new Random();
+ 		int k = 0;
+ 		for (Unit marine : marines) {
+ 			if (marine.isAttacking() == false && marine.isMoving() == false) {
+@@ -292,7 +255,9 @@ public class TestBot1 extends DefaultBWListener {
+ 						selectedStrategy = Strategy.WaitFor50;
+ 					}
+ 					if (enemyBuildingMemory.isEmpty()) {
+-						marine.attack(allLocations.get(k % allLocations.size()).getPosition());
++						if (!allLocations.isEmpty()) {
++							marine.attack(allLocations.get(k % allLocations.size()).getPosition());
++						}
+ 					} else {
+ 						for (Position p : enemyBuildingMemory) {
+ 							marine.attack(p);
+@@ -307,17 +272,17 @@ public class TestBot1 extends DefaultBWListener {
+ 				} else {
+ 					Position newPos;
+ 
+-					if (bunker != null) {
++					if (bunker != null && !BWTA.getBaseLocations().isEmpty()) {
+ 						List<TilePosition> path = BWTA.getShortestPath(bunker.getTilePosition(),
+ 								BWTA.getStartLocation(game.self()).getTilePosition());
+ 
+ 						if (path.size() > 1) {
+ 							newPos = path.get(1).toPosition();
+ 						} else {
+-							newPos = BWTA.getNearestChokepoint(marine.getPosition()).getCenter();
++							newPos = nearestChokepointOrStart(marine.getPosition());
+ 						}
+ 					} else {
+-						newPos = BWTA.getNearestChokepoint(marine.getPosition()).getCenter();
++						newPos = nearestChokepointOrStart(marine.getPosition());
+ 					}
+ 
+ 					marine.attack(newPos);
+@@ -344,9 +309,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			searchingScv++;
+ 		}
+ 
+-		debugText = "Size: " + workers.size() + "; isGathering" + workers.get(7).isGatheringMinerals() + "; location: "
+-				+ baseLocations.size() + "; num: " + searchingScv;
+-
+ 		for (Unit u : game.enemy().getUnits()) {
+ 			// if this unit is in fact a building
+ 			if (u.getType().isBuilding()) {
+@@ -386,8 +348,12 @@ public class TestBot1 extends DefaultBWListener {
+ 			}
+ 		}
+ 
+-		// draw my units on screen
+-		// game.drawTextScreen(10, 25, units.toString());
++	}
++
++	private Position nearestChokepointOrStart(Position position) {
++		return BWTA.getChokepoints().isEmpty()
++				? self.getStartLocation().toPosition()
++				: BWTA.getNearestChokepoint(position).getCenter();
+ 	}
+ 
+ 	public static void main(String[] args) {
+@@ -451,8 +417,6 @@ public class TestBot1 extends DefaultBWListener {
+ 			maxDist += 2;
+ 		}
+ 
+-		if (ret == null)
+-			game.printf("Unable to find suitable build position for " + buildingType.toString());
+ 		return ret;
+ 	}
+ }
+\ No newline at end of file
