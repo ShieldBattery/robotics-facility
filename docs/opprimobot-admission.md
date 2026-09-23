@@ -131,3 +131,15 @@ fresh-process isolation, early quit, and midgame production/teardown.
 review-3 archive except `package.json`, which records the stable release ID
 and committed local-distribution/source-review approvals. The final package
 passed archive verification, catalog validation, and all 49 publisher tests.
+
+## Staging installation and practice launch
+
+[Staging workflow 35911354693](https://github.com/ShieldBattery/robotics-facility/actions/runs/35911354693)
+published signed catalog revision 10 successfully. An isolated ShieldBattery
+app refreshed and verified that catalog, installed `opprimobot-sb-1` without
+an install failure, and launched two copies through `practiceGameStart` using
+catalog keys, not raw executable paths. Session
+`3d6c3ec6-ab41-4b35-bfbd-25b17ce99983` reached gameplay and worker production
+for both copies. Leaving the observing player's client ended both bot clients
+and all three game clients; the library reported no active package leases or
+install failures afterward. Production publication was not run.
