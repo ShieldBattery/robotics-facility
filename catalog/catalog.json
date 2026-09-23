@@ -830,6 +830,212 @@
           }
         }
       ]
+    },
+    {
+      "bot": {
+        "id": "ualbertabot",
+        "name": "UAlbertaBot",
+        "description": "A Terran MarineRush opponent with a fixed opening and no learning between games.",
+        "authors": [
+          {
+            "name": "David Churchill"
+          }
+        ],
+        "homepage": "https://github.com/davechurchill/ualbertabot",
+        "sourceUrl": "https://github.com/davechurchill/ualbertabot",
+        "playStyleTags": [
+          "cheese",
+          "bio"
+        ],
+        "humanSkill": "uncalibrated",
+        "externalRatings": [
+          {
+            "provider": "SSCAIT",
+            "entry": "Dave Churchill",
+            "rating": 2551,
+            "observedOn": "2026-09-21",
+            "ratedVersion": null,
+            "sourceUrl": "https://sscaitournament.com/index.php?action=scores",
+            "notes": "User-supplied saved standings; exact rated build and server measurement date unknown. Not a rating for this pinned source build."
+          }
+        ]
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "ualbertabot",
+            "releaseId": "ualbertabot-sb-3",
+            "version": "snapshot-558899d-sb.3",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86"
+            },
+            "runtime": {
+              "kind": "native"
+            },
+            "launch": {
+              "entrypoint": "bin/UAlbertaBot.exe",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "terran"
+              ],
+              "randomRace": "unsupported",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "verified",
+                  "notes": "Terran local 1v1 tested on Fighting Spirit with x86 and x64 SC:R; human and observer sessions. See the release review for exact builds and limitations."
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Not tested."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "none",
+                "notes": "Strategy learning is inactive in the pinned source. The packaged fixed configuration disables opponent result storage and opponent-specific overrides; in-game chat cannot change these settings."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "bwapi",
+                "repository": "https://github.com/bwapi/bwapi.git",
+                "revision": "7687da8abc4726f8366401f11ab648d421385793",
+                "patches": [
+                  {
+                    "path": "patches/bwapi/instance-discovery.patch",
+                    "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+                  }
+                ]
+              },
+              {
+                "id": "ualbertabot",
+                "repository": "https://github.com/davechurchill/ualbertabot.git",
+                "revision": "558899d8793456f4a6ec4196efbb5235552e24db",
+                "patches": [
+                  {
+                    "path": "patches/ualbertabot/0001-fixed-config-and-single-match.patch",
+                    "sha256": "c718310701c2d3bdb5299f9755463116ecad3cf9072a9681c9393d3bc81db03c"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "LGPL-3.0 (BWAPI)",
+                "noticePath": "notices/BWAPI-LGPL-3.0.txt"
+              },
+              {
+                "name": "GPL-3.0 license text",
+                "noticePath": "notices/GPL-3.0.txt"
+              },
+              {
+                "name": "MIT (UAlbertaBot, BOSS, and SparCraft)",
+                "noticePath": "notices/UAlbertaBot-MIT.txt"
+              },
+              {
+                "name": "MIT (RapidJSON)",
+                "noticePath": "notices/RapidJSON-MIT.txt"
+              },
+              {
+                "name": "BSD-3-Clause (msinttypes)",
+                "noticePath": "notices/MSINTTYPES-BSD-3-Clause.txt"
+              },
+              {
+                "name": "BSD-3-Clause (smallsha1)",
+                "noticePath": "notices/SMALLSHA1-LICENSE.txt"
+              },
+              {
+                "name": "MIT (ShieldBattery native recipe)",
+                "noticePath": "notices/ShieldBattery-MIT.txt"
+              },
+              {
+                "name": "Attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "Scoped staging package source/notice and rebuild review: https://github.com/ShieldBattery/robotics-facility/blob/ualbertabot-sb-3/docs/ualbertabot-source-review.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Fixed quiet Terran MarineRush configuration disables complete-map information, user input, debug output, result storage, and opponent-specific strategy overrides."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Chat configuration setters are disabled, the process exits after one completed match, and the replaced timer uses an independent std::chrono implementation."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "dependency",
+                "summary": "BWAPI selects the match discovery table through SB_BWAPI_INSTANCE and rejects malformed instance identifiers."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "The native Win32 recipe statically links the MSVC runtime."
+              }
+            ],
+            "writableDirectories": [
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "04953ce1bef47bcf5d1a3a16a5a139d9763b0634",
+                "patches": []
+              },
+              "recipePath": "native/CMakeLists.txt",
+              "toolchain": "{\"cmake\":\"cmake version 3.31.0\\n\\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\",\"generator\":\"Visual Studio 17 2022\",\"architecture\":\"Win32\",\"configuration\":\"Release\",\"msvcRuntime\":\"static\",\"compiler\":\"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x86/cl.exe\",\"compilerId\":\"MSVC\",\"compilerVersion\":\"19.43.34810.0\",\"windowsSdkVersion\":\"10.0.26100.0\"}"
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "Scoped staging review, including source side effects, fixed configuration, package rebuild, live sync, lifecycle and socket/file inventories; not a sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/ualbertabot-sb-3/docs/ualbertabot-source-review.md"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/ualbertabot-sb-3/ualbertabot-sb-3.zip",
+            "sha256": "e0666438fe54fbebd9ee1b59c4ed2576ff34d2cc1fccbe1c64bce8193ca1d0f7",
+            "sizeBytes": 1710587,
+            "manifestSha256": "03b2fdf4ae00c8f9e5f78b42d6eca28c84a644bc434759bf5dd3493878a95548",
+            "format": "zip"
+          }
+        }
+      ]
     }
   ]
 }

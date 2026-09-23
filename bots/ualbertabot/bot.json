@@ -41,7 +41,7 @@
       {
         "id": "one-v-one",
         "support": "verified",
-        "notes": "Only the bridge prototype scenarios in ShieldBattery tools/bwapi/README.md."
+        "notes": "Terran local 1v1 tested on Fighting Spirit with x86 and x64 SC:R; human and observer sessions. See the release review for exact builds and limitations."
       },
       {
         "id": "teams",
@@ -66,12 +66,12 @@
     "name": "MIT",
     "sourceId": "ualbertabot",
     "path": "License.md",
-    "notes": "Top-level upstream license only. Dependency, notice, and redistributable package audit remains open."
+    "notes": "Package includes patched corresponding source and verified rebuild/relink instructions, with UAlbertaBot/BOSS/SparCraft/StarDraft MIT, RapidJSON MIT, msinttypes/smallsha1 BSD, BWAPI LGPL/GPL, and ShieldBattery MIT notices."
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "Package-level license obligations and source/notice bundle are not yet reviewed."
+      "status": "approved",
+      "evidence": "Scoped staging package source/notice and rebuild review: https://github.com/ShieldBattery/robotics-facility/blob/ualbertabot-sb-3/docs/ualbertabot-source-review.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -84,23 +84,25 @@
     "protocol": 10003,
     "botArchitecture": "x86",
     "gameArchitectures": [
+      "x86",
       "x86_64"
     ],
-    "evidence": "ShieldBattery docs/bwapi-compatibility-research.md and tools/bwapi/README.md at build.revision.",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/ualbertabot-sb-3/docs/ualbertabot-source-review.md",
     "limitations": [
       "Partial BWAPI semantics; legacy unit limits required.",
-      "Fresh bot process per match.",
-      "The packaged Terran profile requires live verification on both SC:R architectures before publication."
+      "Only the fixed Terran 1v1 profile is verified; other formats and human skill are uncalibrated.",
+      "Fresh bot process and isolated working directory per match.",
+      "One observer launch stalled before gameplay; retries succeeded. See review for details."
     ]
   },
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "4c4903236d654c5e9d27d6c17f2a319ce6e4d913",
+    "revision": "04953ce1bef47bcf5d1a3a16a5a139d9763b0634",
     "instructions": "bots/ualbertabot/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "Fixed configuration and chat setters reviewed; opponent result storage disabled. Package dependency notices and live verification remain under review before publication."
+    "status": "approved",
+    "evidence": "Scoped staging review, including source side effects, fixed configuration, package rebuild, live sync, lifecycle and socket/file inventories; not a sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/ualbertabot-sb-3/docs/ualbertabot-source-review.md"
   }
 }
