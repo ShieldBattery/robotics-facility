@@ -73,6 +73,17 @@
       "repository": "https://github.com/bolerio/mjson.git",
       "revision": "e7a4da2daa6e17a63ec057948bc30818e8f44686",
       "patches": []
+    },
+    {
+      "id": "marine-hell",
+      "repository": "https://github.com/libor-vilimek/marine-hell.git",
+      "revision": "672da02d0fcf2d4b3546d4a0f7770a9aa3a28e2e",
+      "patches": [
+        {
+          "path": "patches/marine-hell/0001-use-isolated-jbwapi.patch",
+          "sha256": "f5673b4b6f0a7a67d61ba0be6ba44ebeaa3e674fb8aa3fa26dd8b4ceb9d1b663"
+        }
+      ]
     }
   ]
 }

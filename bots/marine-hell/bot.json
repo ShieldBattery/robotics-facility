@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "marine-hell",
+    "name": "Marine Hell",
+    "description": "A simple Terran bot that gathers a large Marine army before attacking. Human difficulty is not yet calibrated.",
+    "authors": [
+      {
+        "name": "libor-vilimek"
+      }
+    ],
+    "homepage": "https://github.com/libor-vilimek/marine-hell",
+    "sourceUrl": "https://github.com/libor-vilimek/marine-hell",
+    "playStyleTags": [
+      "bio"
+    ],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": [
+    "marine-hell",
+    "jbwapi"
+  ],
+  "profile": {
+    "selectableRaces": [
+      "terran"
+    ],
+    "randomRace": "unsupported",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "unverified",
+        "notes": "Compile checkpoint only; no packaged live match yet."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Compile checkpoint only; no packaged live match yet."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Compile checkpoint only; no packaged live match yet."
+      }
+    ],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
+    "learning": {
+      "mode": "none",
+      "notes": "No persistence or learning API in the single-file bot source."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "marine-hell",
+    "path": "LICENSE",
+    "notes": "Upstream MIT; dependency and packaged notice review pending."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "No release package or dependency notice review yet."
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Track separately from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86_64",
+    "gameArchitectures": [
+      "x86",
+      "x86_64"
+    ],
+    "evidence": "docs/marine-hell-admission.md",
+    "limitations": [
+      "JBWAPI source port; not yet verified in a live match.",
+      "Requires x64 Java 8 or newer.",
+      "Intended Terran 1v1 profile; other formats unverified."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "bca419e984234d1a162a500589b5803f4616f252",
+    "instructions": "bots/marine-hell/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "docs/marine-hell-admission.md records the port and remaining package/runtime checks."
+  }
+}
