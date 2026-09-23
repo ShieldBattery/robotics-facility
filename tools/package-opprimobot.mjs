@@ -52,7 +52,7 @@ const sourcePrefixes = {
     'bwapi/COPYING',
   ],
   opprimobot: ['SCProjects/OpprimoBot/Source', 'README.md'],
-  bwta2: ['BWTA/Source', 'include', 'COPYING', 'README.md'],
+  bwta2: ['BWTA/Source', 'include', 'OfflineExtractor/MapFileParser.h', 'COPYING', 'README.md'],
 }
 
 async function sourceDirectory(buildDirectory, input, id) {
