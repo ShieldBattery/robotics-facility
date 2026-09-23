@@ -131,6 +131,7 @@ foreach(target IN ITEMS UabBoss UabSparCraft UAlbertaBot)
   target_compile_options(${target} PRIVATE /W3 /MP)
   target_include_directories(${target} PRIVATE "${BWAPI_SOURCE_DIR}/bwapi/include")
 endforeach()
+target_include_directories(UAlbertaBot PRIVATE "${UALBERTABOT_SOURCE_DIR}/UAlbertaBot/Source")
 target_link_libraries(UAlbertaBot PRIVATE UabBoss UabSparCraft BWAPIClient BWAPIStatic)
 target_link_options(UAlbertaBot PRIVATE /Brepro)
 set_target_properties(UAlbertaBot PROPERTIES
