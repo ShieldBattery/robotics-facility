@@ -94,3 +94,6 @@ their own bucket or upload credentials.
 
 [Play-style tags](docs/play-style-tags.md) documents the standard IDs and the
 localization contract for ShieldBattery.
+
+See the [starter roster](docs/starter-roster.md) for the next bot integrations,
+play-style coverage, licensing questions, and the beginner-difficulty gap.

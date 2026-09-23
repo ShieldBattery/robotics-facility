@@ -36,3 +36,11 @@ To reproduce the package from the reviewed build:
 `node tools/package-purplewave.mjs .build/purplewave-release-5 purplewave-sb-3`.
 The output directory must not already contain the archive. The current candidate
 profile supplies the release metadata; the recorded recipe supplies the binaries.
+
+## Staging publication
+
+[Staging revision 7](https://github.com/ShieldBattery/robotics-facility/actions/runs/35839136721)
+published successfully. Independent readback verified the configured signing key
+against the current catalog, immutable revision, and publication receipt. The
+CDN ZIP matched the local archive byte for byte, and its embedded profile exposes
+all three races. Production promotion and new live games were not run.
