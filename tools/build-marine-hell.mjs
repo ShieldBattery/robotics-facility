@@ -21,6 +21,16 @@ const recipePaths = [
   'tools/prepare-source.mjs',
   'tools/fetch-sources.mjs',
   'bots/marine-hell/BUILD.md',
+  'tools/package-marine-hell.mjs',
+  'tools/package-purplewave.mjs',
+  'tools/package-zzzkbot.mjs',
+  'tools/publication-archive.mjs',
+  'tools/validate.mjs',
+  'schemas/metadata.schema.json',
+  'bots/marine-hell/RELEASE.txt',
+  'bots/marine-hell/APACHE-2.0-LICENSE.txt',
+  'package.json',
+  'pnpm-lock.yaml',
 ]
 const outputName = /^[a-z0-9][a-z0-9-]*$/
 const devices = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/i

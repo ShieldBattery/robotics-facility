@@ -79,7 +79,7 @@
     "evidence": "docs/marine-hell-admission.md",
     "limitations": [
       "JBWAPI source port; not yet verified in a live match.",
-      "Requires x64 Java 8 or newer.",
+      "The initial package requires the tested Java 21 x64 runtime.",
       "Intended Terran 1v1 profile; other formats unverified."
     ]
   },

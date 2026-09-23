@@ -5,11 +5,11 @@ Each bot retains its upstream license; this repository does not relicense bot co
 See [licensing and modification disclosure](docs/licensing-and-attribution.md) for
 package notices, modified-source delivery, and the bot detail display requirements.
 
-ZZZKBot has a reviewed experimental staging package, including patched source,
-build instructions, and offline license/modification notices. UAlbertaBot remains
-a prototype candidate. See the [ZZZKBot release review](docs/releases/zzzkbot-sb-1.md).
-The game bridge currently requires a ShieldBattery debug build; production app
-installation and UI integration are separate work.
+ZZZKBot, PurpleWave, and UAlbertaBot have reviewed experimental staging packages,
+including patched source, build instructions, and offline license/modification
+notices. See their [release reviews](docs/releases/). Marine Hell is a build-tested
+candidate undergoing package and gameplay review. The game bridge currently
+requires a ShieldBattery debug build.
 
 Separate staging and production publishing Actions validate archives, sign catalogs,
 and publish to Spaces; they refuse empty/unapproved releases. See
@@ -71,8 +71,9 @@ the lock and clone origin. No hosted GitHub repository is needed for this workfl
 
 The ZZZKBot recipe and MIT external host live in `native/`. See
 [bots/zzzkbot/BUILD.md](bots/zzzkbot/BUILD.md) for a pinned Windows build or an
-offline rebuild from the source included with every release. UAlbertaBot still
-uses the prototype recipe recorded in its candidate metadata.
+offline rebuild from the source included with every release. UAlbertaBot uses the
+same isolated native toolchain; see [its build instructions](bots/ualbertabot/BUILD.md).
+Marine Hell's Java source port is described in [its build checkpoint](bots/marine-hell/BUILD.md).
 
 The Java 21 PurpleWave integration is described in
 [bots/purplewave/BUILD.md](bots/purplewave/BUILD.md). Java dependency jars are pinned

@@ -1,0 +1,36 @@
+Marine Hell - ShieldBattery Java build
+
+Marine Hell is by libor-vilimek, under the MIT license. This is a modified
+ShieldBattery build, not an unmodified upstream binary or an endorsement by
+the original author. The upstream MIT notice is included beside this file
+and in source/. The original single-file Terran mass-Marine strategy remains
+recognizable; human difficulty has not been calibrated.
+
+ShieldBattery modifications dated 2026-09-23:
+- Port src/TestBot1.java from BWMirror to the reviewed JBWAPI 1.5.1 source.
+- Remove game-speed control and debug drawing/chat, and guard missing game
+  objects and terrain-analysis results without intentionally weakening the bot.
+- Use the patched JBWAPI instance-discovery path (SB_BWAPI_INSTANCE).
+- Compile the Java sources into an executable JAR, target Java 8 class files,
+  and select an x64 Java 21 runtime for this first release candidate.
+- Use the pinned JNA and JNA Platform 5.18.1 runtime jars, separately from
+  the executable JAR, and bound the JVM heap to 32-512 MiB.
+- Direct JNA and Java temporary files into the per-instance working copy.
+
+The package contains Marine Hell, JBWAPI, Java BWEM, JNA, and JNA Platform.
+JBWAPI and Java BWEM carry their own MIT notices. JNA and JNA Platform are
+dual licensed under Apache-2.0 OR LGPL-2.1-or-later; this package elects the
+Apache-2.0 option. The original notices from both JNA jars and the full
+Apache-2.0 license text are included. Java and the BWAPI host bridge are not
+bundled. The old BWMirror jar, JNI bridge, GMP, and MPFR files from Marine
+Hell's upstream repository are not included or used.
+
+Patched Java source and offline rebuild instructions are in source/. Exact
+Git revisions and ordered patch hashes are recorded in source/source-lock.json;
+JNA artifact URLs, sizes, and hashes are in source/jvm/dependencies.json.
+The source/build-info.json record binds the compiled files and build recipe.
+
+Upstream: https://github.com/libor-vilimek/marine-hell
+Build recipes: https://github.com/ShieldBattery/robotics-facility
+JNA license choice: https://github.com/java-native-access/jna
+Apache-2.0 license: https://www.apache.org/licenses/LICENSE-2.0
