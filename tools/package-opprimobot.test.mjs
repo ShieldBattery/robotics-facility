@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, realpath, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { makeArchive } from './package-zzzkbot.mjs'
@@ -13,7 +13,7 @@ const originals = {
 }
 
 async function fixture(t, { archiveFiles = originals, extractedFiles = originals, mutateArchive } = {}) {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'opprimobot-boost-test-'))
+  const directory = await realpath(await mkdtemp(path.join(os.tmpdir(), 'opprimobot-boost-test-')))
   t.after(() => rm(directory, { recursive: true, force: true }))
   const deps = path.join(directory, 'deps')
   const headers = path.join(deps, 'boost_1_56_0')
