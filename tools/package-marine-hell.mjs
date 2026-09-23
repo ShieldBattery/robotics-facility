@@ -29,6 +29,7 @@ const requiredRecipePaths = [
   'bots/marine-hell/BUILD.md',
   'bots/marine-hell/RELEASE.txt',
   'bots/marine-hell/APACHE-2.0-LICENSE.txt',
+  'bots/marine-hell/JNA-THIRD-PARTY-NOTICES.txt',
   'package.json',
   'pnpm-lock.yaml',
 ]
@@ -209,6 +210,11 @@ export async function packageMarineHell({
     'Apache-2.0 license for JNA and JNA Platform',
     'notices/APACHE-2.0-LICENSE.txt',
     await readFile(path.join(repository, 'bots/marine-hell/APACHE-2.0-LICENSE.txt')),
+  )
+  addNotice(
+    'MIT - libffi bundled in JNA native support',
+    'notices/JNA-THIRD-PARTY-NOTICES.txt',
+    await readFile(path.join(repository, 'bots/marine-hell/JNA-THIRD-PARTY-NOTICES.txt')),
   )
   addNotice(
     'Marine Hell attribution, modifications, and source',

@@ -21,7 +21,8 @@ The package contains Marine Hell, JBWAPI, Java BWEM, JNA, and JNA Platform.
 JBWAPI and Java BWEM carry their own MIT notices. JNA and JNA Platform are
 dual licensed under Apache-2.0 OR LGPL-2.1-or-later; this package elects the
 Apache-2.0 option. The original notices from both JNA jars and the full
-Apache-2.0 license text are included. Java and the BWAPI host bridge are not
+Apache-2.0 license text are included. The MIT notice for libffi, statically
+linked into JNA native support, is included separately. Java and the BWAPI host bridge are not
 bundled. The old BWMirror jar, JNI bridge, GMP, and MPFR files from Marine
 Hell's upstream repository are not included or used.
 

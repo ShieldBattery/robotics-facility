@@ -15,8 +15,10 @@ Changes dated 2026-09-22:
 
 The package includes PurpleWave, JBWAPI/Java BWEM, JBWEB, JavaJPS, mjson, Scala,
 JNA/JNA Platform, and Apache Commons Lang. JNA is distributed under its Apache
-License 2.0 option. Java itself is not bundled. The original JavaJPS README
-includes its MIT license and Kevin Sheehan attribution.
+License 2.0 option. JNA's embedded jnidispatch native libraries include
+libffi; its original copyright and permission notice is included separately
+as JNA-THIRD-PARTY-NOTICES.txt. Java itself is not bundled. The original
+JavaJPS README includes its MIT license and Kevin Sheehan attribution.
 
 Patched source and rebuild materials are in source/. Exact Git revisions and
 patch hashes are recorded in package.json and source/source-lock.json; dependency

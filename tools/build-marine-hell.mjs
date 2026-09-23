@@ -29,6 +29,7 @@ const recipePaths = [
   'schemas/metadata.schema.json',
   'bots/marine-hell/RELEASE.txt',
   'bots/marine-hell/APACHE-2.0-LICENSE.txt',
+  'bots/marine-hell/JNA-THIRD-PARTY-NOTICES.txt',
   'package.json',
   'pnpm-lock.yaml',
 ]

@@ -97,6 +97,11 @@ export async function packagePurpleWave({
     for (const [name, content] of notices)
       addNotice(`${dependency.name}: ${name}`, `notices/${dependency.name}-${name}`, content)
   }
+  addNotice(
+    'libffi - bundled in JNA jnidispatch native libraries',
+    'notices/JNA-THIRD-PARTY-NOTICES.txt',
+    await readFile(path.join(root, 'bots/purplewave/JNA-THIRD-PARTY-NOTICES.txt')),
+  )
   const inventories = {
     purplewave: ['src', 'src-macros', 'tests', 'license.md', 'readme.md', 'pom.xml'],
     jbwapi: ['src/main/java', 'LICENSE', 'README.md', 'pom.xml'],
