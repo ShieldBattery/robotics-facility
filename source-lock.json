@@ -143,7 +143,7 @@
       "patches": [
         {
           "path": "patches/steamhammer/0001-isolate-runtime.patch",
-          "sha256": "508b3c06cd12f250d9b754ae1f870f60d05eefebea776dbe89fc1f7a14526a68"
+          "sha256": "b139ddc4d64b072473d67a01d531ca15dad68f16bef02337e35e6bd65a615dd7"
         }
       ]
     }
