@@ -793,6 +793,53 @@ index 4493578..6bc0bb6 100644
      int GetIntByRace(const char * name, const rapidjson::Value & item);
      double GetDoubleByRace(const char * name, const rapidjson::Value & item);
      bool GetBoolByRace(const char * name, const rapidjson::Value & item);
+diff --git a/Steamhammer/Source/SkillBattles.cpp b/Steamhammer/Source/SkillBattles.cpp
+index 99e7372..080700a 100644
+--- a/Steamhammer/Source/SkillBattles.cpp
++++ b/Steamhammer/Source/SkillBattles.cpp
+@@ -1,5 +1,7 @@
+ #include "SkillBattles.h"
+ 
++#include <stdexcept>
++
+ #include "Bases.h"
+ #include "GameRecord.h"
+ #include "The.h"
+@@ -101,7 +103,10 @@ void SkillBattles::getData(GameRecord & r, const std::string & line)
+         int count;
+         while ((s >> type) && type != -1)
+         {
+-            s >> count;
++            if (!(s >> count))
++            {
++                throw std::runtime_error("battle snapshot is missing a count");
++            }
+             snapshot.push_back(type);
+             snapshot.push_back(count);
+         }
+diff --git a/Steamhammer/Source/SkillUnitTimings.cpp b/Steamhammer/Source/SkillUnitTimings.cpp
+index bffba4d..d14617b 100644
+--- a/Steamhammer/Source/SkillUnitTimings.cpp
++++ b/Steamhammer/Source/SkillUnitTimings.cpp
+@@ -1,5 +1,7 @@
+ #include "SkillUnitTimings.h"
+ 
++#include <climits>
++
+ #include "InformationManager.h"
+ #include "The.h"
+ 
+@@ -65,6 +67,10 @@ void SkillUnitTimings::getData(GameRecord & r, const std::string & line)
+     int frame;
+     while (s >> typeIndex >> frame)
+     {
++        if (frame == INT_MIN)
++        {
++            continue;
++        }
+ 		frame = std::abs(frame);
+ 		if (BWAPI::UnitType(typeIndex).isValid() && frame < MAX_FRAME)
+ 		{
 diff --git a/Steamhammer/Source/TimerManager.h b/Steamhammer/Source/TimerManager.h
 index d6aa865..3f50acf 100644
 --- a/Steamhammer/Source/TimerManager.h

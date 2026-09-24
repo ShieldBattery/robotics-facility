@@ -1,4 +1,4 @@
-﻿import { lstat, readFile, realpath } from 'node:fs/promises'
+import { lstat, readFile, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import { readSourceLock } from './fetch-sources.ts'
 import type { Candidate, Package, Source } from './metadata.ts'
@@ -79,7 +79,9 @@ export async function packageNativeBot(
   const ids = Object.keys(recipe.sources)
   if (
     candidate.bot.id !== recipe.botId ||
-    JSON.stringify(candidate.sourceIds) !== JSON.stringify(ids)
+    candidate.sourceIds.length !== ids.length ||
+    new Set(candidate.sourceIds).size !== ids.length ||
+    candidate.sourceIds.some(id => !ids.includes(id))
   )
     throw new Error('Candidate identity or sources differ from the native recipe')
   if (
