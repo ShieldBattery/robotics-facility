@@ -1,4 +1,4 @@
-﻿Steamhammer 5.3.6 - ShieldBattery modified build
+Steamhammer 5.3.6 - ShieldBattery modified build
 
 Original bot: Steamhammer by Jay Scott, derived from UAlbertaBot by David Churchill
 Author: https://satirist.org/ai/starcraft/steamhammer/
@@ -12,6 +12,8 @@ Modified by ShieldBattery on 2026-09-23:
 - Encodes opponent names, bounds learned files and parser allocations, reads
   private write state before read baselines, and replaces saved files atomically.
 - Replaces Timer.hpp with an independent std::chrono timer.
+- Allows refinery placement on occupied geyser tiles without requiring those
+  tiles to be walkable; geyser validity and enemy-range checks still apply.
 - Uses separately built BWAPI 4.4 with isolated SB_BWAPI_INSTANCE discovery.
 
 Licenses and corresponding source

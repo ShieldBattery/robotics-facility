@@ -1,4 +1,4 @@
-﻿import path from 'node:path'
+import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { steamhammerRecipePaths } from './build-steamhammer.ts'
 import {
@@ -74,6 +74,13 @@ const recipe: NativePackageRecipe = {
       scope: 'bot',
       summary:
         'Runs one match in an external Win32 host with the static MSVC runtime and an independently implemented monotonic timer.',
+    },
+    {
+      modifier: 'ShieldBattery',
+      date: '2026-09-23',
+      scope: 'bot',
+      summary:
+        'Keeps refinery construction assigned while native orders arrive by exempting occupied geyser tiles from the generic walkability check.',
     },
     {
       modifier: 'ShieldBattery',

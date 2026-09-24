@@ -62,6 +62,20 @@ index dcf881e..da4ab03 100644
      throw std::runtime_error("Logistic::read wrong size");
    }
  }
+diff --git a/Steamhammer/Source/BuildingPlacer.cpp b/Steamhammer/Source/BuildingPlacer.cpp
+index 79de575..a4a5e9b 100644
+--- a/Steamhammer/Source/BuildingPlacer.cpp
++++ b/Steamhammer/Source/BuildingPlacer.cpp
+@@ -323,7 +323,8 @@ bool BuildingPlacer::canBuildHere(const BWAPI::TilePosition & position, const Bu
+ 
+         // A worker can reach the place.
+         // NOTE This simplified check disallows building on islands!
+-        the.bases.connectedToStart(position) &&
++        // A refinery occupies an unwalkable neutral geyser tile; the geyser itself cannot be path-tested.
++        (b.type.isRefinery() || the.bases.connectedToStart(position)) &&
+         
+         // The enemy army is not in range to hit the building location.
+ 		isSafeHere(position, b.type);
 diff --git a/Steamhammer/Source/Config.cpp b/Steamhammer/Source/Config.cpp
 index a14dbf9..b20640e 100644
 --- a/Steamhammer/Source/Config.cpp
