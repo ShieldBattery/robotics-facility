@@ -1,13 +1,14 @@
 import { execFileSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { writeReleasePackage } from './release-package.ts'
+
+import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type NativeBuildInfo, ualbertaRecipePaths } from './build-zzzkbot.ts'
-import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
-import { type ArchiveEntry, indexedFiles, makeArchive } from './package-zzzkbot.ts'
-import { sha256, verifyArchive } from './publication-archive.ts'
-import { validate } from './validate.ts'
+import { ualbertaRecipePaths } from './build-ualbertabot.ts'
+import type { Candidate, Package, Source, SourceLock } from './metadata.ts'
+import type { NativeBuildInfo } from './native-build.ts'
+import { type ArchiveEntry, indexedFiles, recipeFiles } from './package-archive.ts'
+import { sha256 } from './publication-archive.ts'
 
 const git = (directory: string, ...args: string[]) =>
   execFileSync('git', ['-C', directory, ...args], { encoding: 'utf8' }).trim()
@@ -84,31 +85,6 @@ async function addSources({
   }
 }
 
-async function addRecipe({
-  entries,
-  info,
-  root,
-}: {
-  entries: ArchiveEntry[]
-  info: NativeBuildInfo
-  root: string
-}) {
-  if (!/^[a-f0-9]{40}$/.test(info.recipeRevision)) throw new Error('Invalid recipe revision')
-  const hash = createHash('sha256')
-  for (const name of ualbertaRecipePaths) {
-    const expected = execFileSync('git', ['-C', root, 'show', info.recipeRevision + ':' + name])
-    const actual = await readFile(path.join(root, name))
-    if (
-      expected.toString('utf8').replaceAll('\r\n', '\n') !==
-      actual.toString('utf8').replaceAll('\r\n', '\n')
-    )
-      throw new Error('Recipe changed: ' + name)
-    hash.update(name).update('\0').update(actual).update('\0')
-    entries.push(['source/' + name, actual])
-  }
-  if (hash.digest('hex') !== info.recipeSha256) throw new Error('Recipe bytes changed since build')
-}
-
 export async function packageUalbertabot({
   root = process.cwd(),
   buildDirectory,
@@ -143,7 +119,14 @@ export async function packageUalbertabot({
     root,
     sources,
   })
-  await addRecipe({ entries, info, root })
+  entries.push(
+    ...(await recipeFiles({
+      root,
+      revision: info.recipeRevision,
+      sha256: info.recipeSha256,
+      paths: ualbertaRecipePaths,
+    })),
+  )
   const notices: [name: string, noticePath: string, source: string][] = [
     ['LGPL-3.0 (BWAPI)', 'notices/BWAPI-LGPL-3.0.txt', 'source/bwapi/LICENSE'],
     ['GPL-3.0 license text', 'notices/GPL-3.0.txt', 'source/bwapi/bwapi/COPYING'],
@@ -249,42 +232,7 @@ export async function packageUalbertabot({
       ? { status: 'pending', evidence: 'Review-only archive; publication is not approved.' }
       : candidate.sourceReview,
   }
-  validate('package', pkg)
-  const manifest = Buffer.from(JSON.stringify(pkg, null, 2) + '\n')
-  entries.push(['package.json', manifest])
-  const bytes = await makeArchive(entries)
-  const file = releaseId + '.zip'
-  const artifact: Artifact = {
-    url:
-      'https://github.com/ShieldBattery/robotics-facility/releases/download/' +
-      releaseId +
-      '/' +
-      file,
-    sha256: sha256(bytes),
-    sizeBytes: bytes.length,
-    manifestSha256: sha256(manifest),
-    format: 'zip',
-  }
-  const release = { package: pkg, artifact }
-  await verifyArchive(bytes, release)
-  const catalog: Catalog = {
-    schemaVersion: 1,
-    revision: 0,
-    bots: [{ bot: candidate.bot, releases: [release] }],
-  }
-  if (!review) validate('catalog', catalog)
-  const destination = path.join(root, 'dist', review ? releaseId + '-review' : releaseId)
-  await mkdir(destination, { recursive: true })
-  await writeFile(path.join(destination, file), bytes, { flag: 'wx' })
-  await writeFile(path.join(destination, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', {
-    flag: 'wx',
-  })
-  return {
-    destination,
-    sha256: release.artifact.sha256,
-    sizeBytes: bytes.length,
-    entries: entries.length,
-  }
+  return writeReleasePackage({ root, candidate, pkg, entries, review })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

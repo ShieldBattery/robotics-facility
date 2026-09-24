@@ -3,16 +3,15 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import test from 'node:test'
+import { parseBuildArguments, validateOutputDirectory } from './build-purplewave.ts'
 import {
   makeJar,
   makeManifest,
-  parseBuildArguments,
   sanitizeJavaProperties,
   validateDependencyLock,
-  validateOutputDirectory,
   verifyDependencyBytes,
   verifyRecordedFile,
-} from './build-purplewave.ts'
+} from './jvm-build.ts'
 
 const lock = JSON.parse(
   await readFile(new URL('../jvm/dependencies.json', import.meta.url), 'utf8'),
@@ -77,6 +76,7 @@ await test('verifies cached or downloaded bytes by both size and hash', () => {
 
 await test('folds manifest lines to Java 72-byte limits with CRLF continuations', () => {
   const manifest = makeManifest(
+    'Lifecycle.Main',
     Array.from({ length: 8 }, (_, index) => ({ name: `long-runtime-dependency-${index}.jar` })),
   ).toString()
   assert.match(manifest, /\r\n \S/)
@@ -109,4 +109,21 @@ await test('only accepts a safe new output directory', () => {
 await test('writes deterministic JAR entries containing Scala dollar class names', async () => {
   const entries: [string, Buffer][] = [['Lifecycle/Main$.class', Buffer.from('bytecode')]]
   assert.deepEqual(await makeJar(entries), await makeJar([...entries].reverse()))
+})
+
+await test('writes each JVM bot entry class into its manifest', () => {
+  assert.match(makeManifest('Lifecycle.Main', []).toString(), /Main-Class: Lifecycle.Main\r\n/)
+  assert.match(makeManifest('TestBot1', []).toString(), /Main-Class: TestBot1\r\n/)
+})
+
+await test('rejects duplicate and unsafe class names in a JAR', async () => {
+  const bytes = Buffer.from('class')
+  await assert.rejects(
+    makeJar([
+      ['Main.class', bytes],
+      ['Main.class', bytes],
+    ]),
+    /Unsafe or duplicate JAR entry/,
+  )
+  await assert.rejects(makeJar([['../Main.class', bytes]]), /Unsafe or duplicate JAR entry/)
 })

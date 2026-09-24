@@ -1,14 +1,16 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
+import { lstat, readFile, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import yauzl from 'yauzl'
-import { type NativeBuildInfo, opprimoRecipePaths } from './build-zzzkbot.ts'
-import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
-import { type ArchiveEntry, indexedFiles, makeArchive } from './package-zzzkbot.ts'
-import { archivePath, sha256, verifyArchive } from './publication-archive.ts'
+import { type BoostBuildRecord, opprimoRecipePaths } from './build-opprimobot.ts'
+import type { Candidate, Package, Source, SourceLock } from './metadata.ts'
+import type { NativeBuildInfo } from './native-build.ts'
+import { type ArchiveEntry, indexedFiles, makeArchive, recipeFiles } from './package-archive.ts'
+import { archivePath, sha256 } from './publication-archive.ts'
+import { writeReleasePackage } from './release-package.ts'
 import { validate } from './validate.ts'
 
 export interface BoostFile {
@@ -22,15 +24,8 @@ export interface BoostArtifact {
   sha256: string
   sizeBytes: number
 }
-export interface BoostBuildRecord {
-  directory: string
-  archive: BoostArtifact
-  files: BoostFile[]
-  inventory: string
-  inventorySha256: string
-  headerCount: number
-  extractedBytes: number
-}
+export type { BoostBuildRecord } from './build-opprimobot.ts'
+
 export interface BoostDependencyLock {
   schemaVersion: 1
   artifacts: BoostArtifact[]
@@ -158,34 +153,6 @@ async function addSources({
     }
   }
   return sources
-}
-
-async function addRecipe({
-  entries,
-  info,
-  root,
-}: {
-  entries: ArchiveEntry[]
-  info: NativeBuildInfo
-  root: string
-}): Promise<void> {
-  if (!/^[a-f0-9]{40}$/.test(info.recipeRevision)) throw new Error('Invalid recipe revision')
-  const hash = createHash('sha256')
-  for (const name of opprimoRecipePaths) {
-    const expected = execFileSync('git', ['-C', root, 'show', `${info.recipeRevision}:${name}`])
-    const actual = await readFile(path.join(root, name))
-    if (
-      actual.toString('utf8').replaceAll('\r\n', '\n') !==
-      expected.toString('utf8').replaceAll('\r\n', '\n')
-    ) {
-      throw new Error(`Recipe changed: ${name}`)
-    }
-    hash.update(name).update('\0').update(actual).update('\0')
-    entries.push([`source/${name}`, actual])
-  }
-  if (hash.digest('hex') !== info.recipeSha256) {
-    throw new Error('Recipe bytes changed since build')
-  }
 }
 
 function boostArchivePath(name: string): string {
@@ -408,7 +375,9 @@ export async function packageOpprimobot({
   }
   await assertRealDirectory(directory)
   await assertRealFile(path.join(directory, 'build-info.json'))
-  const info = await json<NativeBuildInfo>(path.join(directory, 'build-info.json'))
+  const info = await json<NativeBuildInfo<{ boost: BoostBuildRecord }>>(
+    path.join(directory, 'build-info.json'),
+  )
   if (info.schemaVersion !== 1) throw new Error('Invalid build-info schema version')
   const candidatePath = 'bots/opprimobot/bot.json'
   const candidateBytes = await readFile(path.join(repository, candidatePath))
@@ -453,7 +422,14 @@ export async function packageOpprimobot({
     lock,
     root: repository,
   })
-  await addRecipe({ entries, info, root: repository })
+  entries.push(
+    ...(await recipeFiles({
+      root: repository,
+      revision: info.recipeRevision,
+      sha256: info.recipeSha256,
+      paths: opprimoRecipePaths,
+    })),
+  )
 
   const boostFiles = await verifiedBoostFiles(
     directory,
@@ -586,38 +562,7 @@ export async function packageOpprimobot({
       ? { status: 'pending', evidence: 'Review-only archive; publication is not approved.' }
       : candidate.sourceReview,
   }
-  validate('package', pkg)
-  const manifest = Buffer.from(JSON.stringify(pkg, null, 2) + '\n')
-  entries.push(['package.json', manifest])
-  const bytes = await makeArchive(entries)
-  const file = `${releaseId}.zip`
-  const artifact: Artifact = {
-    url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
-    sha256: sha256(bytes),
-    sizeBytes: bytes.length,
-    manifestSha256: sha256(manifest),
-    format: 'zip',
-  }
-  const release = { package: pkg, artifact }
-  await verifyArchive(bytes, release)
-  const catalog: Catalog = {
-    schemaVersion: 1,
-    revision: 0,
-    bots: [{ bot: candidate.bot, releases: [release] }],
-  }
-  if (!review) validate('catalog', catalog)
-  const destination = path.join(repository, 'dist', review ? `${releaseId}-review` : releaseId)
-  await mkdir(destination, { recursive: true })
-  await writeFile(path.join(destination, file), bytes, { flag: 'wx' })
-  await writeFile(path.join(destination, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', {
-    flag: 'wx',
-  })
-  return {
-    destination,
-    sha256: release.artifact.sha256,
-    sizeBytes: bytes.length,
-    entries: entries.length,
-  }
+  return writeReleasePackage({ root: repository, candidate, pkg, entries, review })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

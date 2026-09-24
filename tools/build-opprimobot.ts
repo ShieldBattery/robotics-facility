@@ -8,8 +8,18 @@ import type { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { pathToFileURL } from 'node:url'
 import yauzl from 'yauzl'
-import type { NativeBuildOptions } from './build-zzzkbot.ts'
-import { buildNativeBot, validateOutputName } from './build-zzzkbot.ts'
+import { buildNativeBot, nativeRecipePaths, validateOutputName } from './native-build.ts'
+import type { NativeBuildOptions, NativeBuildRecipe } from './native-build.ts'
+
+export interface BoostBuildRecord {
+  directory: string
+  archive: { name: string; url: string; sha256: string; sizeBytes: number }
+  files: { path: string; sha256: string; sizeBytes: number }[]
+  inventory: string
+  inventorySha256: string
+  headerCount: number
+  extractedBytes: number
+}
 
 export interface BoostArtifact {
   name: string
@@ -299,15 +309,50 @@ export async function prepareBoost({
   }
 }
 
+export const opprimoRecipePaths = Object.freeze([
+  ...nativeRecipePaths,
+  'native/opprimobot.cmake',
+  'native/opprimobot-compat.hpp',
+  'native/opprimobot-tests.cpp',
+  'native/dependencies.json',
+  'tools/build-opprimobot.ts',
+  'tools/package-opprimobot.ts',
+  'bots/opprimobot/BUILD.md',
+  'bots/opprimobot/RELEASE.txt',
+  'bots/opprimobot/OPPRIMOBOT-MIT.txt',
+  'bots/opprimobot/BWTA2-FILESYSTEM-LICENSE.txt',
+  'bots/ualbertabot/SMALLSHA1-LICENSE.txt',
+])
+
+export function opprimoRecipe(
+  archivePath?: string,
+): NativeBuildRecipe<{ boost: BoostBuildRecord }> {
+  return {
+    botId: 'opprimobot',
+    target: 'OpprimoBot',
+    sourceIds: ['bwapi', 'bwta2', 'opprimobot'],
+    sourceVariables: {
+      BWAPI_SOURCE_DIR: 'bwapi',
+      BWTA2_SOURCE_DIR: 'bwta2',
+      OPPRIMOBOT_SOURCE_DIR: 'opprimobot',
+    },
+    outputVariable: 'OPPRIMOBOT_OUTPUT_DIR',
+    recipePaths: opprimoRecipePaths,
+    async prepareDependencies({ root, output }) {
+      const boost = await prepareBoost({ root, output, archivePath })
+      return {
+        cmakeVariables: { OPPRIMOBOT_BOOST_DIR: boost.includeDir },
+        verify: boost.verify,
+      }
+    },
+  }
+}
+
 export function buildOpprimobot({
   archivePath,
   ...options
-}: Omit<NativeBuildOptions, 'botId' | 'prepareDependencies'> & { archivePath?: string }) {
-  return buildNativeBot({
-    ...options,
-    botId: 'opprimobot',
-    prepareDependencies: ({ root, output }) => prepareBoost({ root, output, archivePath }),
-  })
+}: NativeBuildOptions & { archivePath?: string }) {
+  return buildNativeBot(opprimoRecipe(archivePath), options)
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

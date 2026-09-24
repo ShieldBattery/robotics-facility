@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import yauzl from 'yauzl'
-import { type ArchiveEntry, makeArchive } from './package-zzzkbot.ts'
+import { type ArchiveEntry, makeArchive } from './package-archive.ts'
 import { sha256 } from './publication-archive.ts'
 
 await test('package archive is deterministic across input order and preserves empty profile directories', async () => {

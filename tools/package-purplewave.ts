@@ -1,56 +1,18 @@
 import { execFileSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { writeReleasePackage } from './release-package.ts'
+
+import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import yauzl from 'yauzl'
-import { type DependencyLock, type PurpleWaveBuildInfo, recipePaths } from './build-purplewave.ts'
-import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
-import { type ArchiveEntry, indexedFiles, makeArchive } from './package-zzzkbot.ts'
-import { sha256, verifyArchive } from './publication-archive.ts'
-import { validate } from './validate.ts'
+import { type PurpleWaveBuildInfo, recipePaths } from './build-purplewave.ts'
+import type { DependencyLock } from './jvm-build.ts'
+import type { Candidate, Package, Source, SourceLock } from './metadata.ts'
+import { type ArchiveEntry, indexedFiles, jarNotices, recipeFiles } from './package-archive.ts'
+import { sha256 } from './publication-archive.ts'
 
 const json = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, 'utf8')) as T
 const git = (root: string, ...args: string[]) =>
   execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim()
-
-// Runtime jars are hash-verified before this reader extracts their original legal notices.
-export function jarNotices(bytes: Buffer): Promise<ArchiveEntry[]> {
-  return new Promise<ArchiveEntry[]>((resolve, reject) => {
-    yauzl.fromBuffer(bytes, { lazyEntries: true }, (error, zip) => {
-      if (error) return reject(error)
-      const notices: ArchiveEntry[] = []
-      zip.on('error', reject)
-      zip.on('end', () => resolve(notices))
-      zip.on('entry', entry => {
-        if (!/^(META-INF\/)?(LICENSE|NOTICE)(\.txt)?$/i.test(entry.fileName)) {
-          zip.readEntry()
-          return
-        }
-        if (entry.uncompressedSize > 1024 * 1024) {
-          zip.close()
-          reject(new Error('Oversized dependency notice'))
-          return
-        }
-        zip.openReadStream(entry, (err, stream) => {
-          if (err) {
-            zip.close()
-            reject(err)
-            return
-          }
-          const chunks: Buffer[] = []
-          stream.on('error', reject)
-          stream.on('data', (chunk: Buffer) => chunks.push(chunk))
-          stream.on('end', () => {
-            notices.push([entry.fileName.replaceAll('/', '-'), Buffer.concat(chunks)])
-            zip.readEntry()
-          })
-        })
-      })
-      zip.readEntry()
-    })
-  })
-}
 
 export async function packagePurpleWave({
   root = process.cwd(),
@@ -158,21 +120,14 @@ export async function packagePurpleWave({
       entries.push([`source/${patch.path}`, bytes])
     }
   }
-  if (!/^[a-f0-9]{40}$/.test(info.recipeRevision)) throw new Error('Invalid recipe revision')
-  const recipeHash = createHash('sha256')
-  for (const name of recipePaths) {
-    const committed = execFileSync('git', ['-C', root, 'show', `${info.recipeRevision}:${name}`])
-    const bytes = await readFile(path.join(root, name))
-    if (
-      committed.toString('utf8').replaceAll('\r\n', '\n') !==
-      bytes.toString('utf8').replaceAll('\r\n', '\n')
-    )
-      throw new Error(`Recipe changed: ${name}`)
-    recipeHash.update(name).update('\0').update(bytes).update('\0')
-    entries.push([`source/${name}`, bytes])
-  }
-  if (recipeHash.digest('hex') !== info.recipeSha256)
-    throw new Error('Recipe bytes changed since build')
+  entries.push(
+    ...(await recipeFiles({
+      root,
+      revision: info.recipeRevision,
+      sha256: info.recipeSha256,
+      paths: recipePaths,
+    })),
+  )
   addNotice(
     'Attribution, modifications, and source',
     'notices/RELEASE.txt',
@@ -245,38 +200,7 @@ export async function packagePurpleWave({
       toolchain: JSON.stringify(info.toolchain),
     },
   }
-  validate('package', pkg)
-  const manifest = Buffer.from(JSON.stringify(pkg, null, 2) + '\n')
-  entries.push(['package.json', manifest])
-  const bytes = await makeArchive(entries),
-    file = `${releaseId}.zip`
-  const artifact: Artifact = {
-    url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
-    sha256: sha256(bytes),
-    sizeBytes: bytes.length,
-    manifestSha256: sha256(manifest),
-    format: 'zip',
-  }
-  const release = { package: pkg, artifact }
-  await verifyArchive(bytes, release)
-  const catalog: Catalog = {
-    schemaVersion: 1,
-    revision: 0,
-    bots: [{ bot: candidate.bot, releases: [release] }],
-  }
-  if (!review) validate('catalog', catalog)
-  const destination = path.join(root, 'dist', review ? `${releaseId}-review` : releaseId)
-  await mkdir(destination, { recursive: true })
-  await writeFile(path.join(destination, file), bytes, { flag: 'wx' })
-  await writeFile(path.join(destination, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', {
-    flag: 'wx',
-  })
-  return {
-    destination,
-    sha256: release.artifact.sha256,
-    sizeBytes: bytes.length,
-    entries: entries.length,
-  }
+  return writeReleasePackage({ root, candidate, pkg, entries, review })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

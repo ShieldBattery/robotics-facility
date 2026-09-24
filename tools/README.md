@@ -21,21 +21,45 @@ credentials are made available. Type checking supplements the runtime validators
 ZIPs, source provenance, command arguments, and downloaded bytes still need runtime checks.
 Do not bypass a validator with a type assertion when accepting external input.
 
-## Module boundaries
+## Concepts and module boundaries
 
-- `fetch-sources.ts` validates source locks and maintains independent pinned source checkouts.
-- `prepare-source.ts` applies reviewed patches to isolated copies and records provenance.
-- `build-*.ts` creates a fresh build, verifies dependencies, and records compilation inputs/outputs.
-- `package-*.ts` verifies those records and assembles reviewed binaries with corresponding source.
-- `validate.ts` owns metadata validation; `metadata.ts` is its generated compile-time contract.
-- `publication-archive.ts` verifies ZIP sizes, hashes, paths, CRCs, and required package files.
-- `publication.ts` signs/verifies catalogs and controls upload/activation order.
-- `publication-store.ts` provides bounded Spaces reads and writes; `publish.ts` owns CLI/configuration.
+A bot's identity is separate from a particular compiled binary:
 
-Keep bot-specific compilation details in the bot recipe. Extract a shared operation when it
-has the same invariants across recipes; avoid routing unrelated recipes through a growing
-set of bot-name conditionals. Tests should exercise failures and trust boundaries, not just
-repeat the implementation's steps.
+| Concept | Owns | Location |
+| --- | --- | --- |
+| Candidate | Identity, races, tags, review/permission status, saved-state policy | `bots/<id>/bot.json` |
+| Source | Upstream commit and ordered downstream patches | `source-lock.json`, `fetch-sources.ts`, `prepare-source.ts` |
+| Prepared source | Evidence that HEAD, patched index, and working files match the source pin | `source-provenance.ts` |
+| Build recipe | Selected sources/dependencies, compilation steps, output names, complete recipe input list | `build-<bot>.ts`, `native/*.cmake` |
+| Build machinery | Isolated CMake builds; JVM toolchain inspection, locked JARs, compilation inputs and JAR creation | `native-build.ts`, `jvm-build.ts` |
+| Build record | Exact source trees, recipe hashes, toolchain, and output hashes | `.build/<name>/build-info.json` |
+| Package recipe | Bot-specific files, licenses, modifications, launch contract, source inventory | `package-<bot>.ts` |
+| Archive assembly | Deterministic ZIPs, indexed source files, committed recipe files, dependency notices | `package-archive.ts` |
+| Release assembly | Manifest validation, archive verification, catalog fragment, immutable local output | `release-package.ts` |
+| Publication | Signed catalog, immutable uploads, activation order and bounded Spaces access | `publication.ts`, `publication-store.ts`, `publish.ts` |
+
+`validate.ts` owns runtime metadata validation; `metadata.ts` is its generated compile-time
+contract. `publication-archive.ts` independently verifies ZIP sizes, hashes, paths, CRCs,
+and required package files at both packaging and publication boundaries.
+
+Bot recipes depend on shared machinery, never another bot's recipe. The native builder
+accepts a recipe describing CMake targets, source-variable bindings, and an optional verified
+dependency preparation step. It does not select behavior by comparing bot names. The JVM
+module shares dependency and compiler operations; Scala-specific compilation remains in
+PurpleWave's recipe, and plain Java compilation remains in Marine Hell's recipe.
+
+Keep configuration, legal notices, source subsets, and bot-specific build exceptions in the
+owning recipe. Extract operations when their invariants agree; do not create a universal
+configuration language to hide genuinely different compilation steps. A new bot should
+reuse build and release operations without importing a sibling bot tool or adding a bot-name
+branch to shared machinery.
+
+Each builder exports its recipe input list for its packager. The recipe tests ensure that
+local runtime imports are included in that list and reject dependencies on another bot's
+build/package wrapper. The shared release tests exercise missing files, pending reviews,
+identity mismatches, and overwrite refusal. Changes to recipe inputs still require a fresh
+committed build and a build/package smoke check; passing type checks alone cannot establish
+that the compiler output or offline source inventory is complete.
 
 ## Recipe and release compatibility
 

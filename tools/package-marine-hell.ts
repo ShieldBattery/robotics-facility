@@ -1,45 +1,26 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
+import { lstat, readFile, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { MarineHellBuildInfo } from './build-marine-hell.ts'
+import {
+  type MarineHellBuildInfo,
+  recipePaths as requiredRecipePaths,
+} from './build-marine-hell.ts'
 import {
   type DependencyArtifact,
   type DependencyLock,
   validateDependencyLock,
-} from './build-purplewave.ts'
-import type { Artifact, Candidate, Catalog, Package, Source, SourceLock } from './metadata.ts'
-import { jarNotices } from './package-purplewave.ts'
-import { type ArchiveEntry, indexedFiles, makeArchive } from './package-zzzkbot.ts'
-import { sha256, verifyArchive } from './publication-archive.ts'
+} from './jvm-build.ts'
+import type { Candidate, Package, Source, SourceLock } from './metadata.ts'
+import { type ArchiveEntry, indexedFiles, jarNotices } from './package-archive.ts'
+import { sha256 } from './publication-archive.ts'
+import { writeReleasePackage } from './release-package.ts'
 import { validate } from './validate.ts'
 
 const sourceIds = ['marine-hell', 'jbwapi'] as const
 const dependencyNames = ['jna-5.18.1.jar', 'jna-platform-5.18.1.jar']
-const requiredRecipePaths = [
-  'source-lock.json',
-  'jvm/dependencies.json',
-  'patches/marine-hell/0001-use-isolated-jbwapi.patch',
-  'patches/marine-hell/0002-load-bunker-with-right-click.patch',
-  'patches/jbwapi/instance-discovery.patch',
-  'tools/build-marine-hell.ts',
-  'tools/build-purplewave.ts',
-  'tools/prepare-source.ts',
-  'tools/fetch-sources.ts',
-  'tools/package-marine-hell.ts',
-  'tools/package-purplewave.ts',
-  'tools/package-zzzkbot.ts',
-  'tools/publication-archive.ts',
-  'tools/validate.ts',
-  'schemas/metadata.schema.json',
-  'bots/marine-hell/BUILD.md',
-  'bots/marine-hell/RELEASE.txt',
-  'bots/marine-hell/APACHE-2.0-LICENSE.txt',
-  'bots/marine-hell/JNA-THIRD-PARTY-NOTICES.txt',
-  'package.json',
-  'pnpm-lock.yaml',
-]
+
 const json = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, 'utf8')) as T
 const git = (directory: string, ...args: string[]) =>
   execFileSync('git', ['-C', directory, ...args], { encoding: 'utf8' }).trim()
@@ -361,38 +342,7 @@ export async function packageMarineHell({
       toolchain: JSON.stringify(info.toolchain),
     },
   }
-  validate('package', pkg)
-  const manifest = Buffer.from(JSON.stringify(pkg, null, 2) + '\n')
-  entries.push(['package.json', manifest])
-  const bytes = await makeArchive(entries)
-  const file = `${releaseId}.zip`
-  const artifact: Artifact = {
-    url: `https://github.com/ShieldBattery/robotics-facility/releases/download/${releaseId}/${file}`,
-    sha256: sha256(bytes),
-    sizeBytes: bytes.length,
-    manifestSha256: sha256(manifest),
-    format: 'zip',
-  }
-  const release = { package: pkg, artifact }
-  await verifyArchive(bytes, release)
-  const catalog: Catalog = {
-    schemaVersion: 1,
-    revision: 0,
-    bots: [{ bot: candidate.bot, releases: [release] }],
-  }
-  if (!review) validate('catalog', catalog)
-  const destination = path.join(repository, 'dist', review ? `${releaseId}-review` : releaseId)
-  await mkdir(destination, { recursive: true })
-  await writeFile(path.join(destination, file), bytes, { flag: 'wx' })
-  await writeFile(path.join(destination, 'catalog.json'), JSON.stringify(catalog, null, 2) + '\n', {
-    flag: 'wx',
-  })
-  return {
-    destination,
-    sha256: release.artifact.sha256,
-    sizeBytes: bytes.length,
-    entries: entries.length,
-  }
+  return writeReleasePackage({ root: repository, candidate, pkg, entries, review })
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

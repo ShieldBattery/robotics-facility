@@ -3,13 +3,13 @@ import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import test, { type TestContext } from 'node:test'
+import { type ArchiveEntry, makeArchive } from './package-archive.ts'
 import {
   type BoostArtifact,
   type BoostBuildRecord,
   type BoostDependencyLock,
   verifiedBoostFiles,
 } from './package-opprimobot.ts'
-import { type ArchiveEntry, makeArchive } from './package-zzzkbot.ts'
 import { sha256 } from './publication-archive.ts'
 
 const originals: Record<string, Buffer> = {

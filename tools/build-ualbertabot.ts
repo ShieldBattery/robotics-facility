@@ -1,12 +1,34 @@
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { NativeBuildOptions } from './build-zzzkbot.ts'
-import { buildNativeBot, validateOutputName } from './build-zzzkbot.ts'
+import { buildNativeBot, nativeRecipePaths, validateOutputName } from './native-build.ts'
+import type { NativeBuildOptions, NativeBuildRecipe } from './native-build.ts'
 
-export function buildUalbertabot(
-  options: Omit<NativeBuildOptions, 'botId' | 'prepareDependencies'>,
-) {
-  return buildNativeBot({ ...options, botId: 'ualbertabot' })
+export const ualbertaRecipePaths = Object.freeze([
+  ...nativeRecipePaths,
+  'native/ualbertabot.cmake',
+  'native/ualberta-timer.hpp',
+  'tools/build-ualbertabot.ts',
+  'tools/package-ualbertabot.ts',
+  'bots/ualbertabot/UAlbertaBot_Config.txt',
+  'bots/ualbertabot/BUILD.md',
+  'bots/ualbertabot/RELEASE.txt',
+  'bots/ualbertabot/UALBERTABOT-MIT.txt',
+  'bots/ualbertabot/RAPIDJSON-MIT.txt',
+  'bots/ualbertabot/MSINTTYPES-BSD-3-Clause.txt',
+  'bots/ualbertabot/SMALLSHA1-LICENSE.txt',
+])
+
+export const ualbertaRecipe: NativeBuildRecipe = {
+  botId: 'ualbertabot',
+  target: 'UAlbertaBot',
+  sourceIds: ['bwapi', 'ualbertabot'],
+  sourceVariables: { BWAPI_SOURCE_DIR: 'bwapi', UALBERTABOT_SOURCE_DIR: 'ualbertabot' },
+  outputVariable: 'UALBERTABOT_OUTPUT_DIR',
+  recipePaths: ualbertaRecipePaths,
+}
+
+export function buildUalbertabot(options: NativeBuildOptions) {
+  return buildNativeBot(ualbertaRecipe, options)
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
