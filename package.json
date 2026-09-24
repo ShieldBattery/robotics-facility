@@ -28,7 +28,9 @@
     "build:opprimobot": "node tools/build-opprimobot.ts",
     "package:opprimobot": "node tools/package-opprimobot.ts",
     "build:marine-hell": "node tools/build-marine-hell.ts",
-    "package:marine-hell": "node tools/package-marine-hell.ts"
+    "package:marine-hell": "node tools/package-marine-hell.ts",
+    "build:infested-artosis": "node tools/build-infested-artosis.ts",
+    "package:infested-artosis": "node tools/package-infested-artosis.ts"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1136.0",

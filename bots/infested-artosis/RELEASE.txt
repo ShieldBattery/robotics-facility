@@ -1,0 +1,37 @@
+Infested Artosis - ShieldBattery Java build
+
+Infested Artosis is MIT licensed, copyright Jasper Geurtz and Brad Ewing.
+This is a modified ShieldBattery build, not an upstream binary or an
+endorsement by the original authors. Original licenses and patched source
+are included. Human difficulty has not been calibrated.
+
+ShieldBattery modifications dated 2026-09-23:
+- Fixed quiet defaults disable development .env/system-property overrides,
+  debug drawing, auto-observer, and optional telemetry. Dotenv is omitted.
+- Opponent history uses bounded, encoded filenames inside the bot working
+  copy; reads its own saved history on subsequent games, validates malformed
+  records, and replaces complete snapshots instead of appending partial data.
+- JBWAPI discovers only the assigned SB_BWAPI_INSTANCE, exits a single match
+  after disconnect, bounds initial connection attempts, and checks unit-cache
+  capacity before indexing it.
+- Compiles selected Agent Starcraft Simulator sources directly, omitting
+  BWAPI4J and upstream bundled binaries. Uses JBWAPI 1.5.1 source instead of
+  the upstream requested 2.2.0. Exact pins and patches are in source-lock.json.
+- Pins JNA/JNA Platform 5.18.1, Lombok 1.18.48, and JetBrains annotations
+  26.1.0. The last two are compile-time tools in source/build-dependencies,
+  not runtime libraries. Java 21 x64 is required but is not bundled.
+- Keeps Java and JNA temporary files in work/tmp; uses a 32-512 MiB JVM heap.
+
+The bot, ASS simulator, JBWAPI, and Java BWEM have MIT notices. JNA and
+JNA Platform use their Apache-2.0 licensing option, with the original
+embedded notices and libffi MIT notice included. The original Lombok
+license also includes notices for its embedded components; it is preserved
+in full. JetBrains annotations use Apache-2.0 with JetBrains attribution.
+
+The runtime package does not include upstream BWAPI.dll, BWAPI4J, or
+bundled native AI modules. ShieldBattery supplies the separate BWAPI bridge.
+Patched source and an offline rebuild command are in source/BUILD.md.
+
+Upstream: https://github.com/BradEwing/InfestedArtosis
+ASS: https://github.com/Bytekeeper/ass
+Recipes: https://github.com/ShieldBattery/robotics-facility

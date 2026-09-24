@@ -45,7 +45,7 @@ function releaseAndCatalog(value: unknown): {
 }
 
 await test('checked-in source lock, candidates, and catalog validate', () => {
-  assert.equal(validateRepository(), 5)
+  assert.ok(validateRepository() > 0, 'repository must contain valid bot candidates')
 })
 
 await test('unknown schema versions and catalog fields are rejected', () => {

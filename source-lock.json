@@ -53,6 +53,10 @@
         {
           "path": "patches/jbwapi/instance-discovery.patch",
           "sha256": "82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1"
+        },
+        {
+          "path": "patches/jbwapi/0002-single-match-lifecycle.patch",
+          "sha256": "0409c1f1bed19d5cc81457b1b19848a106bbd108034c471fceeb9375672a3e6b"
         }
       ]
     },
@@ -114,6 +118,23 @@
           "sha256": "b4d12564ca8da46e8835dc8c97ad9da4992f5d150dcbc4a2af90bcf0c98b61b1"
         }
       ]
+    },
+    {
+      "id": "infested-artosis",
+      "repository": "https://github.com/BradEwing/InfestedArtosis.git",
+      "revision": "203bdaa97da0ec8088dbfdf7514a625f954536fa",
+      "patches": [
+        {
+          "sha256": "c6a384a4dc81e3bec67eac6709446a170734908f93462b0cd04d46772c1e1407",
+          "path": "patches/infested-artosis/0001-isolate-runtime.patch"
+        }
+      ]
+    },
+    {
+      "id": "ass",
+      "repository": "https://github.com/Bytekeeper/ass.git",
+      "revision": "faf1e2be241cbb101785f99f3ef17b9463c619ed",
+      "patches": []
     }
   ]
 }

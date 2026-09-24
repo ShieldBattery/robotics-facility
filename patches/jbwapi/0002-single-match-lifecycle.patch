@@ -1,0 +1,157 @@
+diff --git a/src/main/java/bwapi/BWClient.java b/src/main/java/bwapi/BWClient.java
+index 653cf29..8f02748 100644
+--- a/src/main/java/bwapi/BWClient.java
++++ b/src/main/java/bwapi/BWClient.java
+@@ -102,7 +102,9 @@ public class BWClient {
+         if (client == null) {
+             client = new Client(this);
+         }
+-        client.reconnect();
++        if (!client.reconnect()) {
++            return;
++        }
+ 
+         do {
+             ClientData.GameData liveGameData = client.liveClientData().gameData();
+@@ -123,8 +125,15 @@ public class BWClient {
+ 
+                 client.sendFrameReceiveFrame();
+                 if (!client.isConnected()) {
+-                    System.out.println("Reconnecting...");
+-                    client.reconnect();
++                    if (!configuration.getAutoContinue()) {
++                        return;
++                    }
++                    if (configuration.getDebugConnection()) {
++                        System.out.println("Reconnecting...");
++                    }
++                    if (!client.reconnect()) {
++                        return;
++                    }
+                 }
+             }
+             botWrapper.endGame();
+diff --git a/src/main/java/bwapi/Client.java b/src/main/java/bwapi/Client.java
+index dee0f51..9ecd00d 100644
+--- a/src/main/java/bwapi/Client.java
++++ b/src/main/java/bwapi/Client.java
+@@ -73,10 +73,29 @@ class Client {
+         return connected;
+     }
+ 
+-    void reconnect() {
+-        while (!connect()) {
+-            sleep(1000);
++    boolean reconnect() {
++        // Instance-scoped launches must not wait forever when their game disappears before connect.
++        final long deadline = System.getenv("SB_BWAPI_INSTANCE") == null
++                ? Long.MAX_VALUE : System.nanoTime() + 60_000_000_000L;
++        return reconnectUntil(deadline);
++    }
++
++    boolean reconnectUntil(final long deadline) {
++        while (!Thread.currentThread().isInterrupted()) {
++            if (connect()) {
++                return true;
++            }
++            if (deadline != Long.MAX_VALUE && System.nanoTime() >= deadline) {
++                return false;
++            }
++            try {
++                Thread.sleep(1000);
++            } catch (InterruptedException e) {
++                Thread.currentThread().interrupt();
++                return false;
++            }
+         }
++        return false;
+     }
+ 
+     private void disconnect() {
+@@ -148,7 +167,9 @@ class Client {
+         int latest = 0;
+         for (int i = 0; i < GameTable.MAX_GAME_INSTANCES; i++) {
+             GameInstance gameInstance = gameTable.gameInstances[i];
+-            System.out.println(i + " | " + gameInstance.serverProcessID + " | " + (gameInstance.isConnected ? 1 : 0) + " | " + gameInstance.lastKeepAliveTime);
++            if (bwClient.getConfiguration().getDebugConnection()) {
++                System.out.println(i + " | " + gameInstance.serverProcessID + " | " + (gameInstance.isConnected ? 1 : 0) + " | " + gameInstance.lastKeepAliveTime);
++            }
+             if (serverProcID <= 0 && gameInstance.serverProcessID != 0 && !gameInstance.isConnected) {
+                 if (gameTableIndex == -1 || latest == 0 || gameInstance.lastKeepAliveTime < latest) {
+                     latest = gameInstance.lastKeepAliveTime;
+@@ -178,7 +199,9 @@ class Client {
+             gameTableFileHandle = null;
+             return false;
+         }
+-        System.out.println("Connected to StarCraft with BWAPI");
++        if (bwClient.getConfiguration().getDebugConnection()) {
++            System.out.println("Connected to StarCraft with BWAPI");
++        }
+ 
+         // Expose the raw game data from shared memory via a ByteBuffer
+         try {
+@@ -229,7 +252,9 @@ class Client {
+             }
+         }
+ 
+-        System.out.println("Connection successful");
++        if (bwClient.getConfiguration().getDebugConnection()) {
++            System.out.println("Connection successful");
++        }
+         connected = true;
+         return true;
+     }
+diff --git a/src/main/java/bwapi/Game.java b/src/main/java/bwapi/Game.java
+index e40832b..deea694 100644
+--- a/src/main/java/bwapi/Game.java
++++ b/src/main/java/bwapi/Game.java
+@@ -17,6 +17,8 @@ import static bwapi.UnitType.*;
+  * resources, players, forces, bullets, terrain, fog of war, regions, etc.
+  */
+ public final class Game {
++    // ClientData.GameData reserves 10,000 UnitData records before its unit-index array.
++    private static final int MAX_UNIT_SLOTS = 10000;
+     private static final int[][] damageRatio = {
+             // Ind, Sml, Med, Lrg, Non, Unk
+             {0, 0, 0, 0, 0, 0}, // Independent
+@@ -181,7 +183,7 @@ public final class Game {
+ 
+         regionSet = Collections.unmodifiableList(Arrays.asList(regions));
+ 
+-        units = new Unit[10000];
++        units = new Unit[MAX_UNIT_SLOTS];
+ 
+         randomSeed = gameData().getRandomSeed();
+ 
+@@ -279,12 +281,7 @@ public final class Game {
+     }
+ 
+     void unitCreate(final int id) {
+-        if (id > units.length) {
+-            //rescale unit array if needed
+-            final Unit[] largerUnitsArray = new Unit[2 * units.length];
+-            System.arraycopy(units, 0, largerUnitsArray, 0, units.length);
+-            units = largerUnitsArray;
+-        }
++        ensureUnitCapacity(id);
+ 
+         if (units[id] == null) {
+             final Unit u = new Unit(gameData().getUnits(id), id, this);
+@@ -292,6 +289,17 @@ public final class Game {
+         }
+     }
+ 
++    void ensureUnitCapacity(final int id) {
++        if (id < 0 || id >= MAX_UNIT_SLOTS) {
++            throw new IllegalArgumentException("Unit ID is outside BWAPI shared memory: " + id);
++        }
++        if (id >= units.length) {
++            final int doubled = units.length > MAX_UNIT_SLOTS / 2
++                    ? MAX_UNIT_SLOTS : units.length * 2;
++            units = Arrays.copyOf(units, Math.max(id + 1, doubled));
++        }
++    }
++
+     void unitShow(final int id) {
+         unitCreate(id);
+         visibleUnits.add(id);

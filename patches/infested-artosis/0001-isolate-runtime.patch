@@ -1,0 +1,498 @@
+diff --git a/src/main/java/config/Config.java b/src/main/java/config/Config.java
+index 69a6ff1..06174dc 100644
+--- a/src/main/java/config/Config.java
++++ b/src/main/java/config/Config.java
+@@ -1,10 +1,7 @@
+ package config;
+ 
+-import io.github.cdimascio.dotenv.Dotenv;
+-
+ /**
+- * Configuration settings loaded from a .env file, falling back to JVM system properties.
+- * Includes feature flags and override settings for testing and development.
++ * ShieldBattery runtime modification: fixed quiet settings disable development overrides.
+  */
+ public final class Config {
+ 
+@@ -57,51 +54,4 @@ public final class Config {
+     public boolean logPlanEvents = false;
+     public boolean telemetryCombat = false;
+ 
+-    public Config() {
+-
+-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+-        this.enabledAutoObserver = Boolean.parseBoolean(setting(dotenv, "IA_ENABLE_AUTO_OBSERVER"));
+-        this.strategyOverride = setting(dotenv, "IA_STRATEGY_OVERRIDE");
+-        this.openerOverride = setting(dotenv, "IA_OPENER_OVERRIDE");
+-        this.debugHud = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_HUD"));
+-        this.debugUnitCount = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_UNIT_COUNT"));
+-        this.debugGameMap = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_GAME_MAP"));
+-        this.debugBasePaths = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_BASE_PATHS"));
+-        this.debugAccessibleWalkPositions = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_ACCESSIBLE_WALK_POSITIONS"));
+-        this.debugBlockingMinerals = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_BLOCKING_MINERALS"));
+-        this.debugMainBaseTiles = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_MAIN_BASE_TILES"));
+-        this.debugOverlordPerches = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_OVERLORD_PERCHES"));
+-        this.debugBases = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_BASES"));
+-        this.debugBaseCreepTiles = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_BASE_CREEP_TILES"));
+-        this.debugBaseChoke = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_BASE_CHOKE"));
+-        this.debugLocationForTechBuilding = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_LOCATION_FOR_TECH_BUILDING"));
+-        this.debugReserveTiles = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_RESERVE_TILES"));
+-        this.debugNextCreepColonyLocation = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_NEXT_CREEP_COLONY_LOCATION"));
+-        this.debugNextSporeColonyLocation = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_NEXT_SPORE_COLONY_LOCATION"));
+-        this.debugMineralBoundingBox = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_MINERAL_BOUNDING_BOX"));
+-        this.debugGeyserBoundingBox = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_GEYSER_BOUNDING_BOX"));
+-        this.debugMacroHatcheryLocation = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_MACRO_HATCHERY_LOCATION"));
+-        this.debugEnemyTargets = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_ENEMY_TARGETS"));
+-        this.debugSquads = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_SQUADS"));
+-        this.debugManagedUnits = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_MANAGED_UNITS"));
+-        this.debugStaticDefenseCoverage = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_STATIC_DEFENSE_COVERAGE"));
+-        this.debugPsiStorms = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_PSI_STORMS"));
+-        this.debugContainment = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_CONTAINMENT"));
+-        this.debugCombatSim = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_COMBAT_SIM"));
+-        this.debugProductionQueue = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_PRODUCTION_QUEUE"));
+-        this.debugInProgressQueue = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_IN_PROGRESS_QUEUE"));
+-        this.debugScheduledPlannedItems = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_SCHEDULED_PLANNED_ITEMS"));
+-        this.debugResourceReservations = Boolean.parseBoolean(setting(dotenv, "IA_DEBUG_RESOURCE_RESERVATIONS"));
+-        this.logPlanEvents = Boolean.parseBoolean(setting(dotenv, "IA_LOG_PLAN_EVENTS"));
+-        this.telemetryCombat = Boolean.parseBoolean(setting(dotenv, "IA_TELEMETRY_COMBAT"));
+-    }
+-
+-    /**
+-     * Reads a setting from .env, falling back to a JVM system property. Dotenv does not consult system
+-     * properties itself, and under sc-docker the .env file is unreachable: -D flags are the only way in.
+-     */
+-    private static String setting(Dotenv dotenv, String key) {
+-        String value = dotenv.get(key);
+-        return value != null ? value : System.getProperty(key);
+-    }
+ }
+diff --git a/src/main/java/learning/GameRecord.java b/src/main/java/learning/GameRecord.java
+index a0368b6..f581d49 100644
+--- a/src/main/java/learning/GameRecord.java
++++ b/src/main/java/learning/GameRecord.java
+@@ -6,6 +6,9 @@ import lombok.Data;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++/**
++ * ShieldBattery runtime modification: opponent-supplied CSV fields stay bounded and single-line.
++ */
+ @Data
+ @Builder
+ public class GameRecord {
+@@ -34,57 +37,99 @@ public class GameRecord {
+             frameCount
+         );
+     }
+-    
++
+     public static GameRecord fromCsvRow(String csvRow) {
+         String[] fields = parseCsvRow(csvRow);
++        if (fields.length != 9 && fields.length != 10) {
++            throw new IllegalArgumentException("Invalid history column count");
++        }
++        if (!"true".equals(fields[1]) && !"false".equals(fields[1])) {
++            throw new IllegalArgumentException("Invalid history result");
++        }
++        long timestamp = Long.parseLong(fields[0]);
++        int locations = Integer.parseInt(fields[2]);
++        int frames = fields.length == 10 && !fields[9].isEmpty()
++                ? Integer.parseInt(fields[9]) : 0;
++        if (timestamp < 0 || locations < 0 || frames < 0) {
++            throw new IllegalArgumentException("Invalid history number");
++        }
+         return GameRecord.builder()
+-            .timestamp(Long.parseLong(fields[0]))
++            .timestamp(timestamp)
+             .isWinner(Boolean.parseBoolean(fields[1]))
+-            .numStartingLocations(Integer.parseInt(fields[2]))
++            .numStartingLocations(locations)
+             .mapName(fields[3])
+             .opponentName(fields[4])
+             .opponentRace(fields[5])
+             .opener(fields[6])
+             .buildOrder(fields[7])
+             .detectedStrategies(fields[8])
+-            .frameCount(fields.length > 9 && !fields[9].isEmpty() ? Integer.parseInt(fields[9]) : 0)
++            .frameCount(frames)
+             .build();
+     }
+-    
++
+     private static String escapeCsvField(String field) {
++        String value = sanitizeCsvField(field);
++        if (value.contains(",") || value.contains("\"")) {
++            return "\"" + value.replace("\"", "\"\"") + "\"";
++        }
++        return value;
++    }
++
++    static String sanitizeCsvField(String field) {
+         if (field == null) {
+             return "";
+         }
+-        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+-            return "\"" + field.replace("\"", "\"\"") + "\"";
++        StringBuilder clean = new StringBuilder();
++        for (int i = 0; i < field.length() && clean.length() < 512; i++) {
++            char value = field.charAt(i);
++            clean.append(value < 32 || value == 127 ? ' ' : value);
+         }
+-        return field;
++        return clean.toString();
+     }
+-    
++
+     private static String[] parseCsvRow(String csvRow) {
+         List<String> result = new ArrayList<>();
++        StringBuilder current = new StringBuilder();
++        boolean quoted = false;
+         boolean inQuotes = false;
+-        StringBuilder currentField = new StringBuilder();
+-        
++        boolean closed = false;
+         for (int i = 0; i < csvRow.length(); i++) {
+-            char c = csvRow.charAt(i);
+-            
+-            if (c == '"') {
++            char value = csvRow.charAt(i);
++            if (value == '\r' || value == '\n' || value == 0) {
++                throw new IllegalArgumentException("Invalid history control character");
++            }
++            if (value == ',') {
++                if (inQuotes) {
++                    current.append(value);
++                } else {
++                    result.add(current.toString());
++                    current = new StringBuilder();
++                    quoted = false;
++                    closed = false;
++                }
++            } else if (value == '"') {
+                 if (inQuotes && i + 1 < csvRow.length() && csvRow.charAt(i + 1) == '"') {
+-                    currentField.append('"');
++                    current.append('"');
+                     i++;
++                } else if (inQuotes) {
++                    inQuotes = false;
++                    closed = true;
++                } else if (!quoted && current.length() == 0) {
++                    quoted = true;
++                    inQuotes = true;
+                 } else {
+-                    inQuotes = !inQuotes;
++                    throw new IllegalArgumentException("Invalid history quoting");
+                 }
+-            } else if (c == ',' && !inQuotes) {
+-                result.add(currentField.toString());
+-                currentField = new StringBuilder();
++            } else if (closed) {
++                throw new IllegalArgumentException("Invalid history quoting");
+             } else {
+-                currentField.append(c);
++                current.append(value);
+             }
+         }
+-        result.add(currentField.toString());
+-
++        if (inQuotes) {
++            throw new IllegalArgumentException("Unclosed history quote");
++        }
++        result.add(current.toString());
+         return result.toArray(new String[0]);
+     }
+ }
+diff --git a/src/main/java/learning/LearningHistoryRepository.java b/src/main/java/learning/LearningHistoryRepository.java
+index be41b8d..8d4fe11 100644
+--- a/src/main/java/learning/LearningHistoryRepository.java
++++ b/src/main/java/learning/LearningHistoryRepository.java
+@@ -1,55 +1,228 @@
+ package learning;
+ 
+-import java.io.File;
++import java.io.ByteArrayInputStream;
++import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
++import java.io.InputStream;
++import java.io.BufferedReader;
++import java.io.InputStreamReader;
++import java.nio.file.AtomicMoveNotSupportedException;
+ import java.nio.file.Files;
++import java.nio.file.LinkOption;
++import java.nio.file.NoSuchFileException;
++import java.nio.file.Path;
++import java.nio.file.Paths;
++import java.nio.file.StandardCopyOption;
+ import java.nio.file.StandardOpenOption;
++import java.nio.file.attribute.BasicFileAttributes;
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.security.NoSuchAlgorithmException;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++/**
++ * ShieldBattery runtime modification: stores each opponent's bounded history under the bot's
++ * private working directory.
++ * The write snapshot takes precedence over the read snapshot for later matches.
++ */
+ final class LearningHistoryRepository {
+     private static final String HEADER = "timestamp,is_winner,num_starting_locations,map_name,opponent_name,"
+-            + "opponent_race,opener,build_order,detected_strategies,frame_count\n";
++            + "opponent_race,opener,build_order,detected_strategies,frame_count";
++    private static final int MAX_BYTES = 256 * 1024;
++    private static final int MAX_RECORDS = 1024;
++    private final Path root;
++    private final Path readDirectory;
++    private final Path writeDirectory;
++    private final String fileName;
++    private final String opponentName;
++    private final String opponentRace;
+ 
+-    private final File readFile;
+-    private final File writeFile;
+-
+-    LearningHistoryRepository(String opponentFileName) {
+-        this.readFile = new File("bwapi-data/read/" + opponentFileName);
+-        this.writeFile = new File("bwapi-data/write/" + opponentFileName);
++    LearningHistoryRepository(String opponentName, String opponentRace) {
++        this.root = Paths.get("").toAbsolutePath().normalize();
++        this.readDirectory = root.resolve("bwapi-data").resolve("read");
++        this.writeDirectory = root.resolve("bwapi-data").resolve("write");
++        this.opponentName = opponentName;
++        this.opponentRace = opponentRace;
++        this.fileName = "opponent-" + digest(opponentName, opponentRace) + ".csv";
+     }
+ 
+     LearningHistory load() throws IOException {
++        verifyDirectory(root, false);
++        List<GameRecord> written = readHistory(writeDirectory);
++        if (written != null) {
++            return new LearningHistory(written);
++        }
++        List<GameRecord> baseline = readHistory(readDirectory);
++        return new LearningHistory(baseline == null ? new ArrayList<>() : baseline);
++    }
++
++    void append(GameRecord game) throws IOException {
++        if (!opponentName.equals(game.getOpponentName())
++                || !compatibleRace(game.getOpponentRace())) {
++            throw new IOException("History opponent does not match its key");
++        }
++        List<GameRecord> games = new ArrayList<>(load().games());
++        games.add(game);
++        while (games.size() > MAX_RECORDS) {
++            games.remove(0);
++        }
++
++        byte[] bytes = encode(games);
++        while (bytes.length > MAX_BYTES && games.size() > 1) {
++            games.remove(0);
++            bytes = encode(games);
++        }
++        if (bytes.length > MAX_BYTES) {
++            throw new IOException("History record exceeds its size limit");
++        }
++
++        ensureWriteDirectory();
++        Path target = writeDirectory.resolve(fileName);
++        verifyFile(target);
++        Path temporary = Files.createTempFile(writeDirectory, "history-", ".tmp");
++        try {
++            verifyFile(temporary);
++            Files.write(temporary, bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
++                    LinkOption.NOFOLLOW_LINKS);
++            verifyDirectory(writeDirectory, false);
++            verifyFile(target);
++            try {
++                Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE,
++                        StandardCopyOption.REPLACE_EXISTING);
++            } catch (AtomicMoveNotSupportedException e) {
++                throw new IOException("Atomic history replacement is unavailable", e);
++            }
++        } finally {
++            Files.deleteIfExists(temporary);
++        }
++    }
++
++    String fileName() {
++        return fileName;
++    }
++
++    private List<GameRecord> readHistory(Path directory) throws IOException {
++        if (!verifyDirectory(directory, true)) {
++            return null;
++        }
++        Path file = directory.resolve(fileName);
++        if (!verifyFile(file)) {
++            return null;
++        }
++        ByteArrayOutputStream output = new ByteArrayOutputStream();
++        try (InputStream input = Files.newInputStream(file, StandardOpenOption.READ,
++                LinkOption.NOFOLLOW_LINKS)) {
++            byte[] chunk = new byte[8192];
++            int count;
++            while ((count = input.read(chunk)) != -1) {
++                if (output.size() + count > MAX_BYTES) {
++                    return new ArrayList<>();
++                }
++                output.write(chunk, 0, count);
++            }
++        }
+         List<GameRecord> games = new ArrayList<>();
+-        if (!readFile.exists()) {
+-            return new LearningHistory(games);
++        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
++                new ByteArrayInputStream(output.toByteArray()), StandardCharsets.UTF_8))) {
++            if (!HEADER.equals(reader.readLine())) {
++                return games;
++            }
++            String line;
++            while ((line = reader.readLine()) != null) {
++                try {
++                    GameRecord record = GameRecord.fromCsvRow(line);
++                    if (GameRecord.sanitizeCsvField(opponentName).equals(record.getOpponentName())
++                            && compatibleRace(record.getOpponentRace())) {
++                        games.add(record);
++                        if (games.size() > MAX_RECORDS) {
++                            games.remove(0);
++                        }
++                    }
++                } catch (IllegalArgumentException e) {
++                }
++            }
+         }
+-        List<String> lines = Files.readAllLines(readFile.toPath());
+-        for (int i = 1; i < lines.size(); i++) {
+-            games.add(GameRecord.fromCsvRow(lines.get(i)));
++        return games;
++    }
++
++    private boolean compatibleRace(String race) {
++        if (GameRecord.sanitizeCsvField(opponentRace).equals(race)) {
++            return true;
+         }
+-        return new LearningHistory(games);
++        return ("Random".equals(opponentRace) || "Unknown".equals(opponentRace))
++                && ("Zerg".equals(race) || "Terran".equals(race) || "Protoss".equals(race));
+     }
+ 
+-    void append(GameRecord game) throws IOException {
+-        initializeWriteFile();
+-        if (writeFile.isFile()) {
+-            Files.write(writeFile.toPath(), (game.toCsvRow() + "\n").getBytes(), StandardOpenOption.APPEND);
++    private static byte[] encode(List<GameRecord> games) {
++        StringBuilder text = new StringBuilder(HEADER).append('\n');
++        for (GameRecord game : games) {
++            text.append(game.toCsvRow()).append('\n');
++        }
++        return text.toString().getBytes(StandardCharsets.UTF_8);
++    }
++
++    private void ensureWriteDirectory() throws IOException {
++        verifyDirectory(root, false);
++        Path data = root.resolve("bwapi-data");
++        if (!verifyDirectory(data, true)) {
++            Files.createDirectory(data);
++        }
++        verifyDirectory(data, false);
++        if (!verifyDirectory(writeDirectory, true)) {
++            Files.createDirectory(writeDirectory);
++        }
++        verifyDirectory(writeDirectory, false);
++    }
++
++    private boolean verifyDirectory(Path directory, boolean allowMissing) throws IOException {
++        BasicFileAttributes attributes;
++        try {
++            attributes = Files.readAttributes(directory, BasicFileAttributes.class,
++                    LinkOption.NOFOLLOW_LINKS);
++        } catch (NoSuchFileException e) {
++            if (allowMissing) {
++                return false;
++            }
++            throw new IOException("Missing history directory: " + directory, e);
++        }
++        if (!attributes.isDirectory() || attributes.isSymbolicLink() || attributes.isOther()
++                || !directory.toRealPath().equals(root.toRealPath().resolve(root.relativize(directory)))) {
++            throw new IOException("Unsafe history directory: " + directory);
+         }
++        return true;
+     }
+ 
+-    private void initializeWriteFile() throws IOException {
+-        if (writeFile.exists()) {
+-            return;
++    private boolean verifyFile(Path file) throws IOException {
++        BasicFileAttributes attributes;
++        try {
++            attributes = Files.readAttributes(file, BasicFileAttributes.class,
++                    LinkOption.NOFOLLOW_LINKS);
++        } catch (NoSuchFileException e) {
++            return false;
+         }
+-        writeFile.createNewFile();
+-        Files.write(writeFile.toPath(), HEADER.getBytes(), StandardOpenOption.APPEND);
+-        if (!readFile.isFile()) {
+-            return;
++        if (!attributes.isRegularFile() || attributes.isSymbolicLink() || attributes.isOther()
++                || !file.toRealPath().equals(root.toRealPath().resolve(root.relativize(file)))) {
++            throw new IOException("Unsafe history file: " + file);
+         }
+-        List<String> readLines = Files.readAllLines(readFile.toPath());
+-        for (int i = 1; i < readLines.size(); i++) {
+-            Files.write(writeFile.toPath(), (readLines.get(i) + "\n").getBytes(), StandardOpenOption.APPEND);
++        return true;
++    }
++
++    private static String digest(String name, String race) {
++        try {
++            MessageDigest sha = MessageDigest.getInstance("SHA-256");
++            sha.update(name.getBytes(StandardCharsets.UTF_8));
++            sha.update((byte) 0);
++            sha.update(race.getBytes(StandardCharsets.UTF_8));
++            byte[] bytes = sha.digest();
++            StringBuilder result = new StringBuilder(bytes.length * 2);
++            for (byte value : bytes) {
++                result.append(Character.forDigit((value >>> 4) & 15, 16));
++                result.append(Character.forDigit(value & 15, 16));
++            }
++            return result.toString();
++        } catch (NoSuchAlgorithmException e) {
++            throw new IllegalStateException("SHA-256 unavailable", e);
+         }
+     }
+ }
+diff --git a/src/main/java/learning/LearningManager.java b/src/main/java/learning/LearningManager.java
+index 53d308c..d85e928 100644
+--- a/src/main/java/learning/LearningManager.java
++++ b/src/main/java/learning/LearningManager.java
+@@ -16,6 +16,9 @@ import java.util.Map;
+ import java.util.Set;
+ import java.util.stream.Collectors;
+ 
++/**
++ * ShieldBattery runtime modification: opponent identity is passed to private history storage.
++ */
+ public class LearningManager {
+     /**
+      * Discounted win rate at or below which the incumbent opener counts as failing and a forced
+@@ -69,7 +72,6 @@ public class LearningManager {
+     private GameState gameState;
+     private Race opponentRace;
+     private String opponentName;
+-    private String opponentFileName;
+ 
+     private OpponentRecord opponentRecord;
+     private Decisions decisions = new Decisions();
+@@ -88,9 +90,8 @@ public class LearningManager {
+         this.gameState = gameState;
+         this.opponentRace = game.enemy().getRace();
+         this.opponentName = game.enemy().getName();
+-        this.opponentFileName = opponentName + "_" + opponentRace + ".csv";
+         this.buildOrderFactory = new BuildOrderFactory(bwem.getMap().getStartingLocations().size(), opponentRace);
+-        this.historyRepository = new LearningHistoryRepository(opponentFileName);
++        this.historyRepository = new LearningHistoryRepository(opponentName, opponentRace.toString());
+         this.recordAccumulator = new LearningRecordAccumulator(opponentName, opponentRace);
+ 
+         try {

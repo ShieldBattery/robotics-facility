@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import test from 'node:test'
 import ts from 'typescript'
+import { recipePaths as infestedArtosis } from './build-infested-artosis.ts'
 import { recipePaths as marineHell } from './build-marine-hell.ts'
 import { opprimoRecipePaths as opprimo } from './build-opprimobot.ts'
 import { recipePaths as purpleWave } from './build-purplewave.ts'
@@ -49,6 +50,7 @@ for (const [bot, paths] of Object.entries({
   opprimobot: opprimo,
   purplewave: purpleWave,
   'marine-hell': marineHell,
+  'infested-artosis': infestedArtosis,
 })) {
   await test(`${bot} recipe includes its complete local runtime import closure`, async () => {
     const included = new Set(paths)
@@ -64,7 +66,14 @@ for (const [bot, paths] of Object.entries({
         const otherBot = /^tools\/(?:build|package)-(.+)\.ts$/.exec(dependency)?.[1]
         if (
           otherBot &&
-          ['zzzkbot', 'ualbertabot', 'opprimobot', 'purplewave', 'marine-hell'].includes(otherBot)
+          [
+            'zzzkbot',
+            'ualbertabot',
+            'opprimobot',
+            'purplewave',
+            'marine-hell',
+            'infested-artosis',
+          ].includes(otherBot)
         ) {
           assert.equal(
             otherBot,

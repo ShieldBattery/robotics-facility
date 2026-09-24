@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "infested-artosis",
+    "name": "Infested Artosis",
+    "description": "A Zerg bot with economic and aggressive openings, combat simulation, and opponent-history learning. Human difficulty is not yet calibrated.",
+    "authors": [
+      {
+        "name": "Brad Ewing"
+      },
+      {
+        "name": "Jasper Geurtz"
+      }
+    ],
+    "homepage": "https://github.com/BradEwing/InfestedArtosis",
+    "sourceUrl": "https://github.com/BradEwing/InfestedArtosis",
+    "playStyleTags": [
+      "macro",
+      "reactive",
+      "varied-openings"
+    ],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": [
+    "infested-artosis",
+    "ass",
+    "jbwapi"
+  ],
+  "profile": {
+    "selectableRaces": [
+      "zerg"
+    ],
+    "randomRace": "unsupported",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      }
+    ],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
+    "learning": {
+      "mode": "persistent",
+      "notes": "Chooses openings using bounded opponent history in the local working copy. Reset learning restores an empty history."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "infested-artosis",
+    "path": "LICENSE",
+    "notes": "Bot MIT notice credits Jasper Geurtz and Brad Ewing. Patched source and dependency notices are included."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "Pending artifact and gameplay review: docs/infested-artosis-admission.md"
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Track separately from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86_64",
+    "gameArchitectures": [
+      "x86",
+      "x86_64"
+    ],
+    "evidence": "Source compile checkpoint only; runtime testing pending.",
+    "limitations": [
+      "Human skill is not calibrated.",
+      "Java 21 x64 required.",
+      "Legacy SC:R unit limits required.",
+      "Gameplay verification pending."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "5fb0b2f8e6fc72778754e86d1837ccaf1e681449",
+    "instructions": "bots/infested-artosis/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "Source adaptations and artifact review in progress: docs/infested-artosis-admission.md"
+  }
+}

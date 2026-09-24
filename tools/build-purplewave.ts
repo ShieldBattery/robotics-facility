@@ -41,6 +41,7 @@ export interface PurpleWaveBuildInfo {
 }
 export const recipePaths = Object.freeze([
   'source-lock.json',
+  'patches/jbwapi/0002-single-match-lifecycle.patch',
   'jvm/dependencies.json',
   'tools/build-purplewave.ts',
   'tools/jvm-build.ts',

@@ -1,0 +1,9 @@
+JetBrains Java Annotations 26.1.0
+
+Copyright 2000-2021 JetBrains s.r.o.
+
+Licensed under the Apache License, Version 2.0. The full license is included in APACHE-2.0-LICENSE.txt.
+Original, unmodified compile-time dependency; it is not on the bot runtime classpath.
+
+Source: https://github.com/JetBrains/java-annotations
+Release metadata: https://repo.maven.apache.org/maven2/org/jetbrains/annotations/26.1.0/annotations-26.1.0.pom

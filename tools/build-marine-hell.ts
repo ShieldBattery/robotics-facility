@@ -39,6 +39,7 @@ const sourceIds = ['marine-hell', 'jbwapi']
 const dependencyNames = ['jna-5.18.1.jar', 'jna-platform-5.18.1.jar']
 export const recipePaths = [
   'source-lock.json',
+  'patches/jbwapi/0002-single-match-lifecycle.patch',
   'jvm/dependencies.json',
   'patches/marine-hell/0001-use-isolated-jbwapi.patch',
   'patches/marine-hell/0002-load-bunker-with-right-click.patch',
@@ -50,6 +51,7 @@ export const recipePaths = [
   'tools/fetch-sources.ts',
   'bots/marine-hell/BUILD.md',
   'tools/package-marine-hell.ts',
+  'tools/jvm-package.ts',
   'tools/package-archive.ts',
   'tools/release-package.ts',
   'tools/publication-archive.ts',

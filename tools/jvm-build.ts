@@ -4,6 +4,10 @@ import { lstat, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import https from 'node:https'
 import path from 'node:path'
 import yazl from 'yazl'
+import { readSourceLock, runGit } from './fetch-sources.ts'
+import type { Source } from './metadata.ts'
+import { prepareSource } from './prepare-source.ts'
+import { type PreparedSource, verifyPreparedSource } from './source-provenance.ts'
 
 const jarName = /^[a-z0-9][a-z0-9.-]*\.jar$/
 const devices = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$/i
@@ -32,6 +36,19 @@ export interface JavaFileRecord {
   sha256: string
   sizeBytes: number
 }
+export interface JvmRecipeSnapshot {
+  revision: string
+  sha256: string
+  inputs: JavaFileRecord[]
+  dirty: boolean
+}
+
+export interface CachedDependency {
+  artifact: DependencyArtifact
+  file: string
+  bytes: Buffer
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -41,9 +58,11 @@ export function errorMessage(error: unknown): string {
 
 export const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex')
 
-const lockError = (value: string) => new Error(`Invalid jvm/dependencies.json: ${value}`)
-
-export function validateDependencyLock(lock: unknown): DependencyLock {
+export function validateDependencyLock(
+  lock: unknown,
+  lockPath = 'jvm/dependencies.json',
+): DependencyLock {
+  const lockError = (value: string) => new Error('Invalid ' + lockPath + ': ' + value)
   if (
     !isRecord(lock) ||
     Object.keys(lock).sort().join(',') !== 'artifacts,schemaVersion' ||
@@ -288,7 +307,10 @@ export async function makeJar(entries: Iterable<[string, Buffer]>): Promise<Buff
   return await complete
 }
 
-export async function cachedDependency(directory: string, artifact: DependencyArtifact) {
+export async function cachedDependency(
+  directory: string,
+  artifact: DependencyArtifact,
+): Promise<CachedDependency> {
   const file = path.join(directory, artifact.name)
   const value = await stat(file)
   if (value) {
@@ -379,4 +401,112 @@ export async function inspectJavaToolchain(javaHome: string) {
   ])
   const javaProperties = sanitizeJavaProperties(javaVersion)
   return { javac, java, javacVersion, javaProperties }
+}
+
+export async function recordJvmRecipe(
+  root: string,
+  recipePaths: readonly string[],
+): Promise<JvmRecipeSnapshot> {
+  const inputs: JavaFileRecord[] = []
+  const digest = createHash('sha256')
+  for (const name of recipePaths) {
+    const file = path.join(root, name)
+    const value = await stat(file)
+    if (!value?.isFile() || value.isSymbolicLink()) throw new Error('Unsafe recipe input: ' + name)
+    const bytes = await readFile(file)
+    digest.update(name).update('\0').update(bytes).update('\0')
+    inputs.push({ path: name, sha256: sha256(bytes), sizeBytes: bytes.length })
+  }
+  const [revision, status] = await Promise.all([
+    runGit(['-C', root, 'rev-parse', 'HEAD']),
+    runGit(['-C', root, 'status', '--porcelain', '--', ...recipePaths]),
+  ])
+  return { revision, sha256: digest.digest('hex'), inputs, dirty: Boolean(status) }
+}
+
+export async function loadJvmDependencies(
+  root: string,
+  lockPath: string,
+  names: readonly string[],
+): Promise<CachedDependency[]> {
+  const lock = validateDependencyLock(
+    JSON.parse(await readFile(path.join(root, lockPath), 'utf8')),
+    lockPath,
+  )
+  const cache = path.join(root, '.build', 'java-dependencies')
+  await safeDirectory(cache, 'Java dependency cache', true)
+  const dependencies: CachedDependency[] = []
+  for (const name of names) {
+    const artifact = lock.artifacts.find(entry => entry.name === name)
+    if (!artifact) throw new Error('Missing locked Java dependency: ' + name)
+    dependencies.push(await cachedDependency(cache, artifact))
+  }
+  return dependencies
+}
+
+export async function prepareJvmSources(
+  root: string,
+  output: string,
+  ids: readonly string[],
+): Promise<PreparedSource[]> {
+  const lock = await readSourceLock(root)
+  const prepared: PreparedSource[] = []
+  for (const id of ids) {
+    const source: Source | undefined = lock.sources.find(entry => entry.id === id)
+    if (!source) throw new Error('source-lock.json is missing ' + id)
+    const directory = path.join(output, 'sources', id)
+    await prepareSource({
+      rootDir: root,
+      sourceId: id,
+      outputDir: relativeTo(root, directory),
+    })
+    prepared.push(await verifyPreparedSource(source, directory))
+  }
+  return prepared
+}
+
+export async function writeJvmJar({
+  output,
+  classes,
+  jarName,
+  mainClass,
+  runtime,
+}: {
+  output: string
+  classes: readonly string[]
+  jarName: string
+  mainClass: string
+  runtime: readonly CachedDependency[]
+}): Promise<JavaFileRecord[]> {
+  const bin = path.join(output, 'bin')
+  const lib = path.join(bin, 'lib')
+  await mkdir(lib, { recursive: true })
+  const entries: [string, Buffer][] = [
+    [
+      'META-INF/MANIFEST.MF',
+      makeManifest(
+        mainClass,
+        runtime.map(({ artifact }) => artifact),
+      ),
+    ],
+  ]
+  for (const directory of classes)
+    for (const file of await files(directory))
+      entries.push([relativeTo(directory, file), await readFile(file)])
+  const jar = path.join(bin, jarName)
+  const jarBytes = await makeJar(entries)
+  await writeFile(jar, jarBytes, { flag: 'wx' })
+  const built: JavaFileRecord[] = [
+    { path: relativeTo(output, jar), sha256: sha256(jarBytes), sizeBytes: jarBytes.length },
+  ]
+  for (const { artifact, bytes } of runtime) {
+    const destination = path.join(lib, artifact.name)
+    await writeFile(destination, bytes, { flag: 'wx' })
+    built.push({
+      path: relativeTo(output, destination),
+      sha256: sha256(bytes),
+      sizeBytes: bytes.length,
+    })
+  }
+  return built
 }

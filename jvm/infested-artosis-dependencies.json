@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "artifacts": [
+    {
+      "name": "jna-5.18.1.jar",
+      "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna/5.18.1/jna-5.18.1.jar",
+      "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+      "sizeBytes": 2002994,
+      "runtime": true
+    },
+    {
+      "name": "jna-platform-5.18.1.jar",
+      "url": "https://repo.maven.apache.org/maven2/net/java/dev/jna/jna-platform/5.18.1/jna-platform-5.18.1.jar",
+      "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+      "sizeBytes": 1380744,
+      "runtime": true
+    },
+    {
+      "name": "annotations-26.1.0.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/26.1.0/annotations-26.1.0.jar",
+      "sha256": "ebc7aec252ed0c7d2d04c039d7f00e69f7b86b1f493c741d67b3ef31b986b054",
+      "sizeBytes": 31094,
+      "runtime": false
+    },
+    {
+      "name": "lombok-1.18.48.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/projectlombok/lombok/1.18.48/lombok-1.18.48.jar",
+      "sha256": "85477a4655ebb2c074a9099cfb749be454449fee564d4282610df1b85f7c508b",
+      "sizeBytes": 2055065,
+      "runtime": false
+    }
+  ]
+}
