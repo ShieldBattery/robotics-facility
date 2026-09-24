@@ -2,8 +2,8 @@
 
 Research date: 2026-09-23. Aim for seven distinct bot families first, with an eighth
 slot reserved for a genuinely approachable opponent. This is an integration
-shortlist, not approval to distribute the unreviewed candidates. Only ZZZKBot and
-PurpleWave are currently in the published catalog.
+shortlist, not approval to distribute the unreviewed candidates. The catalog and linked admission records are the current release inventory;
+the research table below records the original selection rationale.
 
 ## Selection
 
@@ -119,3 +119,13 @@ For every outreach candidate, ask separately about local distribution of patched
 source/binaries and public competitive use. Also ask about the preferred build,
 recommended races/maps, saved learning data, human-facing difficulty, and CPU/RAM.
 No outreach messages have been sent as part of this research.
+
+## Steamhammer integration
+
+Steamhammer 5.3.6 has a pinned native BWAPI 4.4 recipe and a reviewed source
+package. The [admission record](steamhammer-admission.md) records its exact
+source archive, storage patches, timer replacement, refinery correction,
+offline rebuilding, and release-specific gameplay evidence. It adds macro,
+reactive, and varied-openings tags with persistent opponent/evaluator learning.
+The saved 3.6.5 SSCAIT rating is not assigned to this 5.3.6 package. Human
+calibration and wider map/strategy testing remain separate work.

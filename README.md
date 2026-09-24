@@ -5,11 +5,14 @@ Each bot retains its upstream license; this repository does not relicense bot co
 See [licensing and modification disclosure](docs/licensing-and-attribution.md) for
 package notices, modified-source delivery, and the bot detail display requirements.
 
-ZZZKBot, PurpleWave, UAlbertaBot, and Marine Hell have reviewed experimental staging packages,
-including patched source, build instructions, and offline license/modification
-notices. See the [release reviews](docs/releases/) and [Marine Hell review](docs/marine-hell-admission.md).
-Marine Hell adds a defensive Terran infantry profile with Java 21 support.
-The game bridge currently requires a ShieldBattery debug build.
+The catalog contains reviewed experimental bot releases with patched source,
+build instructions, and offline license/modification notices. See the
+[release reviews](docs/releases/), [Marine Hell](docs/marine-hell-admission.md),
+[OpprimoBot](docs/opprimobot-admission.md),
+[Infested Artosis](docs/infested-artosis-admission.md), and
+[Steamhammer](docs/steamhammer-admission.md) admission records for exact scope.
+Human difficulty remains uncalibrated; supported races and formats are
+release-specific. The game bridge currently requires a ShieldBattery debug build.
 
 Separate staging and production publishing Actions validate archives, sign catalogs,
 and publish to Spaces; they refuse empty/unapproved releases. See

@@ -1903,6 +1903,212 @@
           }
         }
       ]
+    },
+    {
+      "bot": {
+        "id": "steamhammer",
+        "name": "Steamhammer",
+        "description": "An all-race bot with varied openings, adaptive production, and persistent opponent and game-state learning. Human difficulty is not yet calibrated.",
+        "authors": [
+          {
+            "name": "Jay Scott"
+          },
+          {
+            "name": "Dave Churchill"
+          }
+        ],
+        "homepage": "https://satirist.org/ai/starcraft/steamhammer/",
+        "sourceUrl": "https://github.com/ShieldBattery/robotics-facility/tree/source/steamhammer",
+        "playStyleTags": [
+          "macro",
+          "reactive",
+          "varied-openings"
+        ],
+        "humanSkill": "uncalibrated",
+        "externalRatings": []
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "steamhammer",
+            "releaseId": "steamhammer-sb-1",
+            "version": "5.3.6-sb.1",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86"
+            },
+            "runtime": {
+              "kind": "native"
+            },
+            "launch": {
+              "entrypoint": "bin/Steamhammer.exe",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "terran",
+                "protoss",
+                "zerg"
+              ],
+              "randomRace": "unverified",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "experimental",
+                  "notes": "Local 1v1 and concurrent x86/x64 SC:R smoke tests on Fighting Spirit; exact race and format coverage is recorded in the admission review."
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Pending release-specific gameplay verification."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "incompatible",
+                  "notes": "The tested three-player melee stalled Zerg production. This build assumes one opponent; use 1v1."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "persistent",
+                "notes": "Opponent opening history and race-matchup evaluator persist in private working copies. Reset learning restores an empty baseline."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "bwapi",
+                "repository": "https://github.com/bwapi/bwapi.git",
+                "revision": "7687da8abc4726f8366401f11ab648d421385793",
+                "patches": [
+                  {
+                    "path": "patches/bwapi/instance-discovery.patch",
+                    "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+                  }
+                ]
+              },
+              {
+                "id": "steamhammer",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "c1390b47d4d3e2f8283ae2513ff6479a81f2b27a",
+                "patches": [
+                  {
+                    "path": "patches/steamhammer/0001-isolate-runtime.patch",
+                    "sha256": "24034b0e026335b503b3f49496ee123af6ebe2d6e20cef4c45978d749e4764c1"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "MIT - Steamhammer",
+                "noticePath": "notices/Steamhammer-MIT.txt"
+              },
+              {
+                "name": "MIT - UAlbertaBot",
+                "noticePath": "notices/UAlbertaBot-MIT.txt"
+              },
+              {
+                "name": "MIT - FAP",
+                "noticePath": "notices/FAP-MIT.txt"
+              },
+              {
+                "name": "MIT - RapidJSON",
+                "noticePath": "notices/RapidJSON-MIT.txt"
+              },
+              {
+                "name": "BSD-3-Clause - msinttypes",
+                "noticePath": "notices/MSINTTYPES-BSD-3-Clause.txt"
+              },
+              {
+                "name": "LGPL-3.0 - BWAPI",
+                "noticePath": "notices/BWAPI-LGPL-3.0.txt"
+              },
+              {
+                "name": "GPL-3.0 license text",
+                "noticePath": "notices/GPL-3.0.txt"
+              },
+              {
+                "name": "MIT - ShieldBattery host and timer",
+                "noticePath": "notices/ShieldBattery-MIT.txt"
+              },
+              {
+                "name": "Attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "Reviewed pinned source, component notices, modified-source archive and offline rebuild. https://github.com/ShieldBattery/robotics-facility/blob/steamhammer-sb-1/docs/steamhammer-admission.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Fixed quiet configuration retains upstream strategy choices and learning, isolates bounded saved state with encoded opponent names and atomic writes, and removes runtime configuration overrides."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Runs one match in an external Win32 host with the static MSVC runtime and an independently implemented monotonic timer."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Keeps refinery construction assigned while native orders arrive by exempting occupied geyser tiles from the generic walkability check."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "dependency",
+                "summary": "Uses separately source-built BWAPI 4.4 with isolated instance discovery; omits upstream binaries and the redundant BWAPILIB copy."
+              }
+            ],
+            "writableDirectories": [
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "70b551132a5a8c23101dd127b21dbd080cca4bb7",
+                "patches": []
+              },
+              "recipePath": "native/CMakeLists.txt",
+              "toolchain": "{\"cmake\":\"cmake version 3.31.0\\n\\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\",\"generator\":\"Visual Studio 17 2022\",\"architecture\":\"Win32\",\"configuration\":\"Release\",\"msvcRuntime\":\"static\",\"compiler\":\"C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x86/cl.exe\",\"compilerId\":\"MSVC\",\"compilerVersion\":\"19.43.34810.0\",\"windowsSdkVersion\":\"10.0.26100.0\"}"
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "Reviewed source effects, isolated storage, exact package, offline rebuild and x86/x64 gameplay; not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/steamhammer-sb-1/docs/steamhammer-admission.md"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/steamhammer-sb-1/steamhammer-sb-1.zip",
+            "sha256": "e4a784d2db74db9867e89d70a7b04effa21a9a16b783bdc9ca6cf1450b1429cc",
+            "sizeBytes": 2284425,
+            "manifestSha256": "e5a302dd78fe53a1aab13037a0be6a0a421d91cbdb0b7d589d9a010d71fb61a2",
+            "format": "zip"
+          }
+        }
+      ]
     }
   ]
 }

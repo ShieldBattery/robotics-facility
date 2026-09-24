@@ -36,8 +36,8 @@
     "formats": [
       {
         "id": "one-v-one",
-        "support": "unverified",
-        "notes": "Pending release-specific gameplay verification."
+        "support": "experimental",
+        "notes": "Local 1v1 and concurrent x86/x64 SC:R smoke tests on Fighting Spirit; exact race and format coverage is recorded in the admission review."
       },
       {
         "id": "teams",
@@ -46,8 +46,8 @@
       },
       {
         "id": "free-for-all",
-        "support": "unverified",
-        "notes": "Pending release-specific gameplay verification."
+        "support": "incompatible",
+        "notes": "The tested three-player melee stalled Zerg production. This build assumes one opponent; use 1v1."
       }
     ],
     "mapConstraints": [
@@ -66,8 +66,8 @@
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "Pending source, artifact, and gameplay review: docs/steamhammer-admission.md"
+      "status": "approved",
+      "evidence": "Reviewed pinned source, component notices, modified-source archive and offline rebuild. https://github.com/ShieldBattery/robotics-facility/blob/steamhammer-sb-1/docs/steamhammer-admission.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -75,7 +75,7 @@
     }
   },
   "compatibility": {
-    "status": "unverified",
+    "status": "prototype-tested",
     "bwapiVersion": "4.4.0",
     "protocol": 10003,
     "botArchitecture": "x86",
@@ -83,21 +83,24 @@
       "x86",
       "x86_64"
     ],
-    "evidence": "Runtime testing pending.",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/steamhammer-sb-1/docs/steamhammer-admission.md",
     "limitations": [
-      "Human difficulty is not calibrated.",
+      "Requires ShieldBattery BWAPI bridge with frame-zero delivery and mineral type normalization (652c1d07f or later).",
       "Legacy SC:R unit limits required.",
-      "All race and format claims are pending gameplay verification."
+      "Fighting Spirit smoke tests cover all three races across x86/x64 SC:R; broader maps and late-game strategies remain unverified.",
+      "FFA is unsupported after a Zerg production stall in the three-player test; teams remain unverified.",
+      "The bridge does not implement stock BWAPI latency compensation.",
+      "Human difficulty has not been calibrated."
     ]
   },
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "890294ce81a5db0677bc551dd86c9f192fc99a84",
+    "revision": "70b551132a5a8c23101dd127b21dbd080cca4bb7",
     "instructions": "bots/steamhammer/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "Source adaptations and artifact review in progress: docs/steamhammer-admission.md"
+    "status": "approved",
+    "evidence": "Reviewed source effects, isolated storage, exact package, offline rebuild and x86/x64 gameplay; not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/steamhammer-sb-1/docs/steamhammer-admission.md"
   }
 }
