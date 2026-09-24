@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(shieldbattery-bot-client LANGUAGES CXX)
 
 set(SB_NATIVE_BOT "zzzkbot" CACHE STRING "Native bot to build")
-if(NOT SB_NATIVE_BOT STREQUAL "zzzkbot" AND NOT SB_NATIVE_BOT STREQUAL "ualbertabot" AND NOT SB_NATIVE_BOT STREQUAL "opprimobot")
+if(NOT SB_NATIVE_BOT STREQUAL "zzzkbot" AND NOT SB_NATIVE_BOT STREQUAL "ualbertabot" AND NOT SB_NATIVE_BOT STREQUAL "opprimobot" AND NOT SB_NATIVE_BOT STREQUAL "steamhammer")
   message(FATAL_ERROR "Unsupported native bot: ${SB_NATIVE_BOT}")
 endif()
 
@@ -130,6 +130,11 @@ target_include_directories(BWAPIClient PRIVATE
 
 if(SB_NATIVE_BOT STREQUAL "ualbertabot")
   include("${CMAKE_CURRENT_LIST_DIR}/ualbertabot.cmake")
+  return()
+endif()
+
+if(SB_NATIVE_BOT STREQUAL "steamhammer")
+  include("${CMAKE_CURRENT_LIST_DIR}/steamhammer.cmake")
   return()
 endif()
 

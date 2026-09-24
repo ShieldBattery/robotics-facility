@@ -30,7 +30,9 @@
     "build:marine-hell": "node tools/build-marine-hell.ts",
     "package:marine-hell": "node tools/package-marine-hell.ts",
     "build:infested-artosis": "node tools/build-infested-artosis.ts",
-    "package:infested-artosis": "node tools/package-infested-artosis.ts"
+    "package:infested-artosis": "node tools/package-infested-artosis.ts",
+    "build:steamhammer": "node tools/build-steamhammer.ts",
+    "package:steamhammer": "node tools/package-steamhammer.ts"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1136.0",

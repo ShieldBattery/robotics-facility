@@ -135,6 +135,17 @@
       "repository": "https://github.com/Bytekeeper/ass.git",
       "revision": "faf1e2be241cbb101785f99f3ef17b9463c619ed",
       "patches": []
+    },
+    {
+      "id": "steamhammer",
+      "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+      "revision": "c1390b47d4d3e2f8283ae2513ff6479a81f2b27a",
+      "patches": [
+        {
+          "path": "patches/steamhammer/0001-isolate-runtime.patch",
+          "sha256": "508b3c06cd12f250d9b754ae1f870f60d05eefebea776dbe89fc1f7a14526a68"
+        }
+      ]
     }
   ]
 }

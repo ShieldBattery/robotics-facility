@@ -1,0 +1,43 @@
+﻿Steamhammer 5.3.6 - ShieldBattery modified build
+
+Original bot: Steamhammer by Jay Scott, derived from UAlbertaBot by David Churchill
+Author: https://satirist.org/ai/starcraft/steamhammer/
+Package maintainer: ShieldBattery (https://shieldbattery.net)
+Upstream authors have not endorsed this package.
+
+Modified by ShieldBattery on 2026-09-23:
+- Runs one match in an external Win32 client, with static MSVC runtime.
+- Uses a quiet fixed configuration preserving upstream strategy choices and
+  opponent/evaluator learning. Chat and environment files cannot override it.
+- Encodes opponent names, bounds learned files and parser allocations, reads
+  private write state before read baselines, and replaces saved files atomically.
+- Replaces Timer.hpp with an independent std::chrono timer.
+- Uses separately built BWAPI 4.4 with isolated SB_BWAPI_INSTANCE discovery.
+
+Licenses and corresponding source
+
+Steamhammer, UAlbertaBot, and FAP have separate preserved MIT notices.
+RapidJSON is MIT; msinttypes and BWAPI smallsha1 have BSD-3-Clause notices.
+The ShieldBattery host and native recipe are MIT. BWAPI is LGPL version 3;
+the LGPL and GPL version 3 texts are included. Keep file-level notices too.
+The author ZIP's unused BWAPILIB and unlicensed Timer.hpp are not packaged.
+
+The selected patched source, patches, configuration, and offline CMake rebuild
+recipe are included under source/. See source/BUILD.md. No extra source download
+or payment is required; Visual Studio C++ tools, Windows SDK, and CMake are
+external build prerequisites. Source pins, patch hashes, and recipe revision
+are recorded in package.json and source/build-info.json. The source import
+records the author's ZIP checksum and exact omissions/license supplements.
+Release archives: https://github.com/ShieldBattery/robotics-facility/releases
+
+Runtime state and compatibility
+
+Each concurrent bot requires a private writable working directory. Learned
+opponent records and evaluator weights are kept in bwapi-data/write. Reset
+learning clears the profile's read/write folders and restores their empty
+packaged baselines; keep bwapi-data/AI/Steamhammer_5.3.6.json intact.
+The executable is not sandboxed. Source review is not an OS security boundary.
+
+This is experimental ShieldBattery BWAPI compatibility, not a claim of complete
+BWAPI API conformance or tournament eligibility. Human difficulty is uncalibrated;
+upstream bot-versus-bot results do not rate this modified binary against people.

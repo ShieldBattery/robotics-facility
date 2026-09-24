@@ -6,9 +6,12 @@ import type { NativeBuildOptions, NativeBuildRecipe } from './native-build.ts'
 export const ualbertaRecipePaths = Object.freeze([
   ...nativeRecipePaths,
   'native/ualbertabot.cmake',
+  'native/chrono-timer.hpp',
   'native/ualberta-timer.hpp',
   'tools/build-ualbertabot.ts',
   'tools/package-ualbertabot.ts',
+  'tools/native-package.ts',
+  'native/GPL-3.0.txt',
   'bots/ualbertabot/UAlbertaBot_Config.txt',
   'bots/ualbertabot/BUILD.md',
   'bots/ualbertabot/RELEASE.txt',

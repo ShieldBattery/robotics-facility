@@ -7,6 +7,7 @@ import { recipePaths as infestedArtosis } from './build-infested-artosis.ts'
 import { recipePaths as marineHell } from './build-marine-hell.ts'
 import { opprimoRecipePaths as opprimo } from './build-opprimobot.ts'
 import { recipePaths as purpleWave } from './build-purplewave.ts'
+import { steamhammerRecipePaths as steamhammer } from './build-steamhammer.ts'
 import { ualbertaRecipePaths as ualberta } from './build-ualbertabot.ts'
 import { zzzkbotRecipePaths as zzzkbot } from './build-zzzkbot.ts'
 
@@ -46,6 +47,7 @@ function runtimeImports(file: string, contents: string): string[] {
 
 for (const [bot, paths] of Object.entries({
   zzzkbot,
+  steamhammer,
   ualbertabot: ualberta,
   opprimobot: opprimo,
   purplewave: purpleWave,
@@ -73,6 +75,7 @@ for (const [bot, paths] of Object.entries({
             'purplewave',
             'marine-hell',
             'infested-artosis',
+            'steamhammer',
           ].includes(otherBot)
         ) {
           assert.equal(

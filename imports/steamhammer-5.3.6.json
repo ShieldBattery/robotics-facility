@@ -1,0 +1,29 @@
+{
+  "upstreamUrl": "https://satirist.org/downloads/starcraft/steamhammer/5.3.6/Steamhammer_source.zip",
+  "sha256": "d7ccc9f54cb8a9b1d11befc136272646767a7fd494dd937924a82e03581ad522",
+  "sizeBytes": 744441,
+  "stripPrefix": "Steamhammer_source/",
+  "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+  "revision": "c1390b47d4d3e2f8283ae2513ff6479a81f2b27a",
+  "tree": "acd83a90e59a5b48491770ffc7c9f0eeb15f94b0",
+  "files": 298,
+  "notes": "Author archive import; retain original bytes except omitted timer; add original component notice texts. See SOURCE-IMPORT.md.",
+  "retainedOriginalFiles": 297,
+  "omitted": [
+    "Steamhammer/Source/Timer.hpp"
+  ],
+  "supplements": [
+    "SOURCE-IMPORT.md",
+    "licenses/BWAPI-LGPL-3.0.txt",
+    "licenses/GPL-3.0.txt",
+    "licenses/RAPIDJSON-MIT.txt",
+    "licenses/MSINTTYPES-BSD-3-Clause.txt"
+  ],
+  "configuration": {
+    "archiveUrl": "https://satirist.org/downloads/starcraft/steamhammer/5.3.6/Steamhammer_dll.zip",
+    "archiveSha256": "afde6ff7a697abae5364c3e6c623aa579524f05e3015f662e4ef7bce379cc83c",
+    "entry": "Steamhammer_dll/Steamhammer_5.3.6.json",
+    "sha256": "d4cfd34a2d311b01b115632c210189e8c6df7c223b6b3eb33c10b547faaeaca4",
+    "notes": "Only the JSON configuration is used; neither downloaded DLL is executed or redistributed."
+  }
+}

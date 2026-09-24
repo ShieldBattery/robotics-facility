@@ -1,0 +1,820 @@
+diff --git a/RC/Source/Logistic.cpp b/RC/Source/Logistic.cpp
+index dcf881e..da4ab03 100644
+--- a/RC/Source/Logistic.cpp
++++ b/RC/Source/Logistic.cpp
+@@ -85,41 +85,32 @@ void Logistic::read(std::istream & s)
+ {
+   weights.clear();
+   
+-  // Read nUupdates.
+-  if (s.good() && s.peek() != '\n')
++  int count = -1;
++  if (!(s >> count) || count < 0)
+   {
+-    int n;
+-    s >> n;
+-    if (s.good() && n >= 0)
+-    {
+-      nUpdates = n;
+-    }
+-    else
+-    {
+-      weights.clear();
+-      throw std::runtime_error("Logistic::read bad count");
+-    }
++    clear();
++    throw std::runtime_error("Logistic::read bad count");
+   }
+-
+-  // Read the weights.
+-  while (s.good() && s.peek() != '\n')
++  nUpdates = count;
++  weights.reserve(nBits);
++  for (sizet i = 0; i < nBits; ++i)
+   {
+-    float w;
+-    s >> w;
+-    if (s.good())
+-    {
+-      weights.push_back(w);
+-	}
+-    else
++    float weight;
++    if (!(s >> weight) || !std::isfinite(weight))
+     {
+-      weights.clear();
++      clear();
+       throw std::runtime_error("Logistic::read bad weights");
+     }
++    weights.push_back(weight);
+   }
+-  
+-  if (weights.size() != nBits)
++  // A further weight would make the serialized dimension ambiguous.
++  while (s.good() && s.peek() == ' ')
++  {
++    s.get();
++  }
++  if (s.good() && s.peek() != '\n' && s.peek() != EOF)
+   {
+-    weights.clear();
++    clear();
+     throw std::runtime_error("Logistic::read wrong size");
+   }
+ }
+diff --git a/Steamhammer/Source/Config.cpp b/Steamhammer/Source/Config.cpp
+index a14dbf9..b20640e 100644
+--- a/Steamhammer/Source/Config.cpp
++++ b/Steamhammer/Source/Config.cpp
+@@ -17,11 +17,11 @@ namespace Config
+ 
+ 	namespace IO
+     {
+-        std::string ErrorLogFilename		= "Steamhammer_ErrorLog.txt";
++        std::string ErrorLogFilename		= "bwapi-data/write/Steamhammer_ErrorLog.txt";
+         bool LogAssertToErrorFile			= false;
+ 
+         std::string StaticDir               = "bwapi-data/AI/";
+-        std::string PreparedDataDir         = "bwapi-data/AI/om/";
++        std::string PreparedDataDir         = "bwapi-data/AI/prepared/";
+         std::string ReadDir                 = "bwapi-data/read/";
+         std::string WriteDir				= "bwapi-data/write/";
+         std::string OpeningTimingFile       = "timings.txt";
+diff --git a/Steamhammer/Source/Evaluator.cpp b/Steamhammer/Source/Evaluator.cpp
+index 832c3d5..e4319a8 100644
+--- a/Steamhammer/Source/Evaluator.cpp
++++ b/Steamhammer/Source/Evaluator.cpp
+@@ -44,16 +44,13 @@ std::string Evaluator::getFilename() const
+ // NOTE An I/O error will reset learning!
+ void Evaluator::read()
+ {
+-	std::ifstream infile;
+-	openReadFile(infile, getFilename());
+-
+-	if (!infile.good())
+-	{
+-		// No file, or it could not be opened.
+-		//BWAPI::Broodwar->printf("no readout file");
+-		_readout->clear();
+-		return;
+-	}
++    std::string contents;
++    if (readLearningFile(getFilename(), contents) != LearningReadResult::Loaded)
++    {
++        _readout->clear();
++        return;
++    }
++    std::istringstream infile(contents);
+ 
+ 	try
+ 	{
+@@ -436,16 +433,20 @@ void Evaluator::write()
+ 		return;		// no data, or no new data
+ 	}
+ 
+-	std::ofstream outfile(Config::IO::WriteDir + getFilename(), std::ios::out | std::ios::trunc);
+-	try
+-	{
+-		outfile << FileVersion << '\n';
+-		_readout->write(outfile);
+-	}
+-	catch (const std::runtime_error &)
+-	{
+-		BWAPI::Broodwar->printf("writing file '%s' failed", getFilename().c_str());
+-	}
++    try
++    {
++        std::ostringstream outfile;
++        outfile << FileVersion << '\n';
++        _readout->write(outfile);
++        if (!outfile.good() || !writeLearningFile(getFilename(), outfile.str()))
++        {
++            throw std::runtime_error("writing learning file failed");
++        }
++    }
++    catch (const std::runtime_error &)
++    {
++        BWAPI::Broodwar->printf("writing file '%s' failed", getFilename().c_str());
++    }
+ }
+ 
+ // Evaluation doesn't work against a random opponent whose units we haven't seen.
+diff --git a/Steamhammer/Source/File.cpp b/Steamhammer/Source/File.cpp
+index 32a6af3..5fa6ce3 100644
+--- a/Steamhammer/Source/File.cpp
++++ b/Steamhammer/Source/File.cpp
+@@ -1,18 +1,209 @@
+-
+ #include "File.h"
+ 
+-// Open a file from the bot's read directory.
+-// If that doesn't work, try the static prepared data directory.
+-// The caller must check inFile.good(). If it's false, the file was not found
+-// or otherwise failed to open.
+-void openReadFile(std::ifstream & inFile, const std::string & filename)
++#define WIN32_LEAN_AND_MEAN
++#include <windows.h>
++
++#include <atomic>
++#include <string>
++
++namespace
++{
++constexpr const char * WriteDir = "bwapi-data/write/";
++constexpr const char * ReadDir = "bwapi-data/read/";
++constexpr const char * PreparedDir = "bwapi-data/AI/prepared/";
++std::atomic<unsigned long> tempCounter{0};
++
++bool safeFilename(const std::string & name)
++{
++    if (name.empty() || name.size() > 128 || name == "." || name == "..")
++    {
++        return false;
++    }
++    for (unsigned char ch : name)
++    {
++        if (!((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') ||
++            (ch >= 'A' && ch <= 'Z') || ch == '_' || ch == '-' || ch == '.'))
++        {
++            return false;
++        }
++    }
++    return true;
++}
++
++// Reject every reparse point on the relative path before touching learning data.
++bool safeDirectory(const char * directory, bool & exists)
++{
++    const DWORD root = GetFileAttributesA("bwapi-data");
++    if (root == INVALID_FILE_ATTRIBUTES || !(root & FILE_ATTRIBUTE_DIRECTORY) ||
++        (root & FILE_ATTRIBUTE_REPARSE_POINT))
++    {
++        exists = false;
++        return root == INVALID_FILE_ATTRIBUTES && GetLastError() == ERROR_FILE_NOT_FOUND;
++    }
++    const DWORD attrs = GetFileAttributesA(directory);
++    exists = attrs != INVALID_FILE_ATTRIBUTES;
++    if (!exists)
++    {
++        return GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND;
++    }
++    if (!(attrs & FILE_ATTRIBUTE_DIRECTORY) || (attrs & FILE_ATTRIBUTE_REPARSE_POINT))
++    {
++        return false;
++    }
++    if (std::string(directory) == PreparedDir)
++    {
++        const DWORD ai = GetFileAttributesA("bwapi-data/AI");
++        return ai != INVALID_FILE_ATTRIBUTES && (ai & FILE_ATTRIBUTE_DIRECTORY) &&
++            !(ai & FILE_ATTRIBUTE_REPARSE_POINT);
++    }
++    return true;
++}
++
++LearningReadResult readAt(const char * directory, const std::string & filename,
++    std::string & contents)
++{
++    bool exists = false;
++    if (!safeDirectory(directory, exists))
++    {
++        return LearningReadResult::Rejected;
++    }
++    if (!exists)
++    {
++        return LearningReadResult::Missing;
++    }
++    const std::string path = std::string(directory) + filename;
++    HANDLE file = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
++        OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
++    if (file == INVALID_HANDLE_VALUE)
++    {
++        const DWORD error = GetLastError();
++        return error == ERROR_FILE_NOT_FOUND ? LearningReadResult::Missing :
++            LearningReadResult::Rejected;
++    }
++    BY_HANDLE_FILE_INFORMATION info{};
++    if (!GetFileInformationByHandle(file, &info) ||
++        (info.dwFileAttributes & (FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_DIRECTORY)) ||
++        info.nFileSizeHigh != 0 || info.nFileSizeLow > MaxLearningFileBytes)
++    {
++        CloseHandle(file);
++        return LearningReadResult::Rejected;
++    }
++    std::string data;
++    data.resize(info.nFileSizeLow);
++    size_t offset = 0;
++    while (offset < data.size())
++    {
++        DWORD count = 0;
++        if (!ReadFile(file, &data[offset], static_cast<DWORD>(data.size() - offset),
++            &count, nullptr) || count == 0)
++        {
++            CloseHandle(file);
++            return LearningReadResult::Rejected;
++        }
++        offset += count;
++    }
++    LARGE_INTEGER size{};
++    const bool unchanged = GetFileSizeEx(file, &size) &&
++        size.QuadPart == static_cast<LONGLONG>(data.size());
++    CloseHandle(file);
++    if (!unchanged)
++    {
++        return LearningReadResult::Rejected;
++    }
++    // std::ifstream text mode translated CRLF before the parsers saw it.
++    std::string text;
++    text.reserve(data.size());
++    for (size_t i = 0; i < data.size(); ++i)
++    {
++        if (data[i] != '\r' || i + 1 == data.size() || data[i + 1] != '\n')
++        {
++            text += data[i];
++        }
++    }
++    contents.swap(text);
++    return LearningReadResult::Loaded;
++}
++
++bool safeExistingTarget(const std::string & path)
++{
++    const DWORD attrs = GetFileAttributesA(path.c_str());
++    if (attrs == INVALID_FILE_ATTRIBUTES)
++    {
++        return GetLastError() == ERROR_FILE_NOT_FOUND;
++    }
++    return !(attrs & (FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_DIRECTORY));
++}
++}
++
++LearningReadResult readLearningFile(const std::string & filename, std::string & contents)
++{
++    contents.clear();
++    if (!safeFilename(filename))
++    {
++        return LearningReadResult::Rejected;
++    }
++    for (const char * directory : {WriteDir, ReadDir, PreparedDir})
++    {
++        const auto result = readAt(directory, filename, contents);
++        if (result != LearningReadResult::Missing)
++        {
++            return result;
++        }
++    }
++    return LearningReadResult::Missing;
++}
++
++bool writeLearningFile(const std::string & filename, const std::string & contents)
+ {
+-	inFile.open(Config::IO::ReadDir + filename, std::ios::in);
+-
+-	// There may not be a file to read. Check for a prepared file in the AI directory.
+-	if (!inFile.good())
+-	{
+-		inFile.clear();
+-		inFile.open(Config::IO::PreparedDataDir + filename, std::ios::in);
+-	}
++    if (!safeFilename(filename) || contents.size() > MaxLearningFileBytes)
++    {
++        return false;
++    }
++    bool exists = false;
++    if (!safeDirectory(WriteDir, exists) || !exists)
++    {
++        return false;
++    }
++    const std::string target = std::string(WriteDir) + filename;
++    if (!safeExistingTarget(target))
++    {
++        return false;
++    }
++    const std::string temporary = target + ".tmp-" + std::to_string(GetCurrentProcessId()) +
++        "-" + std::to_string(GetTickCount64()) + "-" + std::to_string(++tempCounter);
++    HANDLE file = CreateFileA(temporary.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
++        FILE_ATTRIBUTE_NORMAL, nullptr);
++    if (file == INVALID_HANDLE_VALUE)
++    {
++        return false;
++    }
++    bool success = true;
++    size_t offset = 0;
++    while (offset < contents.size())
++    {
++        DWORD count = 0;
++        if (!WriteFile(file, contents.data() + offset,
++            static_cast<DWORD>(contents.size() - offset), &count, nullptr) || count == 0)
++        {
++            success = false;
++            break;
++        }
++        offset += count;
++    }
++    success = success && FlushFileBuffers(file);
++    CloseHandle(file);
++    if (success && safeDirectory(WriteDir, exists) && exists && safeExistingTarget(target))
++    {
++        success = MoveFileExA(temporary.c_str(), target.c_str(),
++            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
++    }
++    else
++    {
++        success = false;
++    }
++    if (!success)
++    {
++        DeleteFileA(temporary.c_str());
++    }
++    return success;
+ }
+diff --git a/Steamhammer/Source/File.h b/Steamhammer/Source/File.h
+index 778892f..6182522 100644
+--- a/Steamhammer/Source/File.h
++++ b/Steamhammer/Source/File.h
+@@ -1,10 +1,13 @@
+ #pragma once
+ 
+-#include "Common.h"
+-
+-#include <fstream>
+-#include <iostream>
++#include <cstddef>
+ #include <string>
+ 
+-// Open a file from the bot's read directory.
+-void openReadFile(std::ifstream & inFile, const std::string & filename);
++// Learning files are confined to the bot's private working tree.
++// Missing files may fall back to read/ and AI/prepared/; unsafe paths do not.
++enum class LearningReadResult { Missing, Loaded, Rejected };
++
++constexpr size_t MaxLearningFileBytes = 4 * 1024 * 1024;
++
++LearningReadResult readLearningFile(const std::string & filename, std::string & contents);
++bool writeLearningFile(const std::string & filename, const std::string & contents);
+diff --git a/Steamhammer/Source/GameRecord.cpp b/Steamhammer/Source/GameRecord.cpp
+index 63bd90c..8f53b42 100644
+--- a/Steamhammer/Source/GameRecord.cpp
++++ b/Steamhammer/Source/GameRecord.cpp
+@@ -193,6 +193,10 @@ bool GameRecord::readPlayerSnapshot(std::istream & input, PlayerSnapshot & snap)
+         }
+         while (lineStream >> id >> n)
+         {
++            if (snap.unitCounts.size() >= 256 || n < 0)
++            {
++                throw game_record_read_error();
++            }
+             snap.unitCounts[BWAPI::UnitType(id)] = n;
+         }
+         return true;
+@@ -316,6 +320,10 @@ void GameRecord::read_v3_or_4(std::istream & input, bool includeOpeningScore)
+         {
+             break;
+         }
++        if (skillKitText.size() >= 256)
++        {
++            throw game_record_read_error();
++        }
+         skillKitText.push_back(skillLine);
+         the.skillkit.read(*this, skillLine);
+     }
+@@ -375,6 +383,11 @@ void GameRecord::read_v1_4(std::istream & input)
+     GameSnapshot * snap;
+     while (snap = readGameSnapshot(input))
+     {
++        if (snapshots.size() >= 4096)
++        {
++            delete snap;
++            throw game_record_read_error();
++        }
+         snapshots.push_back(snap);
+     }
+ }
+@@ -409,7 +422,7 @@ void GameRecord::read(std::istream & input)
+             throw game_record_read_error();
+         }
+     }
+-    catch (const game_record_read_error &)
++    catch (const std::exception &)
+     {
+         skipToEnd(input);      // end of the game record
+         valid = false;
+@@ -543,6 +556,14 @@ GameRecord::GameRecord(std::istream & input)
+     read(input);
+ }
+ 
++GameRecord::~GameRecord()
++{
++    for (GameSnapshot * snap : snapshots)
++    {
++        delete snap;
++    }
++}
++
+ // Write the game record to the given stream.
+ void GameRecord::write(std::ostream & output)
+ {
+diff --git a/Steamhammer/Source/GameRecord.h b/Steamhammer/Source/GameRecord.h
+index 35c398c..c602df2 100644
+--- a/Steamhammer/Source/GameRecord.h
++++ b/Steamhammer/Source/GameRecord.h
+@@ -96,7 +96,7 @@ protected:
+     // A skill can also store data here for analysis.
+     std::map< Skill *, std::map< int, std::vector<int> > > skillData;
+ 
+-    // We allocate the snapshots and never release them.
++    // Snapshots are owned by this record.
+     std::vector<GameSnapshot *> snapshots;
+ 
+     BWAPI::Race charRace(char ch);
+@@ -130,6 +130,9 @@ public:
+ 
+     GameRecord();
+     GameRecord(std::istream & input);
++    virtual ~GameRecord();
++    GameRecord(const GameRecord &) = delete;
++    GameRecord & operator=(const GameRecord &) = delete;
+ 
+     void write(std::ostream & output);
+ 
+diff --git a/Steamhammer/Source/OpponentModel.cpp b/Steamhammer/Source/OpponentModel.cpp
+index 7011428..7f00a48 100644
+--- a/Steamhammer/Source/OpponentModel.cpp
++++ b/Steamhammer/Source/OpponentModel.cpp
+@@ -499,13 +499,19 @@ OpponentModel::OpponentModel()
+     , _initialExpectedEnemyPlan(OpeningPlan::Unknown)
+     , _expectedEnemyPlan(OpeningPlan::Unknown)
+ {
+-    std::string name = the.enemy()->getName();
+-
+-    // Replace characters that the filesystem may not like with '_'.
+-    // TODO Obviously not a thorough job.
+-    std::replace(name.begin(), name.end(), ' ', '_');
+-
+-    _filename = "om_" + name + ".txt";
++    const std::string name = the.enemy()->getName();
++    if (name.size() > 48)
++    {
++        return; // An invalid player identifier cannot name a learning file.
++    }
++    static const char hex[] = "0123456789abcdef";
++    _filename = "om_";
++    for (unsigned char ch : name)
++    {
++        _filename += hex[ch >> 4];
++        _filename += hex[ch & 15];
++    }
++    _filename += ".txt";
+ }
+ 
+ // Read past game records from the opponent model file, and do initial analysis.
+@@ -516,22 +522,24 @@ void OpponentModel::read()
+ 
+     if (Config::IO::ReadOpponentModel)
+     {
+-        std::ifstream inFile;
+-		openReadFile(inFile, _filename);
+-		if (!inFile.good())
+-		{
+-			// No dynamic file in the read directory or static file in the prepared data directory.
+-			// That's OK, it just means we don't have any experience yet.
+-			// Or the file can't be read. In that case, we ignore the error. What else can we do?
+-			return;
+-		}
+-		// We have a file to read.
+-
+-        while (inFile.good())
++        std::string contents;
++        if (readLearningFile(_filename, contents) != LearningReadResult::Loaded)
++        {
++            return;
++        }
++        std::istringstream inFile(contents);
++        while (inFile.good() && _pastGameRecords.size() < 300)
+         {
+-            // NOTE We allocate records here and never free them if valid.
+-            //      Their lifetime is the whole game.
+-            GameRecord * record = new GameRecord(inFile);
++            // An invalid record is skipped; bounded input prevents unbounded parsing.
++            GameRecord * record = nullptr;
++            try
++            {
++                record = new GameRecord(inFile);
++            }
++            catch (const std::exception &)
++            {
++                break;
++            }
+             if (record->isValid())
+             {
+                 _pastGameRecords.push_back(record);
+@@ -541,8 +549,6 @@ void OpponentModel::read()
+                 delete record;
+             }
+         }
+-
+-        inFile.close();
+     }
+ 
+     // Make immediate decisions that may take into account the game records.
+@@ -558,40 +564,20 @@ void OpponentModel::write()
+ {
+     if (Config::IO::WriteOpponentModel)
+     {
+-        std::ofstream outFile(Config::IO::WriteDir + _filename, std::ios::trunc);
++        std::ostringstream outFile;
+ 
+-        // If it fails, there's not much we can do about it.
+-        if (outFile.bad())
++        // Keep only the newest configured number of games, including this game.
++        const size_t keep = static_cast<size_t>(Config::IO::MaxGameRecords - 1);
++        const size_t skip = _pastGameRecords.size() > keep ? _pastGameRecords.size() - keep : 0;
++        for (size_t i = skip; i < _pastGameRecords.size(); ++i)
+         {
+-            return;
++            _pastGameRecords[i]->write(outFile);
+         }
+-
+-        // The number of initial game records to skip over without rewriting.
+-        // In normal operation, nToSkip is 0 or 1.
+-        int nToSkip = 0;
+-        if (int(_pastGameRecords.size()) >= Config::IO::MaxGameRecords)
++        _gameRecord.write(outFile);
++        if (outFile.good())
+         {
+-            nToSkip = _pastGameRecords.size() - Config::IO::MaxGameRecords + 1;
++            writeLearningFile(_filename, outFile.str());
+         }
+-
+-        // Rewrite any old records that were read in.
+-        // Not needed for local testing or for SSCAIT, necessary for other competitions.
+-        for (GameRecord * record : _pastGameRecords)
+-        {
+-            if (nToSkip > 0)
+-            {
+-                --nToSkip;
+-            }
+-            else
+-            {
+-                record->write(outFile);
+-            }
+-        }
+-
+-        // And write the record of this game.
+-        _gameRecord.write(outFile);
+-
+-        outFile.close();
+     }
+ }
+ 
+diff --git a/Steamhammer/Source/ParseUtils.cpp b/Steamhammer/Source/ParseUtils.cpp
+index ca404e7..7ae88b1 100644
+--- a/Steamhammer/Source/ParseUtils.cpp
++++ b/Steamhammer/Source/ParseUtils.cpp
+@@ -153,17 +153,19 @@ void ParseUtils::ParseConfigFile(const std::string & filename)
+     {
+         const rapidjson::Value & io = doc["IO"];
+ 
+-        JSONTools::ReadString("ErrorLogFilename", io, Config::IO::ErrorLogFilename);
+-        JSONTools::ReadBool("LogAssertToErrorFile", io, Config::IO::LogAssertToErrorFile);
++        Config::IO::LogAssertToErrorFile = false;
+ 
+-        JSONTools::ReadString("StaticDirectory", io, Config::IO::StaticDir);
+-        JSONTools::ReadString("PreparedDataDirectory", io, Config::IO::PreparedDataDir);
+-        JSONTools::ReadString("ReadDirectory", io, Config::IO::ReadDir);
+-        JSONTools::ReadString("WriteDirectory", io, Config::IO::WriteDir);
++        // Storage locations are fixed to the bot's private working tree.
++        Config::IO::ErrorLogFilename = "bwapi-data/write/Steamhammer_ErrorLog.txt";
++        Config::IO::StaticDir = "bwapi-data/AI/";
++        Config::IO::PreparedDataDir = "bwapi-data/AI/prepared/";
++        Config::IO::ReadDir = "bwapi-data/read/";
++        Config::IO::WriteDir = "bwapi-data/write/";
+ 
+-        JSONTools::ReadString("OpeningTimingFile", io, Config::IO::OpeningTimingFile);
++        Config::IO::OpeningTimingFile = "timings.txt";
+         
+         JSONTools::ReadInt("MaxGameRecords", io, Config::IO::MaxGameRecords);
++        Config::IO::MaxGameRecords = std::max(1, std::min(300, Config::IO::MaxGameRecords));
+ 
+         Config::IO::ReadOpponentModel = GetBoolByRace("ReadOpponentModel", io);
+         Config::IO::WriteOpponentModel = GetBoolByRace("WriteOpponentModel", io);
+@@ -193,19 +195,7 @@ void ParseUtils::ParseConfigFile(const std::string & filename)
+         JSONTools::ReadInt("MaxDefilers", skills, Config::Skills::MaxDefilers);
+     }
+ 
+-    // Are we running under SCHNAIL?
+-    {
+-        // Do this in braces so the stream object gets destroyed right away.
+-        std::ifstream schnail;
+-
+-        schnail.open(Config::IO::ReadDir + "schnail.env");
+-        Config::Skills::UnderSCHNAIL = schnail.good();
+-    }
+-    if (Config::Skills::UnderSCHNAIL && Config::Skills::SCHNAILMeansHuman)
+-    {
+-        // Override the configured value.
+-        Config::Skills::HumanOpponent = true;
+-    }
++    Config::Skills::UnderSCHNAIL = false;
+ 
+     // This depends on whether the opponent is a human, decided above.
+     // Opening selection below may depend on the results.
+@@ -455,82 +445,6 @@ void ParseUtils::ParseConfigFile(const std::string & filename)
+     Config::ConfigFile::ConfigFileParsed = true;
+ }
+ 
+-void ParseUtils::ParseTextCommand(const std::string & commandString)
+-{
+-    std::stringstream ss(commandString);
+-
+-    std::string command;
+-    std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+-
+-    std::string variableName;
+-    std::transform(variableName.begin(), variableName.end(), variableName.begin(), ::tolower);
+-
+-    std::string val;
+-
+-    ss >> command;
+-    ss >> variableName;
+-    ss >> val;
+-
+-    if (command == "/set")
+-    {
+-        // BWAPI options
+-        if (variableName == "setlocalspeed") { Config::BWAPIOptions::SetLocalSpeed = GetIntFromString(val); BWAPI::Broodwar->setLocalSpeed(Config::BWAPIOptions::SetLocalSpeed); }
+-        else if (variableName == "setframeskip") { Config::BWAPIOptions::SetFrameSkip = GetIntFromString(val); BWAPI::Broodwar->setFrameSkip(Config::BWAPIOptions::SetFrameSkip); }
+-        else if (variableName == "userinput") { Config::BWAPIOptions::EnableUserInput = GetBoolFromString(val); if (Config::BWAPIOptions::EnableUserInput) BWAPI::Broodwar->enableFlag(BWAPI::Flag::UserInput); }
+-        else if (variableName == "completemapinformation") { Config::BWAPIOptions::EnableCompleteMapInformation = GetBoolFromString(val); if (Config::BWAPIOptions::EnableCompleteMapInformation) BWAPI::Broodwar->enableFlag(BWAPI::Flag::UserInput); }
+-        
+-        // Micro Options
+-        else if (variableName == "workersdefendrush") { Config::Micro::WorkersDefendRush = GetBoolFromString(val); }
+-        else if (variableName == "combatsimradius") { Config::Micro::CombatSimRadius = GetIntFromString(val); }
+-
+-        // Macro Options
+-        else if (variableName == "absolutemaxworkers") { Config::Macro::AbsoluteMaxWorkers = GetIntFromString(val); }
+-        else if (variableName == "buildingspacing") { Config::Macro::BuildingSpacing = GetIntFromString(val); }
+-        else if (variableName == "pylonspacing") { Config::Macro::PylonSpacing = GetIntFromString(val); }
+-
+-        // Debug Options
+-        else if (variableName == "errorlogfilename") { Config::IO::ErrorLogFilename = val; }
+-        else if (variableName == "drawgameinfo") { Config::Debug::DrawGameInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawunithealthbars") { Config::Debug::DrawUnitHealthBars = GetBoolFromString(val); }
+-		else if (variableName == "drawkills") { Config::Debug::DrawKills = GetBoolFromString(val); }
+-		else if (variableName == "drawvelocities") { Config::Debug::DrawVelocities = GetBoolFromString(val); }
+-		else if (variableName == "drawproductioninfo") { Config::Debug::DrawProductionInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawscoutinfo") { Config::Debug::DrawScoutInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawqueuefixinfo") { Config::Debug::DrawQueueFixInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawenemyunitinfo") { Config::Debug::DrawEnemyUnitInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawunitcounts") { Config::Debug::DrawUnitCounts = GetBoolFromString(val); }
+-        else if (variableName == "drawhiddenenemies") { Config::Debug::DrawHiddenEnemies = GetBoolFromString(val); }
+-        else if (variableName == "drawmoduletimers") { Config::Debug::DrawModuleTimers = GetBoolFromString(val); }
+-        else if (variableName == "drawcombatsiminfo") { Config::Debug::DrawCombatSimulationInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawunittargets") { Config::Debug::DrawUnitTargets = GetBoolFromString(val); }
+-        else if (variableName == "drawunitorders") { Config::Debug::DrawUnitOrders = GetBoolFromString(val); }
+-        else if (variableName == "drawmicrostate") { Config::Debug::DrawMicroState = GetBoolFromString(val); }
+-        else if (variableName == "drawmapinfo") { Config::Debug::DrawMapInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawmapgrid") { Config::Debug::DrawMapGrid = GetBoolFromString(val); }
+-        else if (variableName == "drawmapdistances") { Config::Debug::DrawMapDistances = GetBoolFromString(val); }
+-        else if (variableName == "drawterrainheights") { Config::Debug::DrawTerrainHeights = GetBoolFromString(val); }
+-        else if (variableName == "drawexposcores") { Config::Debug::DrawExpoScores = GetBoolFromString(val); }
+-        else if (variableName == "drawstrategybossinfo") { Config::Debug::DrawStrategyBossInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawsquadinfo") { Config::Debug::DrawSquadInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawclusters") { Config::Debug::DrawClusters = GetBoolFromString(val); }
+-        else if (variableName == "drawdefenseclusters") { Config::Debug::DrawDefenseClusters = GetBoolFromString(val); }
+-        else if (variableName == "drawworkerinfo") { Config::Debug::DrawWorkerInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawbuildinginfo") { Config::Debug::DrawBuildingInfo = GetBoolFromString(val); }
+-        else if (variableName == "drawstaticdefenseplan") { Config::Debug::DrawStaticDefensePlan = GetBoolFromString(val); }
+-        else if (variableName == "drawreservedbuildingtiles") { Config::Debug::DrawReservedBuildingTiles = GetBoolFromString(val); }
+-        else if (variableName == "drawresourceamounts") { Config::Debug::DrawResourceAmounts = GetBoolFromString(val); }
+-        else if (variableName == "drawtasks") { Config::Debug::DrawTasks = GetBoolFromString(val); }
+-		else if (variableName == "drawevaluation") { Config::Debug::DrawEvaluation = GetBoolFromString(val); }
+-		else if (variableName == "drawforecast") { Config::Debug::DrawForecast = GetBoolFromString(val); }
+-
+-        else { UAB_ASSERT_WARNING(false, "Unknown variable name for /set: %s", variableName.c_str()); }
+-    }
+-    else
+-    {
+-        UAB_ASSERT_WARNING(false, "Unknown command: %s", command.c_str());
+-    }
+-}
+-
+ BWAPI::Race ParseUtils::GetRace(const std::string & raceName)
+ {
+     if (raceName == "Protoss")
+@@ -715,24 +629,6 @@ bool ParseUtils::_MeetsRequirements(
+     */
+ }
+ 
+-bool ParseUtils::GetBoolFromString(const std::string & str)
+-{
+-    std::string boolStr(str);
+-    std::transform(boolStr.begin(), boolStr.end(), boolStr.begin(), ::tolower);
+-
+-    if (boolStr == "true")
+-    {
+-        return true;
+-    }
+-    if (boolStr == "false")
+-    {
+-        return false;
+-    }
+-
+-    UAB_ASSERT_WARNING(false, "Unknown bool from string: %s", str.c_str());
+-    return false;
+-}
+-
+ // Return an integer which may be different depending on our race. The forms are:
+ //     "Item" : 10
+ // and
+diff --git a/Steamhammer/Source/ParseUtils.h b/Steamhammer/Source/ParseUtils.h
+index 4493578..6bc0bb6 100644
+--- a/Steamhammer/Source/ParseUtils.h
++++ b/Steamhammer/Source/ParseUtils.h
+@@ -8,7 +8,6 @@ namespace UAlbertaBot
+ namespace ParseUtils
+ {
+     void ParseConfigFile(const std::string & filename);
+-    void ParseTextCommand(const std::string & commandLine);
+     BWAPI::Race GetRace(const std::string & raceName);
+     
+     bool _ParseStrategy(
+@@ -31,7 +30,6 @@ namespace ParseUtils
+         const rapidjson::Value * strategyCombos
+     );
+ 
+-    bool GetBoolFromString(const std::string & str);
+     int GetIntByRace(const char * name, const rapidjson::Value & item);
+     double GetDoubleByRace(const char * name, const rapidjson::Value & item);
+     bool GetBoolByRace(const char * name, const rapidjson::Value & item);
+diff --git a/Steamhammer/Source/TimerManager.h b/Steamhammer/Source/TimerManager.h
+index d6aa865..3f50acf 100644
+--- a/Steamhammer/Source/TimerManager.h
++++ b/Steamhammer/Source/TimerManager.h
+@@ -3,9 +3,8 @@
+ #include "Config.h"
+ #include "Common.h"
+ 
+-// This timer was extracted from David Churchill's BOSS when
+-// BOSS was dropped from Steamhammer. It's the last vestige.
+-#include "Timer.hpp"
++// Timing uses a project-owned steady-clock adapter.
++#include <chrono-timer.hpp>
+ 
+ namespace UAlbertaBot
+ {
+diff --git a/Steamhammer/Source/UAlbertaBotModule.cpp b/Steamhammer/Source/UAlbertaBotModule.cpp
+index f2df9f5..48aa01d 100644
+--- a/Steamhammer/Source/UAlbertaBotModule.cpp
++++ b/Steamhammer/Source/UAlbertaBotModule.cpp
+@@ -96,9 +96,9 @@ void UAlbertaBotModule::onUnitMorph(BWAPI::Unit unit)
+     GameCommander::Instance().onUnitMorph(unit);
+ }
+ 
+-void UAlbertaBotModule::onSendText(std::string text) 
++void UAlbertaBotModule::onSendText(std::string)
+ { 
+-    ParseUtils::ParseTextCommand(text);
++    // Runtime configuration is fixed at startup.
+ }
+ 
+ void UAlbertaBotModule::onUnitCreate(BWAPI::Unit unit)

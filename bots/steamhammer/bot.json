@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "steamhammer",
+    "name": "Steamhammer",
+    "description": "An all-race bot with varied openings, adaptive production, and persistent opponent and game-state learning. Human difficulty is not yet calibrated.",
+    "authors": [
+      {
+        "name": "Jay Scott"
+      },
+      {
+        "name": "Dave Churchill"
+      }
+    ],
+    "homepage": "https://satirist.org/ai/starcraft/steamhammer/",
+    "sourceUrl": "https://github.com/ShieldBattery/robotics-facility/tree/source/steamhammer",
+    "playStyleTags": [
+      "macro",
+      "reactive",
+      "varied-openings"
+    ],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": [
+    "bwapi",
+    "steamhammer"
+  ],
+  "profile": {
+    "selectableRaces": [
+      "terran",
+      "protoss",
+      "zerg"
+    ],
+    "randomRace": "unverified",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Pending release-specific gameplay verification."
+      }
+    ],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
+    "learning": {
+      "mode": "persistent",
+      "notes": "Opponent opening history and race-matchup evaluator persist in private working copies. Reset learning restores an empty baseline."
+    }
+  },
+  "license": {
+    "name": "MIT",
+    "sourceId": "steamhammer",
+    "path": "licenses/Steamhammer.txt",
+    "notes": "Separate original notices cover UAlbertaBot, FAP, RapidJSON and msinttypes; linked BWAPI is LGPLv3."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "Pending source, artifact, and gameplay review: docs/steamhammer-admission.md"
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Track separately from local distribution; author outreach planned by Travis."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86",
+    "gameArchitectures": [
+      "x86",
+      "x86_64"
+    ],
+    "evidence": "Runtime testing pending.",
+    "limitations": [
+      "Human difficulty is not calibrated.",
+      "Legacy SC:R unit limits required.",
+      "All race and format claims are pending gameplay verification."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "890294ce81a5db0677bc551dd86c9f192fc99a84",
+    "instructions": "bots/steamhammer/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "Source adaptations and artifact review in progress: docs/steamhammer-admission.md"
+  }
+}
