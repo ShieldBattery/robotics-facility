@@ -121,7 +121,7 @@ set(STEAMHAMMER_SOURCES
 
 add_executable(Steamhammer host.cpp ${STEAMHAMMER_SOURCES})
 target_compile_features(Steamhammer PRIVATE cxx_std_17)
-target_compile_definitions(Steamhammer PRIVATE WIN32 NDEBUG NOMINMAX _CRT_SECURE_NO_WARNINGS)
+target_compile_definitions(Steamhammer PRIVATE SB_SINGLE_MATCH WIN32 NDEBUG NOMINMAX _CRT_SECURE_NO_WARNINGS)
 target_compile_options(Steamhammer PRIVATE /W3 /MP)
 target_include_directories(Steamhammer PRIVATE
   "${BWAPI_SOURCE_DIR}/bwapi/include"
