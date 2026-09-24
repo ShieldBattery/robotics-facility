@@ -4,7 +4,7 @@ Status: **approved for experimental local distribution** of this exact source,
 patch, dependency and build set. Terran, Protoss and Zerg are selectable; 1v1
 is experimental, teams remain unverified, and FFA is unsupported after the
 recorded production stall. Public competition remains unreviewed and human
-difficulty uncalibrated. Signed staging installation and app-managed learning reset checks are pending publication.
+difficulty uncalibrated. Signed staging installation and app-managed learning reset checks passed as recorded below.
 
 ## Source provenance and build
 
@@ -184,3 +184,31 @@ No production publication or public tournament permission is implied.
 All 463 entries other than `package.json` are byte-identical to the final
 review archive. The descriptor adds reviewed approvals and tested capability
 metadata; no executable, configuration, source, patch or notice bytes changed.
+
+## Signed staging installation and profile reset
+
+[Staging workflow 35956424379](https://github.com/ShieldBattery/robotics-facility/actions/runs/35956424379)
+published revision 12 successfully, with the immutable `published/12.json`
+receipt available. Linux and Windows admission CI also passed. The isolated
+ShieldBattery app verified the signed catalog and installed `steamhammer-sb-1`
+without install failures. The prerelease retains the exact reviewed ZIP.
+
+Two installed copies launched through `practiceGameStart` using catalog keys
+in sessions `7bc08300-3034-4e0e-8327-d4f6ae43c27a` and
+`5e66579d-cba1-4b54-b50b-64c16f736ff9`, with Terran and Zerg on x64 SC:R.
+Both launches reached gameplay using the cached map and local transport; no
+backend dev server was needed for these checks. Bot windows were hidden and
+normal concessions ended their processes. This checks installed launch and
+state lifecycle, not additional full-match strategy coverage.
+
+The app created separate persistent `work` and `work-2` directories. Each
+wrote its own matchup evaluator and encoded-name opponent history. Reset was
+rejected while the bot was active. After the second launch each history had
+two records, and the entire first saved record was preserved. Idle reset
+succeeded and restored empty read/write baselines in both profiles. Their
+fixed configuration hashes remained unchanged, as did all 459 installed
+package files. The app reported no active leases or install failures.
+
+All game and bot processes belonging to this isolated test profile, and its
+Electron app, were stopped. Other developers' clients were left alone.
+Production publication was not run.
