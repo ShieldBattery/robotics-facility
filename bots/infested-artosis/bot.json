@@ -35,8 +35,8 @@
     "formats": [
       {
         "id": "one-v-one",
-        "support": "unverified",
-        "notes": "Pending release-specific gameplay verification."
+        "support": "experimental",
+        "notes": "Local x86/x64 SC:R tested on Fighting Spirit with the corrected BWAPI Zerg morph bridge."
       },
       {
         "id": "teams",
@@ -65,8 +65,8 @@
   },
   "permissions": {
     "localDistribution": {
-      "status": "unreviewed",
-      "evidence": "Pending artifact and gameplay review: docs/infested-artosis-admission.md"
+      "status": "approved",
+      "evidence": "Reviewed pinned MIT sources, dependency notices, modified-source archive and offline rebuild. https://github.com/ShieldBattery/robotics-facility/blob/infested-artosis-sb-1/docs/infested-artosis-admission.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -74,7 +74,7 @@
     }
   },
   "compatibility": {
-    "status": "unverified",
+    "status": "prototype-tested",
     "bwapiVersion": "4.4.0",
     "protocol": 10003,
     "botArchitecture": "x86_64",
@@ -82,22 +82,23 @@
       "x86",
       "x86_64"
     ],
-    "evidence": "Source compile checkpoint only; runtime testing pending.",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/infested-artosis-sb-1/docs/infested-artosis-admission.md",
     "limitations": [
-      "Human skill is not calibrated.",
-      "Java 21 x64 required.",
+      "Requires ShieldBattery BWAPI bridge with the Zerg morph/completion correction (46ef63a6d or later).",
+      "Java 21 x64 required, including with x86 SC:R.",
       "Legacy SC:R unit limits required.",
-      "Gameplay verification pending."
+      "Zerg 1v1 tested on Fighting Spirit; other maps and formats remain unverified.",
+      "Human difficulty has not been calibrated."
     ]
   },
   "build": {
     "status": "recipe-in-robotics-facility",
     "repository": "https://github.com/ShieldBattery/robotics-facility.git",
-    "revision": "5fb0b2f8e6fc72778754e86d1837ccaf1e681449",
+    "revision": "5b2c73bd95ebc5eaddab9319a1e0895d842a1227",
     "instructions": "bots/infested-artosis/BUILD.md"
   },
   "sourceReview": {
-    "status": "pending",
-    "evidence": "Source adaptations and artifact review in progress: docs/infested-artosis-admission.md"
+    "status": "approved",
+    "evidence": "Reviewed source effects, isolated storage, exact package, offline rebuild, x86/x64 gameplay and sampled runtime effects; not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/infested-artosis-sb-1/docs/infested-artosis-admission.md"
   }
 }

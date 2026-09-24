@@ -1467,7 +1467,7 @@
         "description": "A classic Terran opponent that builds infantry backed by bunkers and siege tanks. Human difficulty is not yet calibrated.",
         "authors": [
           {
-            "name": "Johan Hagelbäck"
+            "name": "Johan Hagelb\u00c3\u00a4ck"
           }
         ],
         "homepage": "https://github.com/jhagelback/OpprimoBot",
@@ -1680,6 +1680,225 @@
             "sha256": "c11c0b1733ba84b6fb635e118632a0b88fd52b53dcd4e50402c5ea01573dff99",
             "sizeBytes": 16323772,
             "manifestSha256": "732e1b55e24da7ff064b83d2980fb9dc60e9d736f7d1b85be64f3da82cefce92",
+            "format": "zip"
+          }
+        }
+      ]
+    },
+    {
+      "bot": {
+        "id": "infested-artosis",
+        "name": "Infested Artosis",
+        "description": "A Zerg bot with economic and aggressive openings, combat simulation, and opponent-history learning. Human difficulty is not yet calibrated.",
+        "authors": [
+          {
+            "name": "Brad Ewing"
+          },
+          {
+            "name": "Jasper Geurtz"
+          }
+        ],
+        "homepage": "https://github.com/BradEwing/InfestedArtosis",
+        "sourceUrl": "https://github.com/BradEwing/InfestedArtosis",
+        "playStyleTags": [
+          "macro",
+          "reactive",
+          "varied-openings"
+        ],
+        "humanSkill": "uncalibrated",
+        "externalRatings": []
+      },
+      "releases": [
+        {
+          "package": {
+            "schemaVersion": 1,
+            "botId": "infested-artosis",
+            "releaseId": "infested-artosis-sb-1",
+            "version": "2026.09.23-sb.1",
+            "platform": {
+              "os": "windows",
+              "architecture": "x86_64"
+            },
+            "runtime": {
+              "kind": "java",
+              "major": 21,
+              "architecture": "x86_64",
+              "jvmArguments": [
+                "-Xms32m",
+                "-Xmx512m",
+                "-Djava.io.tmpdir=tmp",
+                "-Djna.tmpdir=tmp"
+              ]
+            },
+            "launch": {
+              "entrypoint": "bin/InfestedArtosis.jar",
+              "arguments": [],
+              "workingDirectory": "work"
+            },
+            "profile": {
+              "selectableRaces": [
+                "zerg"
+              ],
+              "randomRace": "unsupported",
+              "formats": [
+                {
+                  "id": "one-v-one",
+                  "support": "experimental",
+                  "notes": "Local x86/x64 SC:R tested on Fighting Spirit with the corrected BWAPI Zerg morph bridge."
+                },
+                {
+                  "id": "teams",
+                  "support": "unverified",
+                  "notes": "Pending release-specific gameplay verification."
+                },
+                {
+                  "id": "free-for-all",
+                  "support": "unverified",
+                  "notes": "Pending release-specific gameplay verification."
+                }
+              ],
+              "mapConstraints": [
+                "Legacy SC:R unit limits required by the experimental bridge."
+              ],
+              "learning": {
+                "mode": "persistent",
+                "notes": "Chooses openings using bounded opponent history in the local working copy. Reset learning restores an empty history."
+              }
+            },
+            "bwapi": {
+              "version": "4.4.0",
+              "protocol": 10003,
+              "minimumBridgeVersion": "1"
+            },
+            "sources": [
+              {
+                "id": "infested-artosis",
+                "repository": "https://github.com/BradEwing/InfestedArtosis.git",
+                "revision": "203bdaa97da0ec8088dbfdf7514a625f954536fa",
+                "patches": [
+                  {
+                    "sha256": "c6a384a4dc81e3bec67eac6709446a170734908f93462b0cd04d46772c1e1407",
+                    "path": "patches/infested-artosis/0001-isolate-runtime.patch"
+                  }
+                ]
+              },
+              {
+                "id": "ass",
+                "repository": "https://github.com/Bytekeeper/ass.git",
+                "revision": "faf1e2be241cbb101785f99f3ef17b9463c619ed",
+                "patches": []
+              },
+              {
+                "id": "jbwapi",
+                "repository": "https://github.com/JavaBWAPI/JBWAPI.git",
+                "revision": "d6003b0b3a6a27944c979fd8dbc6ec8e3c2c753f",
+                "patches": [
+                  {
+                    "path": "patches/jbwapi/instance-discovery.patch",
+                    "sha256": "82e1250afeea171440f071431a1f99247da3f392fbb08d9b52829569e9391fc1"
+                  },
+                  {
+                    "path": "patches/jbwapi/0002-single-match-lifecycle.patch",
+                    "sha256": "0409c1f1bed19d5cc81457b1b19848a106bbd108034c471fceeb9375672a3e6b"
+                  }
+                ]
+              }
+            ],
+            "licenses": [
+              {
+                "name": "MIT - Infested Artosis",
+                "noticePath": "notices/infested-artosis-LICENSE"
+              },
+              {
+                "name": "MIT - Agent Starcraft Simulator",
+                "noticePath": "notices/ass-LICENSE"
+              },
+              {
+                "name": "MIT - JBWAPI",
+                "noticePath": "notices/jbwapi-LICENSE"
+              },
+              {
+                "name": "MIT/X11 - Java BWEM",
+                "noticePath": "notices/jbwapi-src-main-java-bwem-LICENSE.txt"
+              },
+              {
+                "name": "jna-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "jna-platform-5.18.1.jar: META-INF-LICENSE",
+                "noticePath": "notices/jna-platform-5.18.1.jar-META-INF-LICENSE"
+              },
+              {
+                "name": "annotations-26.1.0.jar: LICENSE.txt",
+                "noticePath": "notices/annotations-26.1.0.jar-LICENSE.txt"
+              },
+              {
+                "name": "lombok-1.18.48.jar: LICENSE",
+                "noticePath": "notices/lombok-1.18.48.jar-LICENSE"
+              },
+              {
+                "name": "Apache-2.0 license for JNA and JetBrains annotations",
+                "noticePath": "notices/APACHE-2.0-LICENSE.txt"
+              },
+              {
+                "name": "MIT - libffi bundled in JNA native support",
+                "noticePath": "notices/JNA-THIRD-PARTY-NOTICES.txt"
+              },
+              {
+                "name": "Infested Artosis attribution, modifications, and source",
+                "noticePath": "notices/RELEASE.txt"
+              }
+            ],
+            "modifications": [
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "bot",
+                "summary": "Fixed a quiet runtime profile, removed environment configuration loading, and adapted bounded opponent history for isolated persistent working copies with malformed-state handling."
+              },
+              {
+                "modifier": "ShieldBattery",
+                "date": "2026-09-23",
+                "scope": "dependency",
+                "summary": "Used source-built JBWAPI with isolated instance discovery, bounded single-match connection lifecycle, and corrected unit cache growth. Compiled a selected ASS simulator subset and used pinned JNA 5.18.1."
+              }
+            ],
+            "permissions": {
+              "localDistribution": {
+                "status": "approved",
+                "evidence": "Reviewed pinned MIT sources, dependency notices, modified-source archive and offline rebuild. https://github.com/ShieldBattery/robotics-facility/blob/infested-artosis-sb-1/docs/infested-artosis-admission.md"
+              },
+              "publicCompetition": {
+                "status": "unreviewed",
+                "evidence": "Track separately from local distribution; author outreach planned by Travis."
+              }
+            },
+            "sourceReview": {
+              "status": "approved",
+              "evidence": "Reviewed source effects, isolated storage, exact package, offline rebuild, x86/x64 gameplay and sampled runtime effects; not an OS sandbox certification. https://github.com/ShieldBattery/robotics-facility/blob/infested-artosis-sb-1/docs/infested-artosis-admission.md"
+            },
+            "writableDirectories": [
+              "work/tmp",
+              "work/bwapi-data/read",
+              "work/bwapi-data/write"
+            ],
+            "build": {
+              "recipeSource": {
+                "id": "robotics-facility",
+                "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+                "revision": "5b2c73bd95ebc5eaddab9319a1e0895d842a1227",
+                "patches": []
+              },
+              "recipePath": "tools/build-infested-artosis.ts",
+              "toolchain": "{\"javacVersion\":\"javac 21.0.11\",\"java\":{\"javaVendor\":\"Eclipse Adoptium\",\"javaVersion\":\"21.0.11\",\"javaVmName\":\"OpenJDK 64-Bit Server VM\",\"javaVmVersion\":\"21.0.11+10-LTS\",\"osArchitecture\":\"amd64\",\"dataModel\":\"64\"},\"targetRelease\":8}"
+            }
+          },
+          "artifact": {
+            "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/infested-artosis-sb-1/infested-artosis-sb-1.zip",
+            "sha256": "9e114acc51d37abf924e8cac1fb233ccd54cb335cc636ca1b23a7a9370200370",
+            "sizeBytes": 6882516,
+            "manifestSha256": "19685a465a99f2fe14b20268ce08f173acfd3ec6b3def2cb9380670a411d1709",
             "format": "zip"
           }
         }
