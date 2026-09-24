@@ -157,3 +157,22 @@ All 487 entries other than `package.json` are byte-identical to the tested
 review archive. The descriptor adds the reviewed local-distribution/source
 approvals and experimental 1v1 profile. The package validator verifies its
 archive and descriptor hashes.
+
+## Signed staging install and app-owned profiles
+
+[Staging workflow 35945540998](https://github.com/ShieldBattery/robotics-facility/actions/runs/35945540998)
+published revision 11 successfully; its immutable `published/11.json` receipt is
+available. Linux and Windows validation passed for both recipe and admission commits.
+An isolated ShieldBattery app verified the signed catalog and installed
+`infested-artosis-sb-1` without failures. Two copies launched through
+`practiceGameStart` using catalog keys in session
+`25b30b65-c75f-4887-9d1b-4c42027e5cb7`, then relaunched in
+`59c72a3c-65bf-481f-b0d2-4317b57d36d8`. Both reached gameplay on x64 SC:R.
+Cached maps and local transport were used without backend dev servers.
+
+The app created separate persistent `work` and `work-2` profiles. Reset learning
+was rejected while the bot was in use. Normal leave ended both games; each profile's
+CSV grew from one record to two across the launches, preserving the earlier row.
+After all processes exited, `botLibraryResetLearning` succeeded and restored both
+empty baselines. The installed package remained present, with no active leases or
+install failures. Production publication was not run.
