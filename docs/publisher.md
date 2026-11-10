@@ -23,6 +23,9 @@ its catalog `releaseStatus` to `production-approved` through review. Approval mu
 not be inferred from a bot name or a single `verified` format flag. Publish a new
 staging revision containing that approval before promoting it. Catalog metadata can
 change without rebuilding the immutable archive or embedded package descriptor.
+Add machine-readable evidence for new approvals in a separate
+`docs/releases/*-production-approvals.json` file with an `approvals` array. Use the
+[existing record](releases/local-practice-production-approvals.json) as a template.
 The [scoped local-practice review](releases/local-practice-production-approvals.md)
 approves six exact current releases while retaining experimental capability labels
 and documented limits. PurpleWave updates and BananaBrain admission remain separate;

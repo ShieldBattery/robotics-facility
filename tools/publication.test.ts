@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { generateKeyPairSync } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
+import { glob, readFile } from 'node:fs/promises'
 import test from 'node:test'
 import yazl from 'yazl'
 import type { Catalog, Package } from './metadata.ts'
@@ -479,45 +479,44 @@ await test('object keys, URLs, and workflow input parsing constrain publication 
   assert.throws(() => parsePublishArgs(['staging', '--revision', '2', '--staging-revision', '1']))
 })
 
-await test('catalog production approvals match reviewed exact local-practice scopes', async () => {
+type ProductionApproval = {
+  botId: string
+  releaseId: string
+  archiveSha256: string
+  sizeBytes: number
+  manifestSha256: string
+  packageSha256: string
+  scope: {
+    selectableRaces: Package['profile']['selectableRaces']
+    existingFormatSupport: Package['profile']['formats'][number]['support']
+  }
+}
+
+await test('catalog production approvals match release review records', async () => {
   const catalog: unknown = JSON.parse(
     await readFile(new URL('../catalog/catalog.json', import.meta.url), 'utf8'),
   )
   validate('catalog', catalog)
-  const review = JSON.parse(
-    await readFile(
-      new URL('../docs/releases/local-practice-production-approvals.json', import.meta.url),
-      'utf8',
-    ),
-  )
-  const expected = [
-    'zzzkbot-sb-1',
-    'ualbertabot-sb-3',
-    'marine-hell-sb-4',
-    'opprimobot-sb-1',
-    'infested-artosis-sb-1',
-    'steamhammer-sb-1',
-  ].sort()
+  const reviewDir = new URL('../docs/releases/', import.meta.url)
+  const records: ProductionApproval[] = []
+  for await (const file of glob('*-production-approvals.json', { cwd: reviewDir })) {
+    const review: { approvals: ProductionApproval[] } = JSON.parse(
+      await readFile(new URL(file, reviewDir), 'utf8'),
+    )
+    records.push(...review.approvals)
+  }
   const approved = catalog.bots
     .flatMap(bot => bot.releases)
     .filter(release => release.releaseStatus === 'production-approved')
-  assert.deepEqual(approved.map(release => release.package.releaseId).sort(), expected)
-  assert.deepEqual(
-    catalog.bots.flatMap(bot => bot.releases.map(release => release.package.releaseId)).sort(),
-    [
-      ...expected,
-      'purplewave-sb-1',
-      'purplewave-sb-2',
-      'purplewave-sb-3',
-      'purplewave-sb-4',
-    ].sort(),
-  )
-  assert.equal(review.approvals.length, expected.length)
   for (const release of approved) {
-    const record = review.approvals.find(
-      (entry: { releaseId: string }) => entry.releaseId === release.package.releaseId,
+    const { botId, releaseId } = release.package
+    const matches = records.filter(entry => entry.botId === botId && entry.releaseId === releaseId)
+    assert.equal(
+      matches.length,
+      1,
+      `Expected one production approval record for ${botId}/${releaseId}`,
     )
-    assert.ok(record)
+    const [record] = matches
     assert.equal(release.artifact.sha256, record.archiveSha256)
     assert.equal(release.artifact.sizeBytes, record.sizeBytes)
     assert.equal(release.artifact.manifestSha256, record.manifestSha256)
@@ -529,11 +528,11 @@ await test('catalog production approvals match reviewed exact local-practice sco
     )
     assert.equal(release.package.permissions.localDistribution.status, 'approved')
     assert.equal(release.package.sourceReview.status, 'approved')
+    if (botId === 'steamhammer' && releaseId === 'steamhammer-sb-1') {
+      assert.equal(
+        release.package.profile.formats.find(format => format.id === 'free-for-all')?.support,
+        'incompatible',
+      )
+    }
   }
-  assert.ok(!catalog.bots.some(bot => ['bananabrain', 'pluto'].includes(bot.bot.id)))
-  const steamhammer = approved.find(release => release.package.botId === 'steamhammer')!
-  assert.equal(
-    steamhammer.package.profile.formats.find(format => format.id === 'free-for-all')?.support,
-    'incompatible',
-  )
 })
