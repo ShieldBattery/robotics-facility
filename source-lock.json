@@ -42,10 +42,6 @@
         {
           "path": "patches/purplewave/0001-isolate-runtime-state.patch",
           "sha256": "bebec454f3504ba6fffab3bf2a125b22ca885f1f4e6e0de3c1711b527728a728"
-        },
-        {
-          "path": "patches/purplewave/0002-guard-empty-gather-threats.patch",
-          "sha256": "292e0a9d855dcbc006787997789bd948d6f2df7b8dfd53ecf6c7f89d33ddfc80"
         }
       ]
     },

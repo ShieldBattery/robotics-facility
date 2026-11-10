@@ -51,8 +51,6 @@ export const recipePaths = Object.freeze([
   'bots/purplewave/PurpleWaveShieldBattery.config.json',
   'bots/purplewave/BUILD.md',
   'bots/purplewave/RELEASE.txt',
-  'bots/purplewave/runtime-tests/GatherEmptyThreatsTest.scala',
-  'bots/purplewave/runtime-tests/run-gather-tests.cmd',
   'bots/purplewave/JNA-THIRD-PARTY-NOTICES.txt',
   'tools/package-purplewave.ts',
   'tools/package-archive.ts',

@@ -5,10 +5,6 @@ This is a modified build maintained by ShieldBattery, not an unmodified upstream
 binary or an endorsement by its authors. Original copyright/license notices are
 included beside this file and with the source.
 
-Changes dated 2026-10-26:
-- Skip melee escape scoring when no eligible melee threats exist, including
-  zero-health worker snapshots. Other escape scoring stays unchanged.
-
 Changes dated 2026-09-22:
 - Use the assigned working profile and fixed ShieldBattery configuration.
 - Encode opponent filenames and history cells; disable visualizer auto-launch.

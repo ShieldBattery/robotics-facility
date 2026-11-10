@@ -30,17 +30,3 @@ application arguments. JNA and the JVM also use memory outside the Java heap.
 Use the recipe revision recorded in a published package when reproducing that release.
 The TypeScript recipes on `main` require a fresh build directory and a new release ID;
 older `.mjs` build records and published archives are not rewritten by this migration.
-
-The sb.6 source patch guards Gather's melee escape predicate against an empty
-threat list. This fixes an exception for zero-health worker snapshots; nonempty
-threat damage and goal scoring retain their upstream behavior. Patch details and
-review scope are in `patches/purplewave/0002-guard-empty-gather-threats.md`.
-
-After building, run the compiled-code regression from the repository root:
-
-```bat
-bots\purplewave\runtime-tests\run-gather-tests.cmd <java-21-home> .build\<build-name>
-```
-
-The regression invokes the actual Scala 2.12 local lazy predicate with synthetic
-worker health and empty strict/lazy collections. It needs no live BWAPI process.

@@ -172,13 +172,6 @@ export async function packagePurpleWave({
     modifications: [
       {
         modifier: 'ShieldBattery',
-        date: '2026-10-26',
-        summary:
-          'Require a nonempty melee-threat list before lethal gathering escape logic, preventing empty.max for workers with zero health.',
-        scope: 'bot',
-      },
-      {
-        modifier: 'ShieldBattery',
         date: '2026-10-25',
         summary:
           'Updated PurpleWave to upstream revision 08672150433a2c60f5db23e10d2bc15dbc6e302e and rebased the existing runtime isolation patch.',
