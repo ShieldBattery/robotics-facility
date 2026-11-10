@@ -37,8 +37,8 @@
     "formats": [
       {
         "id": "one-v-one",
-        "support": "verified",
-        "notes": "All three upstream races are enabled. Protoss completed a local x64 match and x86 smoke tests; Terran and Zerg have not yet had dedicated SC:R bridge game tests. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-3/docs/releases/purplewave-sb-3.md"
+        "support": "experimental",
+        "notes": "Experimental local play with assigned Protoss, Terran or Zerg. Reviewed gameplay used a compatible ShieldBattery client; broader map, command and rollout coverage remains unverified. See https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-6/docs/releases/purplewave-sb-6-admission.md."
       },
       {
         "id": "teams",
@@ -52,7 +52,7 @@
       }
     ],
     "mapConstraints": [
-      "Legacy SC:R unit limits required by the experimental bridge."
+      "Legacy SC:R unit limits required by the BWAPI bridge."
     ],
     "learning": {
       "mode": "persistent",
@@ -68,7 +68,7 @@
   "permissions": {
     "localDistribution": {
       "status": "approved",
-      "evidence": "Prior local distribution review plus native dependency notice correction: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
+      "evidence": "Scoped source, fixed configuration, and distribution review for experimental local play. Final archive validation is recorded separately. https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-6/docs/releases/purplewave-sb-6-admission.md"
     },
     "publicCompetition": {
       "status": "unreviewed",
@@ -84,10 +84,12 @@
       "x86",
       "x86_64"
     ],
-    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-2/docs/releases/purplewave-sb-2.md",
+    "evidence": "https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-6/docs/releases/purplewave-sb-6-admission.md",
     "limitations": [
-      "Experimental partial BWAPI semantics.",
-      "Terran and Zerg are enabled from upstream support; dedicated SC:R bridge game verification is pending. Other game formats remain unverified."
+      "Experimental local 1v1 with assigned Protoss, Terran or Zerg only. Random, teams, FFA, unusual maps and exhaustive late-game command coverage remain unverified.",
+      "Requires reviewed gathered-resource reporting, training cancellation, building-flight/Spider Mines commands and supervised release practice in the ShieldBattery client.",
+      "Historical release-DLL gameplay and saved-state checks apply to their recorded client/runtime combination. Production approval is deferred until client rollout and signed staging delivery are verified.",
+      "Scoped source/runtime review is not an OS sandbox. Human difficulty and public competition remain unreviewed."
     ]
   },
   "build": {
@@ -98,6 +100,6 @@
   },
   "sourceReview": {
     "status": "approved",
-    "evidence": "Prior source review and unchanged executable bytes; native dependency notice correction: https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-4/docs/releases/purplewave-sb-4.md"
+    "evidence": "Pinned source and runtime effects reviewed for scoped experimental local play. Final archive validation and historical runtime evidence are recorded at https://github.com/ShieldBattery/robotics-facility/blob/purplewave-sb-6/docs/releases/purplewave-sb-6-admission.md"
   }
 }

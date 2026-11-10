@@ -117,7 +117,8 @@ export async function packagePurpleWave({
     for (const patch of source.patches ?? []) {
       const bytes = await readFile(path.join(root, patch.path))
       if (sha256(bytes) !== patch.sha256) throw new Error('Source patch hash changed')
-      entries.push([`source/${patch.path}`, bytes])
+      // The recipe inventory also verifies and archives patches included in its inputs.
+      if (!recipePaths.includes(patch.path)) entries.push([`source/${patch.path}`, bytes])
     }
   }
   entries.push(
@@ -169,6 +170,13 @@ export async function packagePurpleWave({
     sources,
     licenses,
     modifications: [
+      {
+        modifier: 'ShieldBattery',
+        date: '2026-10-25',
+        summary:
+          'Updated PurpleWave to upstream revision 08672150433a2c60f5db23e10d2bc15dbc6e302e and rebased the existing runtime isolation patch.',
+        scope: 'bot',
+      },
       {
         modifier: 'ShieldBattery',
         date: '2026-09-22',

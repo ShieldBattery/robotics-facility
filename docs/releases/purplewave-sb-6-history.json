@@ -1,0 +1,2080 @@
+{
+  "schemaVersion": 1,
+  "scope": "Historical source/runtime/gameplay/installer evidence only, retained at original artifact/client hashes. This record grants no production approval and claims no fresh match, installer run or trace.",
+  "upstreamUpdateReview": {
+    "schemaVersion": 1,
+    "date": "2026-10-26",
+    "sourceRevision": "08672150433a2c60f5db23e10d2bc15dbc6e302e",
+    "sbRevision": "ff167db43053cead7a991a68c224c8d6bf61066d",
+    "scope": "Review-only archive through SB local-build/practice; Windows, Java 21 x64, Fighting Spirit 1.4. No signed-catalog installation or strength calibration.",
+    "archive": {
+      "sha256": "7bbc47be6b095059e5bbbb60ddbcb7af192a4bca241882e63551a47a51c1e3ce",
+      "sizeBytes": 20062409
+    },
+    "dlls": {
+      "x86": "2593991d264c9f4ab0aea48305109457d9d23ad0ad3e13e1a944e5ec387027bc",
+      "x64": "026480170ea8a0cc7a5a0ef2ded82ad3ad81148aef8029cfd390ba13874a5a36"
+    },
+    "runs": {
+      "protossOpening": {
+        "architecture": "x64",
+        "started": "2026-10-26T11:58:45.469Z",
+        "finished": "2026-10-26T12:00:58.067Z",
+        "boundedStop": false,
+        "sessionEndedWithResult": true,
+        "sessionId": "3c7c9d0f-9f7f-4be4-9a93-dad0f64b2eb2",
+        "botGames": [
+          {
+            "gameId": "ae9773ef-2a0c-4f90-ae8e-107eca4dbe4c",
+            "matchEnd": {
+              "winner": true,
+              "frame": 2526
+            },
+            "commands": {
+              "accepted": 1276,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Player left through native menus before cleanup; origin of input unresolved. Not a naturally completed match."
+      },
+      "terranOpening": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:01:26.559Z",
+        "finished": "2026-10-26T12:03:48.086Z",
+        "boundedStop": false,
+        "sessionEndedWithResult": true,
+        "sessionId": "e2cd41a6-a61e-4e20-8d2d-9c5f99d0ad57",
+        "botGames": [
+          {
+            "gameId": "30f903b8-68df-431c-ac77-201c3589a320",
+            "matchEnd": {
+              "winner": true,
+              "frame": 2784
+            },
+            "commands": {
+              "accepted": 1194,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Player left through native menus before cleanup; origin of input unresolved. Not a naturally completed match."
+      },
+      "interruptedDuel": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:06:02.693Z",
+        "finished": "2026-10-26T12:13:11.157Z",
+        "boundedStop": false,
+        "sessionEndedWithResult": true,
+        "sessionId": "0376afff-a614-489b-b98f-3aee11a868fa",
+        "botGames": [
+          {
+            "gameId": "69fc5d56-e8f5-48c0-921d-9a917ddb83fd",
+            "matchEnd": {
+              "winner": false,
+              "frame": 9347
+            },
+            "commands": {
+              "accepted": 26387,
+              "rejected": 22
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          },
+          {
+            "gameId": "93121954-80b6-44bc-a6f0-1d9449ebfd68",
+            "matchEnd": {
+              "winner": false,
+              "frame": 9347
+            },
+            "commands": {
+              "accepted": 43221,
+              "rejected": 18
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Observer quit by user; both bots stopped. Not a naturally completed match."
+      },
+      "fullMatch": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:14:26.955Z",
+        "finished": "2026-10-26T12:26:04.817Z",
+        "boundedStop": false,
+        "sessionEndedWithResult": true,
+        "sessionId": "b75773c8-a2e3-4aef-a878-d98a64960730",
+        "botGames": [
+          {
+            "gameId": "d05cbd63-6238-43a0-87a1-dbe07123884b",
+            "matchEnd": {
+              "winner": true,
+              "frame": 15228
+            },
+            "commands": {
+              "accepted": 68411,
+              "rejected": 125
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          },
+          {
+            "gameId": "5ee30c8e-703a-471f-a0ee-902b91282f8c",
+            "matchEnd": {
+              "winner": false,
+              "frame": 15224
+            },
+            "commands": {
+              "accepted": 72560,
+              "rejected": 50
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Natural bot-versus-bot result: Zerg MatchEnd preceded Protoss win, both preceded observer cleanup. No frame stop or observer menu quit."
+      },
+      "x86Upgrade": {
+        "architecture": "x86",
+        "started": "2026-10-26T12:03:55.316Z",
+        "finished": "2026-10-26T12:05:28.710Z",
+        "boundedStop": true,
+        "sessionEndedWithResult": false,
+        "sessionId": "1b59af5f-9e3a-4a1f-9aa7-4f2cf46cc94a",
+        "botGames": [
+          {
+            "gameId": "cab824dc-6343-4761-ae31-ececb2070d23",
+            "matchEnd": {
+              "winner": false,
+              "frame": 1496
+            },
+            "commands": {
+              "accepted": 931,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ]
+      },
+      "x86Reload": {
+        "architecture": "x86",
+        "started": "2026-10-26T12:10:34.943Z",
+        "finished": "2026-10-26T12:11:53.993Z",
+        "boundedStop": true,
+        "sessionEndedWithResult": false,
+        "sessionId": "4fa0df3f-16e6-4ec5-8ee9-2bf3aef0756c",
+        "botGames": [
+          {
+            "gameId": "a34d23a5-7b06-4f0a-bc52-a7f23e52a947",
+            "matchEnd": {
+              "winner": false,
+              "frame": 785
+            },
+            "commands": {
+              "accepted": 173,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ]
+      },
+      "hostileNameAndTruncatedHistory": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:20:24.066Z",
+        "finished": "2026-10-26T12:21:35.950Z",
+        "boundedStop": true,
+        "sessionEndedWithResult": false,
+        "sessionId": "a063dd20-663c-4dc7-b04b-384d2072753a",
+        "botGames": [
+          {
+            "gameId": "ce70e05f-b9be-4557-bbbd-53db0ebbbdc6",
+            "matchEnd": {
+              "winner": false,
+              "frame": 767
+            },
+            "commands": {
+              "accepted": 180,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Stopped after frame limit; controlled opponent ../CON,escape encoded as %2E%2E%2FCON%2Cescape. Copied authentic history truncated to 5 bytes was skipped with expected deserialize error."
+      },
+      "controlledTermination": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:23:46.598Z",
+        "finished": "2026-10-26T12:26:36.123Z",
+        "boundedStop": false,
+        "sessionEndedWithResult": false,
+        "sessionId": "6e131167-d19a-4c34-bff1-4ad39d2d7d49",
+        "botGames": [
+          {
+            "gameId": "9110b357-f983-4c1a-aa78-e6880e1ac2eb",
+            "matchEnd": null,
+            "commands": null,
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ],
+        "endScope": "Test-owned player game process forcibly terminated after background-client crash IPC proved to be a no-op for this manager. SB reported Local game client 0 disconnected and cleaned up. No native access-violation crash claimed."
+      },
+      "recovery": {
+        "architecture": "x64",
+        "started": "2026-10-26T12:26:47.017Z",
+        "finished": "2026-10-26T12:27:51.138Z",
+        "boundedStop": true,
+        "sessionEndedWithResult": false,
+        "sessionId": "06948935-24e7-4b01-9f45-2d7032e2d486",
+        "botGames": [
+          {
+            "gameId": "da378feb-91d6-40a4-9607-6e1540d99181",
+            "matchEnd": {
+              "winner": false,
+              "frame": 787
+            },
+            "commands": {
+              "accepted": 175,
+              "rejected": 0
+            },
+            "unsupportedCommandWarnings": 0,
+            "stdoutExceptionLines": 0
+          }
+        ]
+      }
+    },
+    "rebuild": {
+      "recipeRevision": "33fede6ebdb2f647d1f11878377f21c1cebd1f14",
+      "recipeSha256": "3b227470968d76b91d3acb60e8bd9e2e07690c5eae62a40f81673c0f768117dd",
+      "sourceTrees": {
+        "purplewave": "15258faa3fa3f1cc9a73030ba8de8153a513593e",
+        "jbwapi": "6e5ddbca17ab121d01255c13424d580a744f15cf",
+        "jbweb": "5fe6c187c17680d3b47c82b26a706810739d04f8",
+        "javajps": "c2045006e3810dd9ef28486882bf8f795c874432",
+        "mjson": "6beb265c7e50e13e8a66fc4ab64749d94662654b"
+      },
+      "files": [
+        {
+          "path": "bin/PurpleWave.jar",
+          "sha256": "0b8a7e8be09b91098c9d79b5d24d3836475ce61860770d83f8a20d8c5cef0c57",
+          "sizeBytes": 6766043
+        },
+        {
+          "path": "bin/lib/scala-library-2.12.20.jar",
+          "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+          "sizeBytes": 5436770
+        },
+        {
+          "path": "bin/lib/scala-reflect-2.12.20.jar",
+          "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+          "sizeBytes": 3670575
+        },
+        {
+          "path": "bin/lib/jna-5.18.1.jar",
+          "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+          "sizeBytes": 2002994
+        },
+        {
+          "path": "bin/lib/jna-platform-5.18.1.jar",
+          "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+          "sizeBytes": 1380744
+        },
+        {
+          "path": "bin/lib/commons-lang3-3.8.1.jar",
+          "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+          "sizeBytes": 501879
+        }
+      ],
+      "allSixJarsIdentical": true,
+      "archivedSourceFileComparison": {
+        "purplewave": {
+          "files": 998,
+          "mismatches": []
+        },
+        "jbwapi": {
+          "files": 101,
+          "mismatches": []
+        },
+        "jbweb": {
+          "files": 16,
+          "mismatches": []
+        },
+        "javajps": {
+          "files": 10,
+          "mismatches": []
+        },
+        "mjson": {
+          "files": 4,
+          "mismatches": []
+        }
+      }
+    },
+    "history": {
+      "sb4SourceSha256": "05a24b09da3ff4a3a9a012189d1f3047658a1a0cb47575aeb57686eba14b7605",
+      "sb4Timestamp": 1792953750558,
+      "afterUpgradeTimestamps": [
+        1793016328198,
+        1792953750558
+      ],
+      "afterReloadTimestamps": [
+        1793016713062,
+        1793016328198,
+        1792953750558
+      ],
+      "readInputUnchanged": true,
+      "readWriteDuplicatesSavedOnce": true,
+      "placementCacheVersionChange": "3 to 5; regenerate caches, preserve v5 opponent history"
+    },
+    "runtimeTracing": {
+      "terran-x64-full": {
+        "eventCounts": {
+          "jdk.FileWrite": 910,
+          "jdk.FileRead": 3676,
+          "jdk.SocketRead": 0,
+          "jdk.SocketWrite": 0,
+          "jdk.ProcessStart": 0
+        },
+        "recordingSha256": "788513fc19acd28a13659d16694d6eb7e440a9f0c0537e38d7103483d498bfe1",
+        "scope": "Java Flight Recorder file/socket/process events. Does not trace direct native syscalls, registry operations or every filesystem metadata operation."
+      },
+      "protoss-x64-negative": {
+        "eventCounts": {
+          "jdk.FileRead": 7415,
+          "jdk.FileWrite": 1108,
+          "jdk.SocketRead": 0,
+          "jdk.SocketWrite": 0,
+          "jdk.ProcessStart": 0
+        },
+        "recordingSha256": "dd35e0475c8dc7ce7ee3c037c1c6ccc93dba7b0cc0c8bf2bd7cbb7804223582e",
+        "scope": "Java Flight Recorder file/socket/process events. Does not trace direct native syscalls, registry operations or every filesystem metadata operation."
+      }
+    },
+    "checks": {
+      "toolingTests": 66,
+      "metadata": true,
+      "typecheck": true,
+      "lintAndFormat": true,
+      "catalogValidation": true,
+      "upstreamFixedBuildChecks": 6,
+      "runtimeStateCodec": true,
+      "malformedConfigurationChecks": 8
+    },
+    "limitations": [
+      "Earlier match rejections remain unclassified; follow-up diagnostic matches identify missing train cancellation and remaining native/ownership/visibility guard rejections.",
+      "Terran full match and Terran x86 were not tested. Follow-up Protoss/Zerg x86 full match is recorded separately.",
+      "Old native-menu exits have no preceding SB leave request; input origin remains unresolved.",
+      "Reset test restores BYO baseline manually; installer/UI reset, signed-catalog installation and production promotion are separate.",
+      "Public competition and human difficulty are unreviewed."
+    ],
+    "manualReset": {
+      "scope": "Manual BYO profile read/write restore to packaged empty baseline; installer/UI reset not tested",
+      "previousHistoryPreservedInSnapshot": true,
+      "started": "2026-10-26T12:28:37.296Z",
+      "finished": "2026-10-26T12:29:40.459Z",
+      "boundedSmokePassed": true,
+      "previousTimestamps": [
+        1793016713062,
+        1793016328198,
+        1792953750558
+      ],
+      "newTimestamps": [
+        1793017779968
+      ]
+    },
+    "followUpReview": {
+      "evidence": "#/earlierBridgeAndTraceReview",
+      "scope": "Adds native trace and instrumented full matches; earlier uninstrumented rejection counts remain historical."
+    }
+  },
+  "earlierBridgeAndTraceReview": {
+    "schemaVersion": 1,
+    "date": "2026-10-26",
+    "scope": "Follow-up bridge diagnosis and scoped native runtime review; admission remains pending. Raw profiles and ETL data remain private.",
+    "archiveSha256": "7bbc47be6b095059e5bbbb60ddbcb7af192a4bca241882e63551a47a51c1e3ce",
+    "bridgeFix": {
+      "revision": "e09aa8c28bc53172b2006fbce8d52734ad601269",
+      "mergeCommit": "56fdc5c3e5f3df950724e51f452721485194ec7f",
+      "base": "a096b05e199ac0aaa6d46d7da21b8833acfd3218",
+      "target": "ShieldBattery/ShieldBattery feature/bwapi-compat",
+      "patchSha256": "bb2e4831c86a55919c43a8bf2d90bff917b41140f75c68e82dd344774d5bc09d",
+      "productionAndLiveCommandsBlob": "43127cbd2feb52839520f1d673824f1fd33d38d0",
+      "diagnosticDlls": {
+        "shieldbattery.dll": "b4800e8f4dbce8e0080be920c79d5e74fca74880d2130238178e35f2a3f78360",
+        "shieldbattery_64.dll": "2dcb04a73fead4c0804e9ca5d6d3bd9f78974f53432f66105e1429b4e0b7dedc"
+      },
+      "baselineDiagnosticDllHashRetained": false,
+      "diagnosticsPatch": {
+        "sha256": "c1a7265b56e86955832fb244f0666a6e20700cb8503915638dd1673e769906eb",
+        "base": "ff167db43053cead7a991a68c224c8d6bf61066d",
+        "requires": "The historical diagnostic build also used ShieldBattery/ShieldBattery#1837 at e09aa8c. The test opted in with SB_BWAPI_REJECTION_DIAGNOSTICS=1. The production fix excludes this instrumentation.",
+        "scope": "Historical hash of a test-only diagnostics patch removed from this PR."
+      },
+      "productionChecks": {
+        "buildBat": {
+          "x86_64": true,
+          "x86": true
+        },
+        "dllSha256": {
+          "shieldbattery_64.dll": "94de78326f9c68661ba2560eae02b47c583586eb384a77afa6316feece77a6be",
+          "shieldbattery.dll": "cdb4393711c8b8b441310531b39d8fbf6daaf4571b0bac07f92fdb83dca01149"
+        },
+        "libraryTests": {
+          "x86_64": 634,
+          "x86": 634
+        },
+        "allTargetsTests": {
+          "x86_64": 634,
+          "x86": 634
+        },
+        "clippyAllTargetsWorkspace": {
+          "x86_64": true,
+          "x86": true,
+          "warningsDenied": true
+        },
+        "format": true,
+        "commands": [
+          "build.bat debug",
+          "build.bat debug x86",
+          "cargo test --locked --all-targets --no-fail-fast --target <target>",
+          "cargo clippy --locked --all-targets --workspace --target <target> -- -D warnings",
+          "cargo fmt --all -- --check"
+        ]
+      },
+      "pullRequest": "https://github.com/ShieldBattery/ShieldBattery/pull/1837"
+    },
+    "runs": [
+      {
+        "id": "rejection-duel",
+        "gameArchitecture": "x86_64",
+        "sbRevision": "7a13c9dad681cb62f1f42323f71d88ccbdca0664",
+        "naturalMatch": true,
+        "frameLimit": 8000,
+        "strategies": {
+          "protoss": "PvEProxy2Gate",
+          "zerg": "ZvE4Pool"
+        },
+        "started": "2026-10-26T13:16:34.119Z",
+        "finished": "2026-10-26T13:22:16.800Z",
+        "sides": [
+          {
+            "race": "protoss",
+            "winner": false,
+            "frame": 7133,
+            "acceptedCommands": 6202,
+            "rejectedCommands": 11,
+            "rejectionReasons": {
+              "actor_native_missing": 3,
+              "unsupported_or_malformed": 7,
+              "target_native_missing": 1
+            },
+            "acceptedTrainCancellations": 0,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 4,
+            "exceptionTypes": {
+              "UnsupportedOperationException": 4
+            }
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 7138,
+            "acceptedCommands": 25580,
+            "rejectedCommands": 56,
+            "rejectionReasons": {
+              "target_not_visible": 24,
+              "target_native_missing": 31,
+              "actor_not_owned": 1
+            },
+            "acceptedTrainCancellations": 0,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 0,
+            "exceptionTypes": {}
+          }
+        ]
+      },
+      {
+        "id": "fixed-cancel-duel",
+        "gameArchitecture": "x86_64",
+        "sbRevision": "fc315a61f9bd175eaf34a9284bfd96e4224a5c98",
+        "naturalMatch": true,
+        "frameLimit": 9000,
+        "strategies": {
+          "protoss": "PvEProxy2Gate",
+          "zerg": "ZvE4Pool"
+        },
+        "started": "2026-10-26T13:33:42.292Z",
+        "finished": "2026-10-26T13:39:29.638Z",
+        "sides": [
+          {
+            "race": "protoss",
+            "winner": false,
+            "frame": 7536,
+            "acceptedCommands": 6045,
+            "rejectedCommands": 2,
+            "rejectionReasons": {
+              "target_not_visible": 1,
+              "actor_native_missing": 1
+            },
+            "acceptedTrainCancellations": 4,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 0,
+            "exceptionTypes": {}
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 7541,
+            "acceptedCommands": 35968,
+            "rejectedCommands": 36,
+            "rejectionReasons": {
+              "target_native_missing": 34,
+              "actor_not_owned": 1,
+              "target_not_visible": 1
+            },
+            "acceptedTrainCancellations": 0,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 0,
+            "exceptionTypes": {}
+          }
+        ]
+      },
+      {
+        "id": "fixed-cancel-x86",
+        "gameArchitecture": "x86",
+        "sbRevision": "fc315a61f9bd175eaf34a9284bfd96e4224a5c98",
+        "naturalMatch": true,
+        "frameLimit": 9000,
+        "strategies": {
+          "protoss": "PvEProxy2Gate",
+          "zerg": "ZvE4Pool"
+        },
+        "started": "2026-10-26T15:21:35.410Z",
+        "finished": "2026-10-26T15:27:02.443Z",
+        "sides": [
+          {
+            "race": "protoss",
+            "winner": false,
+            "frame": 6668,
+            "acceptedCommands": 5408,
+            "rejectedCommands": 6,
+            "rejectionReasons": {
+              "actor_native_missing": 5,
+              "target_native_missing": 1
+            },
+            "acceptedTrainCancellations": 5,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 1,
+            "exceptionTypes": {
+              "UnsupportedOperationException": 1
+            }
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 6673,
+            "acceptedCommands": 20890,
+            "rejectedCommands": 39,
+            "rejectionReasons": {
+              "target_native_missing": 38,
+              "actor_not_owned": 1
+            },
+            "acceptedTrainCancellations": 0,
+            "historyAgreesWithCallback": true,
+            "caughtBotExceptions": 0,
+            "exceptionTypes": {}
+          }
+        ]
+      }
+    ],
+    "nativeTrace": {
+      "mode": "WPR file-mode kernel ProcessThread, Loader, FileIO, FileIOInit, Filename, Registry, network flag 0x10000",
+      "elevation": "Recorder elevated through user-approved UAC; tested Electron/JVM ran without elevation.",
+      "testStarted": "2026-10-26T13:40:35.276Z",
+      "testFinished": "2026-10-26T13:41:19.661Z",
+      "nativeFileIoCoverage": [
+        "2026-10-26T13:40:37.187Z",
+        "2026-10-26T13:41:17.133Z"
+      ],
+      "etlBytes": 1353711616,
+      "totalRecords": 18625436,
+      "jvmHeaderPidMatchedRecords": 14451,
+      "decodedRecords": 13999,
+      "undecodedRecords": 452,
+      "eventsLost": 0,
+      "buffersLost": 0,
+      "processTraceStatus": 0,
+      "decodedTasks": {
+        "FileIo": 12757,
+        "Registry": 1021,
+        "Image": 112,
+        "Thread": 106,
+        "Process": 3
+      },
+      "fileWriteEvents": 336,
+      "writeDestinations": {
+        "distinctFiles": 6,
+        "scope": "bot profile and isolated TEMP only, correlated by file object lifetime"
+      },
+      "registry": {
+        "open": 337,
+        "close": 268,
+        "queryValue": 257,
+        "queryKey": 122,
+        "kcbCreate": 19,
+        "setInformation": 9,
+        "enumerate": 8,
+        "setValue": 1,
+        "setValueContext": "conhost.exe startup value; no call-stack attribution retained",
+        "setInformationContext": "empty key names; attribution incomplete"
+      },
+      "cryptoRead": {
+        "bytes": 90,
+        "writes": 0,
+        "attribution": "Existing J2SE CryptoAPI seed container; PP_UNIQUE_CONTAINER matched observed filename privately.",
+        "existingContextOnly": true,
+        "keysEnumerated": false,
+        "keyMaterialExported": false,
+        "openJdkSource": "https://github.com/openjdk/jdk21u/blob/master/src/java.base/windows/native/libjava/WinCAPISeedGenerator.c",
+        "sourceBlob": "e447ecc43a90119ef4beaa7cc157ced3bad7f852"
+      },
+      "network": {
+        "jvmHeaderPidNetworkEvents": 0,
+        "sampledTcpEndpoints": 0,
+        "sampledUdpEndpoints": 0,
+        "limitation": "Header-PID filtering can miss deferred kernel work; no claim of complete network exclusion."
+      },
+      "childProcess": "conhost.exe",
+      "priorMemoryCapture": "Circular tail only; not used to claim startup coverage.",
+      "limitations": [
+        "452 matched records lacked a decoded schema.",
+        "Registry set-information and set-value events lack complete call-stack attribution.",
+        "Native capture covers one bounded Protoss x64 run, not every configuration, race or lifecycle.",
+        "Source review, JFR and ETW complement each other; no OS sandbox or exhaustive syscall guarantee."
+      ]
+    },
+    "limitations": [
+      "Earlier uninstrumented match rejections cannot be classified retroactively.",
+      "Remaining fixed-run rejections hit stale/native ownership or visibility guards; their rejection reasons are known, underlying timing transitions not fully reconstructed.",
+      "Caught Gather.scala:98 empty.max occurred four times in baseline and once in fixed x86. Both games completed; underlying bot-state cause remains unresolved.",
+      "Explicit queue-slot cancel encoding has unit coverage; observed live cancellation was default slot -2.",
+      "Production fix was rebased and rebuilt separately; live runs used diagnostic ff167-based DLLs with identical commands.rs, not the fresh production DLLs.",
+      "Admission approval, installer/UI reset and signed-catalog installation remain separate."
+    ],
+    "evidenceChecks": {
+      "metadata": true,
+      "catalogValidation": true,
+      "patchApplyChecks": true,
+      "archiveHashUnchanged": true
+    }
+  },
+  "gatherGuardReview": {
+    "schemaVersion": 1,
+    "releaseId": "purplewave-sb-6",
+    "reviewOnly": true,
+    "recipeRevision": "4bd56332018f3df71e47a3bbfdc83ce042e43c8f",
+    "recipeSha256": "57616388c155cdf2e4cff8ef2b0f711560eaec2029ecd1dd4d3bf0fa187582f4",
+    "toolchain": {
+      "javacVersion": "javac 21.0.11",
+      "java": {
+        "javaVendor": "Eclipse Adoptium",
+        "javaVersion": "21.0.11",
+        "javaVmName": "OpenJDK 64-Bit Server VM",
+        "javaVmVersion": "21.0.11+10-LTS",
+        "osArchitecture": "amd64",
+        "dataModel": "64"
+      },
+      "scalaVersion": "2.12.20"
+    },
+    "source": {
+      "id": "purplewave",
+      "directory": "sources/purplewave",
+      "tree": "8aa959a0c50fd6938f582becc63ac53e7712f999",
+      "source": {
+        "id": "purplewave",
+        "repository": "https://github.com/dgant/PurpleWave.git",
+        "revision": "08672150433a2c60f5db23e10d2bc15dbc6e302e",
+        "patches": [
+          {
+            "path": "patches/purplewave/0001-isolate-runtime-state.patch",
+            "sha256": "bebec454f3504ba6fffab3bf2a125b22ca885f1f4e6e0de3c1711b527728a728"
+          },
+          {
+            "path": "patches/purplewave/0002-guard-empty-gather-threats.patch",
+            "sha256": "292e0a9d855dcbc006787997789bd948d6f2df7b8dfd53ecf6c7f89d33ddfc80"
+          }
+        ]
+      }
+    },
+    "buildFiles": [
+      {
+        "path": "bin/PurpleWave.jar",
+        "sha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+        "sizeBytes": 6766057
+      },
+      {
+        "path": "bin/lib/scala-library-2.12.20.jar",
+        "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+        "sizeBytes": 5436770
+      },
+      {
+        "path": "bin/lib/scala-reflect-2.12.20.jar",
+        "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+        "sizeBytes": 3670575
+      },
+      {
+        "path": "bin/lib/jna-5.18.1.jar",
+        "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+        "sizeBytes": 2002994
+      },
+      {
+        "path": "bin/lib/jna-platform-5.18.1.jar",
+        "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+        "sizeBytes": 1380744
+      },
+      {
+        "path": "bin/lib/commons-lang3-3.8.1.jar",
+        "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+        "sizeBytes": 501879
+      }
+    ],
+    "archive": {
+      "sha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+      "sizeBytes": 20065768
+    },
+    "jarComparisonToSb5": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "Micro/Actions/Basic/Gather$.class"
+      ],
+      "unchangedRuntimeDependencyJars": 5
+    },
+    "regression": {
+      "baselineFails": true,
+      "assertion": "empty threats must not be lethal: health=0 view=false",
+      "fixedCasesPassed": 8,
+      "health": [
+        0,
+        -1,
+        1,
+        40
+      ],
+      "collections": [
+        "strict empty Vector",
+        "lazy empty SeqView"
+      ],
+      "scope": "Actual compiled Scala 2.12 local lethal predicate; synthetic worker health, no live BWAPI."
+    },
+    "checks": {
+      "metadata": true,
+      "typecheck": true,
+      "lintAndFormat": true,
+      "validate": true,
+      "toolingTestsPassed": 66,
+      "fullBuild": true,
+      "reviewPackage": true,
+      "packagedSourceAndPatchMatch": true,
+      "ownedProcessesExited": true
+    },
+    "gameplay": {
+      "id": "sb6-gather-duel",
+      "gameArchitecture": "x86",
+      "sbRevision": "fc315a61f9bd175eaf34a9284bfd96e4224a5c98",
+      "dllSha256": "b4800e8f4dbce8e0080be920c79d5e74fca74880d2130238178e35f2a3f78360",
+      "naturalMatch": true,
+      "frameLimit": 12000,
+      "strategies": {
+        "protoss": "PvEProxy2Gate",
+        "zerg": "ZvE4Pool"
+      },
+      "map": "Fighting Spirit 1.4",
+      "started": "2026-10-26T20:55:01.528Z",
+      "finished": "2026-10-26T21:02:24.417Z",
+      "testedJarSha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+      "sides": [
+        {
+          "race": "protoss",
+          "winner": true,
+          "frame": 9555,
+          "acceptedCommands": 14515,
+          "rejectedCommands": 36,
+          "rejectionReasons": {
+            "target_not_visible": 7,
+            "target_native_missing": 27,
+            "actor_native_missing": 1,
+            "target_inaccessible": 1
+          },
+          "caughtBotExceptions": 0,
+          "gatherEmptyMaxCount": 0,
+          "historyAgreesWithCallback": true,
+          "historyDuration": "6:38"
+        },
+        {
+          "race": "zerg",
+          "winner": false,
+          "frame": 9551,
+          "acceptedCommands": 25589,
+          "rejectedCommands": 7,
+          "rejectionReasons": {
+            "actor_not_owned": 1,
+            "actor_native_missing": 3,
+            "target_not_visible": 3
+          },
+          "caughtBotExceptions": 0,
+          "gatherEmptyMaxCount": 0,
+          "historyAgreesWithCallback": true,
+          "historyDuration": "6:37"
+        }
+      ]
+    },
+    "admission": "pending",
+    "followUp": {
+      "naturalX64": {
+        "id": "sb6-x64-reload",
+        "gameArchitecture": "x86_64",
+        "sbRevision": "fc315a61f9bd175eaf34a9284bfd96e4224a5c98",
+        "dllSha256": "2dcb04a73fead4c0804e9ca5d6d3bd9f78974f53432f66105e1429b4e0b7dedc",
+        "naturalMatch": true,
+        "finishType": "natural match end",
+        "frameLimit": 12000,
+        "started": "2026-10-26T21:54:15.842Z",
+        "finished": "2026-10-26T22:01:06.611Z",
+        "testedJarSha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+        "map": "Fighting Spirit 1.4",
+        "strategies": {
+          "protoss": "PvEProxy2Gate",
+          "zerg": "ZvE4Pool"
+        },
+        "instrumentedRuntime": false,
+        "sides": [
+          {
+            "race": "protoss",
+            "winner": false,
+            "frame": 8962,
+            "acceptedCommands": 11785,
+            "rejectedCommands": 7,
+            "rejectionReasons": {
+              "actor_native_missing": 4,
+              "target_native_missing": 3
+            },
+            "caughtBotExceptions": 0,
+            "gatherEmptyMaxCount": 0,
+            "historyAgreesWithCallback": true,
+            "historyDuration": "6:13",
+            "historyRecords": 1
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 8966,
+            "acceptedCommands": 41772,
+            "rejectedCommands": 32,
+            "rejectionReasons": {
+              "actor_not_owned": 1,
+              "target_native_missing": 19,
+              "target_not_visible": 10,
+              "actor_native_missing": 2
+            },
+            "caughtBotExceptions": 0,
+            "gatherEmptyMaxCount": 0,
+            "historyAgreesWithCallback": true,
+            "historyDuration": "6:13",
+            "historyRecords": 1
+          }
+        ]
+      },
+      "reloadX64": {
+        "id": "sb6-x64-reload-reload",
+        "gameArchitecture": "x86_64",
+        "sbRevision": "fc315a61f9bd175eaf34a9284bfd96e4224a5c98",
+        "dllSha256": "2dcb04a73fead4c0804e9ca5d6d3bd9f78974f53432f66105e1429b4e0b7dedc",
+        "naturalMatch": false,
+        "finishType": "bounded gameplay then graceful localGameStop",
+        "frameLimit": 1500,
+        "started": "2026-10-26T22:02:49.111Z",
+        "finished": "2026-10-26T22:04:25.048Z",
+        "testedJarSha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+        "map": "Fighting Spirit 1.4",
+        "strategies": {
+          "protoss": "PvEProxy2Gate",
+          "zerg": "ZvE4Pool"
+        },
+        "instrumentedRuntime": true,
+        "sides": [
+          {
+            "race": "protoss",
+            "winner": false,
+            "frame": 1552,
+            "acceptedCommands": 1004,
+            "rejectedCommands": 0,
+            "rejectionReasons": {},
+            "caughtBotExceptions": 0,
+            "gatherEmptyMaxCount": 0,
+            "historyAgreesWithCallback": true,
+            "historyDuration": "1:04",
+            "historyRecords": 2
+          },
+          {
+            "race": "zerg",
+            "winner": false,
+            "frame": 1553,
+            "acceptedCommands": 1065,
+            "rejectedCommands": 0,
+            "rejectionReasons": {},
+            "caughtBotExceptions": 0,
+            "gatherEmptyMaxCount": 0,
+            "historyAgreesWithCallback": true,
+            "historyDuration": "1:04",
+            "historyRecords": 2
+          }
+        ]
+      },
+      "savedState": {
+        "sourceRun": "naturalX64",
+        "setup": "Identical authentic first-match history copied to read while retaining original write; snapshots preserved. No rows invented or edited.",
+        "sides": [
+          {
+            "race": "protoss",
+            "authenticInputSha256": "079b495a740107350870952b5edd1cca36b025371b97ba6017dd168213b32dc4",
+            "authenticInputBytes": 175,
+            "priorTimestamp": "1793052064316",
+            "priorRowRetainedExactlyOnce": true,
+            "recordsBefore": 1,
+            "recordsAfter": 2,
+            "readInputUnchanged": true,
+            "historyReads": {
+              "read": {
+                "positiveReadEvents": 1,
+                "bytesRead": 175,
+                "firstRead": "2026-10-26T23:03:10.719452800+01:00",
+                "readerStackCaptured": true,
+                "historyLoaderFrameCaptured": false
+              },
+              "write": {
+                "positiveReadEvents": 1,
+                "bytesRead": 175,
+                "firstRead": "2026-10-26T23:03:10.755877700+01:00",
+                "readerStackCaptured": true,
+                "historyLoaderFrameCaptured": false
+              }
+            },
+            "readBeforeWriteObserved": true,
+            "writesToReadObserved": 0,
+            "jfrSha256": "8e844ef82a7aeb9b7a2e3f2b13378104947737dee63bb57f54591f4b9ba5e6ec",
+            "writeOutputSha256": "3a32198a72012a481d3c434851375809a5c315bbd0883716404a3b3ae24e21bf"
+          },
+          {
+            "race": "zerg",
+            "authenticInputSha256": "b6dde82f4cabd5ef2c5222c0c381d18e55fbc97d3f77807a4e749154ae2f633b",
+            "authenticInputBytes": 123,
+            "priorTimestamp": "1793052064696",
+            "priorRowRetainedExactlyOnce": true,
+            "recordsBefore": 1,
+            "recordsAfter": 2,
+            "readInputUnchanged": true,
+            "historyReads": {
+              "read": {
+                "positiveReadEvents": 1,
+                "bytesRead": 123,
+                "firstRead": "2026-10-26T23:03:10.880820800+01:00",
+                "readerStackCaptured": true,
+                "historyLoaderFrameCaptured": false
+              },
+              "write": {
+                "positiveReadEvents": 1,
+                "bytesRead": 123,
+                "firstRead": "2026-10-26T23:03:10.883540+01:00",
+                "readerStackCaptured": true,
+                "historyLoaderFrameCaptured": false
+              }
+            },
+            "readBeforeWriteObserved": true,
+            "writesToReadObserved": 0,
+            "jfrSha256": "4580044dc1080c8ae707fce78a8926dee4df1e26c70ca8d64f684b8e05e11c40",
+            "writeOutputSha256": "711185f4f3a50a5d533b854e0060e26ee33c0693ad204f0af2335a30b38eb542"
+          }
+        ],
+        "scope": "JFR verifies actual history-file reads and read-before-write order in each owned JVM. Captured Java reader stacks lack the HistoryLoader frame; source inspection and retained-row output provide complementary ingestion evidence. Output retains prior row exactly once plus one actual new result. Conflicting-row precedence is source-reviewed, not runtime fault-injected."
+      },
+      "ownedProcessesExited": true
+    }
+  },
+  "earlierAdmission": {
+    "schemaVersion": 1,
+    "reviewArchiveSha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+    "scope": "Remaining Terran 1v1 validation on exact sb.6 review archive; natural results precede observer cleanup; no strength calibration",
+    "runs": [
+      {
+        "architecture": "x64",
+        "started": "2026-10-27T00:04:39.096Z",
+        "finished": "2026-10-27T00:08:56.762Z",
+        "sessionId": "53f8815a-5ae9-4414-987b-61ee0139e2d0",
+        "naturalMatch": true,
+        "frameLimit": 36000,
+        "archiveSha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+        "dlls": {
+          "shieldbattery.dll": "b4800e8f4dbce8e0080be920c79d5e74fca74880d2130238178e35f2a3f78360",
+          "shieldbattery_64.dll": "2dcb04a73fead4c0804e9ca5d6d3bd9f78974f53432f66105e1429b4e0b7dedc"
+        },
+        "sides": [
+          {
+            "race": "terran",
+            "winner": false,
+            "frame": 4994,
+            "acceptedCommands": 6384,
+            "rejectedCommands": 14,
+            "rejectionReasons": {
+              "target_native_missing": 11,
+              "actor_native_missing": 3
+            },
+            "caughtBotExceptions": 0,
+            "historyAgreesWithCallback": true,
+            "strategies": [
+              "EvEWorkerRush"
+            ]
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 4999,
+            "acceptedCommands": 11413,
+            "rejectedCommands": 3,
+            "rejectionReasons": {
+              "target_native_missing": 2,
+              "actor_not_owned": 1
+            },
+            "caughtBotExceptions": 0,
+            "historyAgreesWithCallback": true,
+            "strategies": [
+              "ZvE4Pool"
+            ]
+          }
+        ]
+      },
+      {
+        "architecture": "x86",
+        "started": "2026-10-27T00:04:39.962Z",
+        "finished": "2026-10-27T00:09:18.462Z",
+        "sessionId": "e11b785a-a080-4e6a-98ab-6abee8aea0d6",
+        "naturalMatch": true,
+        "frameLimit": 36000,
+        "archiveSha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+        "dlls": {
+          "shieldbattery.dll": "b4800e8f4dbce8e0080be920c79d5e74fca74880d2130238178e35f2a3f78360",
+          "shieldbattery_64.dll": "2dcb04a73fead4c0804e9ca5d6d3bd9f78974f53432f66105e1429b4e0b7dedc"
+        },
+        "sides": [
+          {
+            "race": "terran",
+            "winner": false,
+            "frame": 5490,
+            "acceptedCommands": 6485,
+            "rejectedCommands": 5,
+            "rejectionReasons": {
+              "actor_native_missing": 2,
+              "target_native_missing": 3
+            },
+            "caughtBotExceptions": 0,
+            "historyAgreesWithCallback": true,
+            "strategies": [
+              "EvEWorkerRush"
+            ]
+          },
+          {
+            "race": "zerg",
+            "winner": true,
+            "frame": 5495,
+            "acceptedCommands": 17533,
+            "rejectedCommands": 16,
+            "rejectionReasons": {
+              "target_native_missing": 13,
+              "target_not_visible": 2,
+              "actor_not_owned": 1
+            },
+            "caughtBotExceptions": 0,
+            "historyAgreesWithCallback": true,
+            "strategies": [
+              "ZvE4Pool"
+            ]
+          }
+        ]
+      }
+    ],
+    "offlineRebuild": {
+      "scope": "Offline compile using only packaged source/recipe helper and hash-verified cached compiler/dependency JARs; no source clones or network requests",
+      "toolchain": "javac 21.0.11",
+      "sourceCounts": {
+        "java": 118,
+        "macro": 2,
+        "scala": 961
+      },
+      "files": [
+        {
+          "path": "bin/PurpleWave.jar",
+          "sha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+          "sizeBytes": 6766057
+        },
+        {
+          "path": "bin/lib/scala-library-2.12.20.jar",
+          "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+          "sizeBytes": 5436770
+        },
+        {
+          "path": "bin/lib/scala-reflect-2.12.20.jar",
+          "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+          "sizeBytes": 3670575
+        },
+        {
+          "path": "bin/lib/jna-5.18.1.jar",
+          "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+          "sizeBytes": 2002994
+        },
+        {
+          "path": "bin/lib/jna-platform-5.18.1.jar",
+          "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+          "sizeBytes": 1380744
+        },
+        {
+          "path": "bin/lib/commons-lang3-3.8.1.jar",
+          "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+          "sizeBytes": 501879
+        }
+      ],
+      "allSixJarsIdentical": true
+    },
+    "archiveAudit": {
+      "archiveSha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+      "entries": 1186,
+      "duplicatePaths": 0,
+      "packageNotices": 16,
+      "missingNotices": [],
+      "changedFromSb5": [
+        "bin/PurpleWave.jar",
+        "notices/RELEASE.txt",
+        "package.json",
+        "source/BUILD.md",
+        "source/bots/purplewave/BUILD.md",
+        "source/bots/purplewave/RELEASE.txt",
+        "source/build-info.json",
+        "source/purplewave/src/Micro/Actions/Basic/Gather.scala",
+        "source/source-lock.json",
+        "source/tools/build-purplewave.ts",
+        "source/tools/package-purplewave.ts",
+        "work/bwapi-data/AI/revision.txt"
+      ],
+      "addedFromSb5": [
+        "source/bots/purplewave/runtime-tests/GatherEmptyThreatsTest.scala",
+        "source/bots/purplewave/runtime-tests/run-gather-tests.cmd",
+        "source/patches/purplewave/0002-guard-empty-gather-threats.patch"
+      ],
+      "removedFromSb5": [],
+      "upstreamSourceDeltaFromSb5": [
+        "source/purplewave/src/Micro/Actions/Basic/Gather.scala"
+      ],
+      "jarChangedClasses": [
+        "Micro/Actions/Basic/Gather$.class"
+      ],
+      "newJarEntries": [],
+      "removedJarEntries": []
+    },
+    "admittedArtifact": {
+      "sha256": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4",
+      "sizeBytes": 20065845,
+      "entries": 1186,
+      "parentReviewSha256": "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1",
+      "changedEntries": [
+        "package.json"
+      ],
+      "sourceReview": {
+        "status": "approved",
+        "evidence": "Exact sb.6 source/JAR delta and packaged-source offline rebuild reviewed; unchanged dependencies retain scoped source/native review. docs/releases/purplewave-sb-6-admission.md"
+      }
+    },
+    "installedChecks": [
+      {
+        "architecture": "x64",
+        "started": "2026-10-27T00:13:50.010Z",
+        "finished": "2026-10-27T00:23:13.143Z",
+        "scope": "Real signed local-catalog install, negative checks, installed launch and actual details-dialog reset; no public staging/CDN publication",
+        "archiveSha256": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4",
+        "signing": {
+          "channel": "staging",
+          "keyId": "sb6-isolated-review",
+          "publicKeySha256": "870415d118d03c926fb7c9040e04511d3863a1311e951dcf96ad4c6308595c5f",
+          "catalogSha256": "ed5a0385a2d858d31f9912cc9a418e194266c77ab201d555fa467a1748f58932",
+          "localOnly": true
+        },
+        "tls": {
+          "leafSha256": "87afdd4907e051c6434a11287f34364701674ee7957620148ffadf3119c30258",
+          "trust": "Bootstrap pins only loopback host and this ephemeral leaf; default verification retained for other hosts"
+        },
+        "signatureTamperRejected": true,
+        "archiveTamperRejected": true,
+        "installed": {
+          "releaseId": "purplewave-sb-6",
+          "digest": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4"
+        },
+        "installedFileCount": 1181,
+        "immutablePackageUnchanged": true,
+        "noticeReadable": true,
+        "resets": {
+          "firstReset": {
+            "uiClicked": true,
+            "bothProfilesRestoredToEmptyBaseline": true,
+            "genuineHistoryFilesBefore": 2
+          },
+          "finalReset": {
+            "uiClicked": true,
+            "bothProfilesRestoredToEmptyBaseline": true,
+            "genuineHistoryFilesBefore": 2
+          }
+        },
+        "matches": [
+          {
+            "label": "installed-baseline",
+            "started": "2026-10-27T00:13:56.854Z",
+            "finished": "2026-10-27T00:15:28.187Z",
+            "boundedStop": true,
+            "naturalResult": false,
+            "resetWhileInUse": {
+              "uiDisabled": true,
+              "ipcRejected": true
+            },
+            "sessionId": "2c6e704d-07c9-4704-8613-fdd068eaeef3",
+            "sides": [
+              {
+                "profile": "work",
+                "race": "terran",
+                "winner": false,
+                "frame": 1264,
+                "acceptedCommands": 399,
+                "rejectedCommands": 0,
+                "rejectionReasons": {},
+                "unsupportedCommandKinds": {}
+              },
+              {
+                "profile": "work-2",
+                "race": "terran",
+                "winner": false,
+                "frame": 1265,
+                "acceptedCommands": 465,
+                "rejectedCommands": 0,
+                "rejectionReasons": {},
+                "unsupportedCommandKinds": {}
+              }
+            ],
+            "sync": {
+              "commonProbes": 6,
+              "lastCommonFrame": 1200,
+              "mismatches": []
+            },
+            "caughtExceptionLogFiles": []
+          },
+          {
+            "label": "installed-terran-tech",
+            "started": "2026-10-27T00:15:30.385Z",
+            "finished": "2026-10-27T00:23:09.376Z",
+            "boundedStop": true,
+            "naturalResult": false,
+            "resetWhileInUse": {
+              "uiDisabled": true,
+              "ipcRejected": true
+            },
+            "sessionId": "57f3bdc6-e41b-4297-8a3e-93a32165e33e",
+            "sides": [
+              {
+                "profile": "work",
+                "race": "terran",
+                "winner": false,
+                "frame": 10053,
+                "acceptedCommands": 30311,
+                "rejectedCommands": 2168,
+                "rejectionReasons": {
+                  "unsupported_or_malformed": 2093,
+                  "target_not_visible": 68,
+                  "target_native_missing": 7
+                },
+                "unsupportedCommandKinds": {
+                  "24": 2004,
+                  "41": 89
+                }
+              },
+              {
+                "profile": "work-2",
+                "race": "terran",
+                "winner": false,
+                "frame": 10053,
+                "acceptedCommands": 33349,
+                "rejectedCommands": 2233,
+                "rejectionReasons": {
+                  "target_not_visible": 16,
+                  "unsupported_or_malformed": 2207,
+                  "target_native_missing": 10
+                },
+                "unsupportedCommandKinds": {
+                  "24": 2168,
+                  "41": 39
+                }
+              }
+            ],
+            "sync": {
+              "commonProbes": 42,
+              "lastCommonFrame": 9840,
+              "mismatches": []
+            },
+            "caughtExceptionLogFiles": []
+          }
+        ],
+        "techSnapshots": {
+          "stableSamples": 22,
+          "firstFrame": 1763,
+          "lastFrame": 9955,
+          "maxGatheredGas": 1160,
+          "maxUnitCounts": {
+            "Marine": 6,
+            "Vulture": 12,
+            "SiegeTankTankMode": 1,
+            "SiegeTankSiegeMode": 1,
+            "SCV": 34,
+            "Refinery": 1,
+            "Barracks": 1,
+            "Factory": 3,
+            "MachineShop": 2
+          },
+          "scope": "Read-only BWAPI snapshot from owned first bot; unit IDs cross-checked with packaged JBWAPI UnitType enum"
+        }
+      },
+      {
+        "architecture": "x86",
+        "started": "2026-10-27T00:14:04.228Z",
+        "finished": "2026-10-27T00:23:48.475Z",
+        "scope": "Real signed local-catalog install, negative checks, installed launch and actual details-dialog reset; no public staging/CDN publication",
+        "archiveSha256": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4",
+        "signing": {
+          "channel": "staging",
+          "keyId": "sb6-isolated-review",
+          "publicKeySha256": "5cf32dcbd5fd9fa2fb9ec609e4f95163c03b7c38d3862b7aa46742a017eb0bb7",
+          "catalogSha256": "1e324ba9510fa83fcbe6c57509c36afcb8556e9f978017751cf9346a093ee75c",
+          "localOnly": true
+        },
+        "tls": {
+          "leafSha256": "87afdd4907e051c6434a11287f34364701674ee7957620148ffadf3119c30258",
+          "trust": "Bootstrap pins only loopback host and this ephemeral leaf; default verification retained for other hosts"
+        },
+        "signatureTamperRejected": true,
+        "archiveTamperRejected": true,
+        "installed": {
+          "releaseId": "purplewave-sb-6",
+          "digest": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4"
+        },
+        "installedFileCount": 1181,
+        "immutablePackageUnchanged": true,
+        "noticeReadable": true,
+        "resets": {
+          "firstReset": {
+            "uiClicked": true,
+            "bothProfilesRestoredToEmptyBaseline": true,
+            "genuineHistoryFilesBefore": 2
+          },
+          "finalReset": {
+            "uiClicked": true,
+            "bothProfilesRestoredToEmptyBaseline": true,
+            "genuineHistoryFilesBefore": 2
+          }
+        },
+        "matches": [
+          {
+            "label": "installed-baseline",
+            "started": "2026-10-27T00:14:12.214Z",
+            "finished": "2026-10-27T00:15:56.389Z",
+            "boundedStop": true,
+            "naturalResult": false,
+            "resetWhileInUse": {
+              "uiDisabled": true,
+              "ipcRejected": true
+            },
+            "sessionId": "b256a5df-f388-4468-83c9-f24ce2ed0062",
+            "sides": [
+              {
+                "profile": "work",
+                "race": "terran",
+                "winner": false,
+                "frame": 1253,
+                "acceptedCommands": 404,
+                "rejectedCommands": 0,
+                "rejectionReasons": {},
+                "unsupportedCommandKinds": {}
+              },
+              {
+                "profile": "work-2",
+                "race": "terran",
+                "winner": false,
+                "frame": 1253,
+                "acceptedCommands": 405,
+                "rejectedCommands": 0,
+                "rejectionReasons": {},
+                "unsupportedCommandKinds": {}
+              }
+            ],
+            "sync": {
+              "commonProbes": 6,
+              "lastCommonFrame": 1200,
+              "mismatches": []
+            },
+            "caughtExceptionLogFiles": []
+          },
+          {
+            "label": "installed-terran-tech",
+            "started": "2026-10-27T00:15:58.875Z",
+            "finished": "2026-10-27T00:23:45.082Z",
+            "boundedStop": true,
+            "naturalResult": false,
+            "resetWhileInUse": {
+              "uiDisabled": true,
+              "ipcRejected": true
+            },
+            "sessionId": "dec5866a-51f4-4cb4-ae62-73ff28ac8b2f",
+            "sides": [
+              {
+                "profile": "work",
+                "race": "terran",
+                "winner": false,
+                "frame": 10049,
+                "acceptedCommands": 36450,
+                "rejectedCommands": 2195,
+                "rejectionReasons": {
+                  "target_not_visible": 33,
+                  "unsupported_or_malformed": 2151,
+                  "target_native_missing": 11
+                },
+                "unsupportedCommandKinds": {
+                  "24": 2099,
+                  "41": 52
+                }
+              },
+              {
+                "profile": "work-2",
+                "race": "terran",
+                "winner": false,
+                "frame": 10050,
+                "acceptedCommands": 34487,
+                "rejectedCommands": 2374,
+                "rejectionReasons": {
+                  "unsupported_or_malformed": 2339,
+                  "target_not_visible": 28,
+                  "target_native_missing": 7
+                },
+                "unsupportedCommandKinds": {
+                  "24": 2168,
+                  "41": 171
+                }
+              }
+            ],
+            "sync": {
+              "commonProbes": 42,
+              "lastCommonFrame": 9840,
+              "mismatches": []
+            },
+            "caughtExceptionLogFiles": []
+          }
+        ],
+        "techSnapshots": {
+          "stableSamples": 14,
+          "firstFrame": 4799,
+          "lastFrame": 9814,
+          "maxGatheredGas": 1168,
+          "maxUnitCounts": {
+            "Marine": 6,
+            "Vulture": 16,
+            "SiegeTankTankMode": 1,
+            "SiegeTankSiegeMode": 1,
+            "SCV": 35,
+            "Refinery": 1,
+            "Barracks": 1,
+            "Factory": 3,
+            "MachineShop": 2
+          },
+          "scope": "Read-only BWAPI snapshot from owned first bot; unit IDs cross-checked with packaged JBWAPI UnitType enum"
+        }
+      }
+    ],
+    "productionReadiness": {
+      "approved": false,
+      "sourceAndLocalDistribution": "approved for scoped experimental local use",
+      "installerAndUi": "passed with local HTTPS/signing trust; not public staging/CDN validation",
+      "blockers": [
+        {
+          "component": "ShieldBattery BWAPI command encoder",
+          "issue": "Lift kind 24 and Spider Mines (Use_Tech_Position kind 41, tech 3) unsupported in factory-strategy matches on x86 and x64; recorded totals are 8,439 Lift and 351 Spider Mines rejections across four bots",
+          "upstreamBase": "a096b05e199ac0aaa6d46d7da21b8833acfd3218",
+          "supportedByPinnedBwapi": "BWAPI GameCommands.cpp routes Lift to Orders::Lift; JBWAPI UnitCommand.lift uses Position.None for unused coordinates",
+          "liftRejections": 8439,
+          "spiderMineRejections": 351,
+          "representativeCommands": [
+            {
+              "kind": 24,
+              "actorUnitType": 111,
+              "x": 32000,
+              "y": 32032,
+              "extra": 0,
+              "actorOwned": true,
+              "meaning": "Lift with JBWAPI Position.None coordinates"
+            },
+            {
+              "kind": 41,
+              "actorUnitType": 2,
+              "x": 3503,
+              "y": 2831,
+              "extra": 3,
+              "actorOwned": true,
+              "meaning": "Spider Mines at valid in-map pixel position"
+            }
+          ]
+        },
+        {
+          "component": "ShieldBattery production runtime",
+          "issue": "Current upstream app rejects non-dev local/practice launch and native BWAPI module is cfg(debug_assertions)"
+        }
+      ]
+    },
+    "ownedAppGameJavaProcessesRemaining": 0
+  },
+  "releaseClientIntegration": {
+    "scope": {
+      "races": [
+        "protoss",
+        "terran",
+        "zerg"
+      ],
+      "format": "one-v-one",
+      "random": "unverified",
+      "teams": "unverified",
+      "freeForAll": "unverified",
+      "map": "Fighting Spirit 1.4",
+      "publicCompetition": "unreviewed",
+      "humanSkill": "uncalibrated",
+      "lateGameConformance": "not exhaustive"
+    },
+    "artifact": {
+      "releaseId": "purplewave-sb-6",
+      "sha256": "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4",
+      "jarSha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013"
+    },
+    "requirements": [
+      "ShieldBattery/ShieldBattery#1831",
+      "ShieldBattery/ShieldBattery#1837",
+      "ShieldBattery/ShieldBattery#1838",
+      "ShieldBattery/ShieldBattery#1841",
+      "ShieldBattery/robotics-facility#4"
+    ],
+    "architectures": [
+      {
+        "architecture": "x64",
+        "dllSha256": "795bae04ef408bab42b6dc02f94aac6872ac0d75d4b77ef2e8b57d0ed7ad1a6d",
+        "signedLocalInstall": true,
+        "signatureTamperRejected": true,
+        "archiveTamperRejected": true,
+        "immutablePackageUnchanged": true,
+        "learningReset": true,
+        "factory": {
+          "finish": "graceful bounded stop, not natural result",
+          "instances": [
+            {
+              "liftedBarracksObserved": true,
+              "peakLiveMines": 34,
+              "peakVultures": 20,
+              "peakSiegeTanks": 8,
+              "nativeEnd": {
+                "winner": false,
+                "frame": 15070,
+                "acceptedCommands": 65784,
+                "rejectedCommands": 108,
+                "unsupportedWarnings": []
+              }
+            },
+            {
+              "liftedBarracksObserved": true,
+              "peakLiveMines": 39,
+              "peakVultures": 16,
+              "peakSiegeTanks": 8,
+              "nativeEnd": {
+                "winner": false,
+                "frame": 15070,
+                "acceptedCommands": 61015,
+                "rejectedCommands": 51,
+                "unsupportedWarnings": []
+              }
+            }
+          ],
+          "synchronization": {
+            "commonProbes": 63,
+            "lastFrame": 14880,
+            "mismatches": 0
+          }
+        },
+        "flight": {
+          "scope": "Separate minimal JBWAPI protocol fixtures, not PurpleWave strategy or natural-match evidence",
+          "instances": [
+            {
+              "LIFT_SENT": 5760,
+              "LIFT_OBSERVED": 5768,
+              "LAND_SENT": 5840,
+              "LAND_OBSERVED": 5904
+            },
+            {
+              "LIFT_SENT": 5736,
+              "LIFT_OBSERVED": 5744,
+              "LAND_SENT": 5816,
+              "LAND_OBSERVED": 5880
+            }
+          ],
+          "synchronization": {
+            "commonProbes": 25,
+            "lastFrame": 5760,
+            "mismatches": 0
+          }
+        },
+        "naturalMatches": [
+          {
+            "label": "release-natural-terran-zerg-reconciliation",
+            "naturalBeforeStop": true,
+            "results": [
+              {
+                "profile": "work",
+                "ourRace": "Terran",
+                "opponentRace": "Zerg",
+                "savedWinner": false,
+                "savedCsvSha256": "3c069ca69ee6f5322c52e0042994bd04f7095939c035122614def418c9d13c6d",
+                "savedCsvBytes": 109,
+                "nativeEnd": {
+                  "winner": false,
+                  "frame": 4870,
+                  "acceptedCommands": 7615,
+                  "rejectedCommands": 3,
+                  "unsupportedWarnings": []
+                }
+              },
+              {
+                "profile": "work-2",
+                "ourRace": "Zerg",
+                "opponentRace": "Terran",
+                "savedWinner": true,
+                "savedCsvSha256": "ecbe6f4ed5ab02d0d94d9943e6cf9a9b27811cdc05b693605862e3650721fb72",
+                "savedCsvBytes": 89,
+                "nativeEnd": {
+                  "winner": true,
+                  "frame": 4875,
+                  "acceptedCommands": 12979,
+                  "rejectedCommands": 12,
+                  "unsupportedWarnings": []
+                }
+              }
+            ],
+            "synchronization": {
+              "commonProbes": 21,
+              "lastFrame": 4800,
+              "mismatches": 0
+            }
+          },
+          {
+            "label": "release-natural-protoss-zerg",
+            "naturalBeforeStop": true,
+            "results": [
+              {
+                "profile": "work",
+                "ourRace": "Protoss",
+                "opponentRace": "Zerg",
+                "savedWinner": true,
+                "savedCsvSha256": "4126f481f507c2b6e6adb3d27ac38ca46559250eaa7c6d2f05a567610776e7a2",
+                "savedCsvBytes": 120,
+                "nativeEnd": {
+                  "winner": true,
+                  "frame": 9370,
+                  "acceptedCommands": 14926,
+                  "rejectedCommands": 34,
+                  "unsupportedWarnings": []
+                }
+              },
+              {
+                "profile": "work-2",
+                "ourRace": "Zerg",
+                "opponentRace": "Protoss",
+                "savedWinner": false,
+                "savedCsvSha256": "5df7c942785552bd3870898f2a9167f133377363656b9d5879511ddc713abf5a",
+                "savedCsvBytes": 93,
+                "nativeEnd": {
+                  "winner": false,
+                  "frame": 9365,
+                  "acceptedCommands": 23831,
+                  "rejectedCommands": 14,
+                  "unsupportedWarnings": []
+                }
+              }
+            ],
+            "synchronization": {
+              "commonProbes": 40,
+              "lastFrame": 9360,
+              "mismatches": 0
+            }
+          }
+        ]
+      },
+      {
+        "architecture": "x86",
+        "dllSha256": "b8c1adc9c9ad048dc46f23a82e64ea7260ef5ef9b36cbc7188e83ccdfd779140",
+        "signedLocalInstall": true,
+        "signatureTamperRejected": true,
+        "archiveTamperRejected": true,
+        "immutablePackageUnchanged": true,
+        "learningReset": true,
+        "factory": {
+          "finish": "graceful bounded stop, not natural result",
+          "instances": [
+            {
+              "liftedBarracksObserved": true,
+              "peakLiveMines": 54,
+              "peakVultures": 26,
+              "peakSiegeTanks": 10,
+              "nativeEnd": {
+                "winner": false,
+                "frame": 15051,
+                "acceptedCommands": 78340,
+                "rejectedCommands": 47,
+                "unsupportedWarnings": []
+              }
+            },
+            {
+              "liftedBarracksObserved": true,
+              "peakLiveMines": 33,
+              "peakVultures": 17,
+              "peakSiegeTanks": 8,
+              "nativeEnd": {
+                "winner": false,
+                "frame": 15051,
+                "acceptedCommands": 54580,
+                "rejectedCommands": 43,
+                "unsupportedWarnings": []
+              }
+            }
+          ],
+          "synchronization": {
+            "commonProbes": 63,
+            "lastFrame": 14880,
+            "mismatches": 0
+          }
+        },
+        "flight": {
+          "scope": "Separate minimal JBWAPI protocol fixtures, not PurpleWave strategy or natural-match evidence",
+          "instances": [
+            {
+              "LIFT_SENT": 5760,
+              "LIFT_OBSERVED": 5768,
+              "LAND_SENT": 5840,
+              "LAND_OBSERVED": 5904
+            },
+            {
+              "LIFT_SENT": 5640,
+              "LIFT_OBSERVED": 5648,
+              "LAND_SENT": 5720,
+              "LAND_OBSERVED": 5784
+            }
+          ],
+          "synchronization": {
+            "commonProbes": 25,
+            "lastFrame": 5760,
+            "mismatches": 0
+          }
+        },
+        "naturalMatches": [
+          {
+            "label": "release-natural-terran-zerg",
+            "naturalBeforeStop": true,
+            "results": [
+              {
+                "profile": "work",
+                "ourRace": "Terran",
+                "opponentRace": "Zerg",
+                "savedWinner": false,
+                "savedCsvSha256": "14c593c84ed893114bcc38137b0507b22227d7f049d2ca0596827d7813c6753f",
+                "savedCsvBytes": 102,
+                "nativeEnd": {
+                  "winner": false,
+                  "frame": 5428,
+                  "acceptedCommands": 5632,
+                  "rejectedCommands": 1,
+                  "unsupportedWarnings": []
+                }
+              },
+              {
+                "profile": "work-2",
+                "ourRace": "Zerg",
+                "opponentRace": "Terran",
+                "savedWinner": true,
+                "savedCsvSha256": "9ce3b5d5ca532d28828a90ed899d4477ad7f1bdadcc1a645382b8a683510a80e",
+                "savedCsvBytes": 76,
+                "nativeEnd": {
+                  "winner": true,
+                  "frame": 5433,
+                  "acceptedCommands": 14095,
+                  "rejectedCommands": 20,
+                  "unsupportedWarnings": []
+                }
+              }
+            ],
+            "synchronization": {
+              "commonProbes": 23,
+              "lastFrame": 5280,
+              "mismatches": 0
+            }
+          },
+          {
+            "label": "release-natural-protoss-zerg",
+            "naturalBeforeStop": true,
+            "results": [
+              {
+                "profile": "work",
+                "ourRace": "Protoss",
+                "opponentRace": "Zerg",
+                "savedWinner": false,
+                "savedCsvSha256": "54a9b15ccd1c5c3706280b548b9de8c4681a76c9cf4ad5dad316d6a2df1ade8a",
+                "savedCsvBytes": 170,
+                "nativeEnd": {
+                  "winner": false,
+                  "frame": 6203,
+                  "acceptedCommands": 5114,
+                  "rejectedCommands": 1,
+                  "unsupportedWarnings": []
+                }
+              },
+              {
+                "profile": "work-2",
+                "ourRace": "Zerg",
+                "opponentRace": "Protoss",
+                "savedWinner": true,
+                "savedCsvSha256": "9c3994a2255b7396cc1078590a08f3777335f5650eb07e906010b0103fbecf67",
+                "savedCsvBytes": 92,
+                "nativeEnd": {
+                  "winner": true,
+                  "frame": 6208,
+                  "acceptedCommands": 18284,
+                  "rejectedCommands": 43,
+                  "unsupportedWarnings": []
+                }
+              }
+            ],
+            "synchronization": {
+              "commonProbes": 26,
+              "lastFrame": 6000,
+              "mismatches": 0
+            }
+          }
+        ]
+      }
+    ],
+    "rejectionScope": "Factory totals include native guard rejections during combat. Existing bridge logs unsupported translations only while total rejected count is below ten; absence of warnings is not a claim of zero rejections or complete classification. Prior full sb.6 traces identified Lift/Spider Mines plus stale-native actor/target guards; actual lift/landing/mine behavior is independently observed here.",
+    "sourceIntegration": {
+      "base": "a096b05e199ac0aaa6d46d7da21b8833acfd3218",
+      "approval": "985840ac62b8749a8c383bd6a9ffa8ca88a5f8e5",
+      "releaseRuntime": "ed93b4455c01323150119b57f538ff2fe7b3f59b",
+      "commands": "e3b77dbf84614870f60a3a1dce511e35a3d0cd96",
+      "gatheredResources": "78cd67a08ad61cc6f27c57d573cf92f83900d707",
+      "cancelTraining": "e09aa8c28bc53172b2006fbce8d52734ad601269",
+      "integrationCommit": "6b81cc1b2dedd6f7e9a30dbda34c7d0e0a3f10ba",
+      "debugControlsInRelease": false
+    },
+    "productionElectronBundleSha256": {
+      "index.js": "910afc057168b6ab397aa1b06b3cc57a00c6a29b8d5f93e4cafb55a7491818bb",
+      "app.appchunk.js": "644bba3513638a531e9ef953c8384dd42afe531c6e976092f33418730f7bba34"
+    },
+    "cleanup": {
+      "checkedApps": 3,
+      "checkedGameIds": 33,
+      "remainingCount": 0,
+      "checkedAt": "2026-10-27T09:19:29.4988079Z",
+      "remaining": []
+    }
+  },
+  "provisionalArchives": {
+    "scope": "The 60f80501… and 477ee3cc… archives were provisional and unpublished. The gatherGuardReview, earlierAdmission and releaseClientIntegration sections cover superseded Gather-patched builds. These results do not establish validation of the merged-main artifact.",
+    "correctedArchiveValidation": {
+      "schemaVersion": 1,
+      "releaseId": "purplewave-sb-6",
+      "scope": "Historical validation of superseded archive 477ee3cc… with the downstream Gather guard. The recorded URL was planned and never hosted these bytes. Checks apply to this exact archive.",
+      "artifact": {
+        "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/purplewave-sb-6/purplewave-sb-6.zip",
+        "sha256": "477ee3cc900eb0851bcd726c8e2f8781579a38daaf8c0f876383b5127f0db722",
+        "sizeBytes": 20065830,
+        "manifestSha256": "18362afc51831f3bd78135edbf42bcbee4fec5960715811ecce4f2e5cef1d6f0",
+        "format": "zip"
+      },
+      "recipe": {
+        "revision": "17b377ca0d5df068e52abb5bdcf57867d697477f",
+        "sha256": "54f462c2b6c7bb58c6ba90c9ddee64ec5c47b28154b770eb1c88e396dcd37608",
+        "toolchain": {
+          "javacVersion": "javac 21.0.11",
+          "java": {
+            "javaVendor": "Eclipse Adoptium",
+            "javaVersion": "21.0.11",
+            "javaVmName": "OpenJDK 64-Bit Server VM",
+            "javaVmVersion": "21.0.11+10-LTS",
+            "osArchitecture": "amd64",
+            "dataModel": "64"
+          },
+          "scalaVersion": "2.12.20"
+        }
+      },
+      "archiveAudit": {
+        "releaseId": "purplewave-sb-6",
+        "entries": 1186,
+        "changedMembersFromOriginalAdmission": [
+          "package.json",
+          "source/build-info.json",
+          "source/tools/package-purplewave.ts"
+        ],
+        "addedMembers": [],
+        "removedMembers": [],
+        "allSixRuntimeJarsIdentical": true,
+        "noticesUnchanged": true,
+        "upstreamPatchedSourceAndWorkingConfigurationUnchanged": true,
+        "catalogDescriptorMatchesEmbeddedManifest": true,
+        "oneVOne": "experimental",
+        "productionApproval": "absent",
+        "jars": [
+          {
+            "path": "bin/PurpleWave.jar",
+            "sha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+            "sizeBytes": 6766057
+          },
+          {
+            "path": "bin/lib/commons-lang3-3.8.1.jar",
+            "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+            "sizeBytes": 501879
+          },
+          {
+            "path": "bin/lib/jna-5.18.1.jar",
+            "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+            "sizeBytes": 2002994
+          },
+          {
+            "path": "bin/lib/jna-platform-5.18.1.jar",
+            "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+            "sizeBytes": 1380744
+          },
+          {
+            "path": "bin/lib/scala-library-2.12.20.jar",
+            "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+            "sizeBytes": 5436770
+          },
+          {
+            "path": "bin/lib/scala-reflect-2.12.20.jar",
+            "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+            "sizeBytes": 3670575
+          }
+        ]
+      },
+      "freshCompiledRegression": {
+        "casesPassed": 8,
+        "scope": "Actual freshly compiled Gather predicate; health 0,-1,1,40 with strict and lazy empty threat sequences."
+      },
+      "offlinePackagedSourceRebuild": {
+        "scope": "Offline compile using only packaged source/recipe helper and hash-verified cached compiler/dependency JARs; no source clones or network requests",
+        "toolchain": "javac 21.0.11",
+        "sourceCounts": {
+          "java": 118,
+          "macro": 2,
+          "scala": 961
+        },
+        "files": [
+          {
+            "path": "bin/PurpleWave.jar",
+            "sha256": "e2bfd2519e07e6597bd2159b6044df6c2fca11ebc2b86a532f28e182bd452013",
+            "sizeBytes": 6766057
+          },
+          {
+            "path": "bin/lib/scala-library-2.12.20.jar",
+            "sha256": "4d8a8f984cce31a329a24f10b0bf336f042cb62aeb435290a1b20243154cfccb",
+            "sizeBytes": 5436770
+          },
+          {
+            "path": "bin/lib/scala-reflect-2.12.20.jar",
+            "sha256": "5f1914cdc7a70580ea6038d929ebb25736ecf2234f677e2d47f8a4b2bc81e1fb",
+            "sizeBytes": 3670575
+          },
+          {
+            "path": "bin/lib/jna-5.18.1.jar",
+            "sha256": "260c4b1e22b1db9e110ee441c4f13ce115f841fa48c41d78750986214b395557",
+            "sizeBytes": 2002994
+          },
+          {
+            "path": "bin/lib/jna-platform-5.18.1.jar",
+            "sha256": "ad14c1b1ec4f43d396231219dfa635ebf828f738eac9f890ea1bc07795892d9a",
+            "sizeBytes": 1380744
+          },
+          {
+            "path": "bin/lib/commons-lang3-3.8.1.jar",
+            "sha256": "dac807f65b07698ff39b1b07bfef3d87ae3fd46d91bbf8a2bc02b2a831616f68",
+            "sizeBytes": 501879
+          }
+        ],
+        "allSixJarsIdentical": true
+      },
+      "freshInstallerAndReset": {
+        "scope": "Actual ShieldBattery catalog verifier, archive installer and profile-reset functions on Windows with an isolated HTTPS server and ephemeral signing trust. No Electron UI, active-game lease or new gameplay claim.",
+        "appSourceRevision": "ed93b4455c01323150119b57f538ff2fe7b3f59b",
+        "artifactSha256": "477ee3cc900eb0851bcd726c8e2f8781579a38daaf8c0f876383b5127f0db722",
+        "manifestMatchesCatalog": true,
+        "experimentalOneVOne": true,
+        "signedHttpsInstall": true,
+        "tamperedSignatureRejected": true,
+        "tamperedZipRejected": true,
+        "mismatchedDescriptorRejected": true,
+        "failedInstallPreservedExistingPackage": true,
+        "twoIsolatedProfiles": true,
+        "offlineReset": true,
+        "resetNetworkRequests": 0,
+        "syntheticResetProbesOnly": true,
+        "immutableInstalledFilesUnchanged": true,
+        "installedFileCount": 1181,
+        "productionApprovalAbsent": true,
+        "productionGateRejectedBeforeDownload": true,
+        "productionDownloads": 0,
+        "tlsTrust": "Exact locally generated CA certificate; normal certificate verification enabled",
+        "productionGateSourceRevision": "eed4b36b3234e3e985f8bcda675f348eb12fc427"
+      },
+      "preservedOriginalArchiveSha256": [
+        "60f80501b9d898b0b392df624e35d15df4bcb3749338e77b8e78820405e980b4",
+        "c19bd7d3761621d221e652126208c7a1de52e8b5f15fd79e673cb8e5525875a1"
+      ],
+      "publication": {
+        "approval": "deferred",
+        "releaseStatus": "absent",
+        "publicReleaseEndpoint": "404 at reconciliation",
+        "activeCatalogUnchanged": true,
+        "artifactUploadRequiredBeforeCatalogMerge": true,
+        "uploaded": false,
+        "workflowDispatched": false,
+        "productionPromotion": false,
+        "productionGateRequiredBeforeActiveCatalogAdmission": "robotics-facility PR #4"
+      },
+      "repositoryChecks": {
+        "runtime": "Windows Node 24.22.1 / pnpm 11.18.0",
+        "frozenInstallScriptsDisabled": true,
+        "metadataGeneration": true,
+        "typecheck": true,
+        "lintAndFormat": true,
+        "metadataValidation": true,
+        "testsPassed": 66,
+        "testsFailed": 0,
+        "newGameplay": false,
+        "newElectronUi": false
+      }
+    }
+  }
+}

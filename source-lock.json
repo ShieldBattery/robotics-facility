@@ -37,11 +37,11 @@
     {
       "id": "purplewave",
       "repository": "https://github.com/dgant/PurpleWave.git",
-      "revision": "a57d2511cc4f6318c2a2d61a504e8f58a7b090af",
+      "revision": "08672150433a2c60f5db23e10d2bc15dbc6e302e",
       "patches": [
         {
           "path": "patches/purplewave/0001-isolate-runtime-state.patch",
-          "sha256": "633cf667b7993d8d3c5419e77552d77d7eab73ac28aa560cf06d9a734ec854e0"
+          "sha256": "bebec454f3504ba6fffab3bf2a125b22ca885f1f4e6e0de3c1711b527728a728"
         }
       ]
     },
