@@ -131,8 +131,8 @@
     "savesPerProfile": 100,
     "limitation": "Synthetic storage records and injected I/O failures; physical disk exhaustion and shared-profile writers are not tested."
   },
-  "sourceAndLocalDistribution": "approved at recorded scope",
-  "admittedReleaseId": "bananabrain-sb-5",
+  "sourceAndLocalDistribution": "withdrawn proposal; unapproved",
+  "proposedReleaseId": "bananabrain-sb-5",
   "offlineRebuild": {
     "executableSha256": "37a6eb939180daac8c063ce8935de1dbc6d06aa4675ae98073e883d98a3b69d8",
     "source": "extracted review ZIP only",

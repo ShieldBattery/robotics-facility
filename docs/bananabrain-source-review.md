@@ -1,8 +1,9 @@
 # BananaBrain source/storage review
 
-Historical review: 2026-10-26. Current scoped admission (2026-10-27):
-[sb.5 review](releases/bananabrain-sb-5.md). Earlier package findings/statuses below
-remain scoped to their original inputs; they do not approve those old archives.
+Current candidate: [sb.6 experimental review](releases/bananabrain-sb-6.md).
+Source review is pending and local distribution is unreviewed. The historical
+2026-10-26 findings below apply to their original inputs.
+
 Initial scope: the original AIIDE 2025 source in review package `bananabrain-sb-2`,
 existing native host/BWAPI client, packaged source rebuild and isolated storage
 tests. This does not approve catalog admission or public competition.

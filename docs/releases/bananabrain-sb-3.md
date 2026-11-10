@@ -1,4 +1,7 @@
-# BananaBrain sb.3 review package
+# BananaBrain sb.3 review package (superseded)
+
+Historical review evidence for sb.3. See the pending [sb.6 review](bananabrain-sb-6.md)
+for the current candidate.
 
 Recipe: `4c5178c0d81a1514582f51c26c3dc600a36b83c7`. Review-only; source/distribution approval remains
 pending. No catalog publication is included.

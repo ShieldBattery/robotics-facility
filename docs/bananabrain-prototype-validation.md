@@ -1,4 +1,7 @@
-# BananaBrain prototype validation
+# BananaBrain prototype validation (superseded)
+
+Historical prototype evidence. See the pending [sb.6 review](releases/bananabrain-sb-6.md)
+for the current candidate.
 
 Tested on 2026-10-25 and 2026-10-26. Local prototype only; no catalog entry or publication.
 

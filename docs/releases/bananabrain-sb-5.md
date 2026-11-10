@@ -1,7 +1,9 @@
-# BananaBrain sb.5 local-practice admission
+# BananaBrain sb.5 local-practice proposal (withdrawn)
 
-Review date: 2026-10-27. Source and local-distribution review approved for the
-inputs, admitted archive and scope below. Final installer checks passed.
+Review date: 2026-10-27. This proposal was withdrawn without maintainer approval
+or upload. Final local installer checks passed for the archive below. See the
+pending [sb.6 review](bananabrain-sb-6.md) for the current candidate.
+
 Scope: assigned Protoss, experimental local 1v1, Win32 native bot with x64
 StarCraft on Fighting Spirit 1.4. Human strength remains uncalibrated. Teams, FFA,
 random/Terran/Zerg assignments and x86 StarCraft are unverified. Public tournament
@@ -30,11 +32,11 @@ executable SHA-256:
 `37a6eb939180daac8c063ce8935de1dbc6d06aa4675ae98073e883d98a3b69d8`.
 Byte-identical builds across directories are not claimed.
 
-The admitted sb.5 package carries the same tested executable, patched source,
+The proposed sb.5 package carries the same tested executable, patched source,
 original AI bytes, build record and existing license notices. Its new identity,
 review metadata, project modifier attribution, current BUILD instructions and
 additional admission notice are packaging changes. Earlier review archives stay
-immutable. Assembly used committed admission metadata `55f60b3`. Exactly 294 parent members
+immutable. Assembly used committed proposal metadata `55f60b3`. Exactly 294 parent members
 are byte-identical; only `package.json` and `source/BUILD.md` change and
 `notices/ADMISSION.txt` is added. Nothing is removed. New ZIP SHA-256:
 `c83f384e00d7c5ca61ccd5db5cc900d77379510cca47b775270773d71d245154`
@@ -145,8 +147,7 @@ renderer navigation and the reset button UI were not retested in this bot change
 
 The BananaBrain License permits copying, modification and redistribution with its
 notice retained. Public StarCraft tournament submission separately requires written
-author permission; none is recorded. Local supervised practice approval does not
-satisfy that condition. Original Johan de Jong attribution stays intact.
+author permission; none is recorded. Original Johan de Jong attribution stays intact.
 
 | Component | Packaged notice/source |
 | --- | --- |
@@ -158,17 +159,16 @@ satisfy that condition. Original Johan de Jong attribution stays intact.
 | Downstream changes/review | Original `notices/RELEASE.txt` plus new `notices/ADMISSION.txt` |
 
 The original RELEASE review notice is preserved verbatim, including its historical
-pending-review sentence. ADMISSION and the immutable descriptor state the current
-scoped decision. The app must retain and display all notices offline, upstream
-authorship and project modification disclosures.
+pending-review sentence. ADMISSION and the immutable descriptor contain the
+withdrawn proposal's review wording. The app must retain and display all notices
+offline, upstream authorship and project modification disclosures.
 
 Corresponding source is inside the same versioned ZIP as the executable, including
 patched bot/BWAPI sources, dependency headers, source-lock/patches and native build
 materials. Offline source rebuilding verifies a user can modify/relink the static
 BWAPI combined executable. Preserve modification/debugging rights and equivalent
 source access when publishing; a mutable upstream URL alone is insufficient.
-Review decision covers these exact inputs and delivery arrangement; it grants no
-new rights in upstream work.
+The evidence covers these exact inputs and the tested delivery arrangement.
 
 ## Client and delivery limits
 
@@ -180,8 +180,6 @@ integration used for gameplay is recorded above; it is not presented as a fresh
 build of every latest client PR. Do not ship an older integration merely because
 this bot ran on it.
 
-Admission is separate from publication: maintainers must upload this exact new
-archive, publish a new signed staging revision, verify delivery and activation,
-then promote through protected production workflow. No public release upload,
-catalog signing, workflow dispatch or production promotion is part of this review.
+Validation used an isolated local fixture. No public release upload, catalog
+signing, workflow dispatch or production promotion took place.
 Pluto remains development-only and is absent from this package/catalog entry.
