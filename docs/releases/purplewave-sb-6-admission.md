@@ -21,6 +21,14 @@ downstream Gather guard. Their digests and archive checks apply to the
 provisional bytes. The active catalog will receive the generated fragment after
 maintainers host the final reviewed ZIP.
 
+The candidate uses `purplewave-sb-6` pending maintainer confirmation. Keep that
+ID if provisional installs were limited to known test profiles. On those
+profiles, remove the provisional bot package and reinstall the final build.
+Removal preserves learning data. ShieldBattery offers updates by release ID,
+so a provisional sb.6 install will stay in place until it is removed. If the
+test installs cannot be accounted for, choose a fresh release ID and update
+the report filename and tag-pinned candidate links before packaging.
+
 ## Player-facing update
 
 The source moves from `a57d2511cc4f6318c2a2d61a504e8f58a7b090af` to
@@ -31,10 +39,11 @@ Playing strength and performance have yet to be measured for this package.
 
 The update retains upstream Gather behavior. Earlier games recorded a caught
 `empty.max` exception four times in one game and once in another. Both games
-completed. When a zero-health worker reaches the melee escape scoring path with
-an empty threat list and an eligible resource goal, the exception reaches the
-`onFrame` handler. Source inspection indicates that the remaining work for that
-frame is skipped. The effect on gameplay was unmeasured.
+completed. The exception can occur when a worker reports zero or negative
+total health, stands on a tile in enemy ground range, has a base and an
+eligible resource goal, and has an empty melee threat list. Source inspection
+shows that the exception reaches the `onFrame` handler and skips the remaining
+work for that frame. The effect on gameplay was unmeasured.
 
 ## Static source and file-access review
 
@@ -44,24 +53,26 @@ with the retained runtime and storage isolation patch and fixed configuration.
 
 - The new file access in compiled `src/` is a read of the fixed
   `bwapi-data/AI/fixedbuilds-by-opponent.json` path through `FileFlag`.
-  The opponent name selects a JSON key. The existing fixed `fixedbuilds.txt`
-  path remains the fallback.
+  The opponent name selects a JSON key.
 - `CombatVisIO` simulation-log writes require both `debugging` and `simviz`.
   The fixed configuration disables both, and the isolation patch prevents
   enabling `simviz` and removes external visualizer auto-launch.
-- `CombatForecastDiagnostics` and `FormationPathAudit` use the patched logger
-  and are disabled by default and in the fixed configuration.
+- `CombatForecastDiagnostics` and `FormationPathAudit` log through
+  `With.logger.debug`. The fixed configuration omits their settings, which
+  default to false. Combat forecasts also require `debugging`.
 - Changes to Logger, Storyteller, Zippers and PlacementCache add no paths.
-  PlacementCache moves from format 3 to 5 and regenerates old caches.
-  Opponent-history format v5 and read/write deduplication remain compatible.
+  PlacementCache moves from format 3 to 5, which requires regenerating old caches.
 - The delta adds no process, network, registry or reflection calls. The
-  existing combat simulation thread now uses the caller's priority.
-  The new `strategySelectionRandom` setting selects the testing playbook when
-  enabled, defaults to false and is absent from the fixed configuration.
+  combat simulation thread predates the old pin.
 - Upstream moved its mjson submodule from `e7a4da2` to `6c6c5c1`. The package
   lock retains `e7a4da2`. The packaged main path uses mjson for fixed package
   inputs. Optional URL/schema APIs and standalone research entrypoints are
   outside that path.
+
+Contributor follow-up found that the existing fixed `fixedbuilds.txt` path
+remains the fallback and that the simulation thread now uses the caller's
+priority. The new `strategySelectionRandom` setting selects the testing
+playbook when enabled. It defaults to false and the fixed configuration omits it.
 
 Active runtime effects include package and configuration reads, assigned BWAPI
 shared-memory and named-pipe IPC, encoded opponent histories, placement caches
@@ -85,11 +96,12 @@ review scopes.
 The [historical record](purplewave-sb-6-history.json) ties gameplay and saved
 state to exact archive, runtime and client hashes. It includes natural
 Protoss/Zerg and Terran/Zerg outcomes, saved winner/frame agreement, later
-history reload, and isolated profiles. Bounded factory games and separate
-fixtures exercised building flight and Spider Mines. These results retain their
-original scope. If the new JARs match the recorded pre-Gather build, its runs
-cover the same runtime on the clients used in those runs. The final archive and
-fixed-client behavior require separate validation.
+history reload, and isolated profiles. Historical upgrade and reload checks
+retained opponent-history format v5 and deduplicated read/write entries.
+Bounded factory games and separate fixtures exercised building flight and
+Spider Mines. If the new JARs match the recorded pre-Gather build, its runs
+cover the same runtime on the clients used in those runs. The final archive
+and fixed-client behavior require separate validation.
 
 The compatible client must include gathered-resource reporting, training
 cancellation, building flight and Spider Mine translation, supervised release
@@ -101,10 +113,11 @@ the fixes.
 ## Staging and production rollout
 
 After both PRs land, build and review the final artifact from main. Verify
-signed installation and archive rejection paths against the final bytes in
-isolated staging. Record the digests and validation in this report, tag the
-report on main, and host the exact ZIP before adding its generated fragment to
-the catalog. Verify signed CDN delivery and the receipt after staging
-publication. The release stays experimental and carries no production approval.
+signed installation, archive rejection paths and reset against the final
+bytes using an isolated signed catalog with test trust. Record the digests and
+pre-publication checks in this report, tag the report on main, and host the
+exact ZIP before adding its generated fragment to the catalog. After staging
+publication, verify signed CDN delivery and record the result and receipt in a
+later commit. The release stays experimental and carries no production approval.
 Production approval requires a separate review after client rollout and verified
 staging delivery.

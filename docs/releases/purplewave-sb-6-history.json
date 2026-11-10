@@ -400,6 +400,7 @@
     "archiveSha256": "7bbc47be6b095059e5bbbb60ddbcb7af192a4bca241882e63551a47a51c1e3ce",
     "bridgeFix": {
       "revision": "e09aa8c28bc53172b2006fbce8d52734ad601269",
+      "mergeCommit": "56fdc5c3e5f3df950724e51f452721485194ec7f",
       "base": "a096b05e199ac0aaa6d46d7da21b8833acfd3218",
       "target": "ShieldBattery/ShieldBattery feature/bwapi-compat",
       "patchSha256": "bb2e4831c86a55919c43a8bf2d90bff917b41140f75c68e82dd344774d5bc09d",
@@ -412,7 +413,7 @@
       "diagnosticsPatch": {
         "sha256": "c1a7265b56e86955832fb244f0666a6e20700cb8503915638dd1673e769906eb",
         "base": "ff167db43053cead7a991a68c224c8d6bf61066d",
-        "requires": "Apply the train-cancel patch too; opt in with SB_BWAPI_REJECTION_DIAGNOSTICS=1. Test instrumentation only, excluded from production fix.",
+        "requires": "The historical diagnostic build also used ShieldBattery/ShieldBattery#1837 at e09aa8c. The test opted in with SB_BWAPI_REJECTION_DIAGNOSTICS=1. The production fix excludes this instrumentation.",
         "scope": "Historical hash of a test-only diagnostics patch removed from this PR."
       },
       "productionChecks": {
@@ -1905,7 +1906,7 @@
     "correctedArchiveValidation": {
       "schemaVersion": 1,
       "releaseId": "purplewave-sb-6",
-      "scope": "Historical validation of superseded, unpublished archive 477ee3cc… with the downstream Gather guard. Checks apply to these exact bytes.",
+      "scope": "Historical validation of superseded archive 477ee3cc… with the downstream Gather guard. The recorded URL was planned and never hosted these bytes. Checks apply to this exact archive.",
       "artifact": {
         "url": "https://github.com/ShieldBattery/robotics-facility/releases/download/purplewave-sb-6/purplewave-sb-6.zip",
         "sha256": "477ee3cc900eb0851bcd726c8e2f8781579a38daaf8c0f876383b5127f0db722",
