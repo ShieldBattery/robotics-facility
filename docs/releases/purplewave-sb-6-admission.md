@@ -29,6 +29,11 @@ so a provisional sb.6 install will stay in place until it is removed. If the
 test installs cannot be accounted for, choose a fresh release ID and update
 the report filename and tag-pinned candidate links before packaging.
 
+Validate the final artifact in fresh, isolated profiles. For the reload check,
+save history in one match and read it in the next using the final build. Record
+any test of learning data carried over from an earlier build separately as an
+upgrade check.
+
 ## Player-facing update
 
 The source moves from `a57d2511cc4f6318c2a2d61a504e8f58a7b090af` to
