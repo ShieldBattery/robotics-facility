@@ -173,7 +173,8 @@
             "sizeBytes": 1420964,
             "manifestSha256": "8e3060e283b2a4f905899d7fcbb2644b379e94796e904c3b3c9e7d3c20bbe26a",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     },
@@ -1259,7 +1260,8 @@
             "sizeBytes": 1710587,
             "manifestSha256": "03b2fdf4ae00c8f9e5f78b42d6eca28c84a644bc434759bf5dd3493878a95548",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     },
@@ -1456,7 +1458,8 @@
             "sizeBytes": 3784197,
             "manifestSha256": "641d96e84f6735ece703f6a41628c37c9b5940ad736760875231909adae42ac0",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     },
@@ -1681,7 +1684,8 @@
             "sizeBytes": 16323772,
             "manifestSha256": "732e1b55e24da7ff064b83d2980fb9dc60e9d736f7d1b85be64f3da82cefce92",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     },
@@ -1900,7 +1904,8 @@
             "sizeBytes": 6882516,
             "manifestSha256": "19685a465a99f2fe14b20268ce08f173acfd3ec6b3def2cb9380670a411d1709",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     },
@@ -2106,7 +2111,8 @@
             "sizeBytes": 2284425,
             "manifestSha256": "e5a302dd78fe53a1aab13037a0be6a0a421d91cbdb0b7d589d9a010d71fb61a2",
             "format": "zip"
-          }
+          },
+          "releaseStatus": "production-approved"
         }
       ]
     }

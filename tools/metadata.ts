@@ -232,6 +232,10 @@ export interface Catalog {
      * @minItems 1
      */
     releases: {
+      /**
+       * Release-specific rollout approval, separate from source review and format support. Missing status is a candidate and is excluded from production.
+       */
+      releaseStatus?: 'candidate' | 'production-approved'
       package: Package
       artifact: Artifact
     }[]

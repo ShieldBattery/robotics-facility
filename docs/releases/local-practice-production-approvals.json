@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "catalogBaseCommit": "0f9be676da625dddf3da85ee35b55c2f11a85731",
+  "reviewScope": "Proposal for production availability of exact existing packages for supervised local practice; existing source/artifact/gameplay evidence re-assessed, no new matches or bot builds performed",
+  "approvals": [
+    {
+      "botId": "zzzkbot",
+      "releaseId": "zzzkbot-sb-1",
+      "archiveSha256": "d581da5fbc409bdc9d7cb7259f3ede0b62535d8bc6832c74ac3d1d62128a0ffb",
+      "sizeBytes": 1420964,
+      "manifestSha256": "8e3060e283b2a4f905899d7fcbb2644b379e94796e904c3b3c9e7d3c20bbe26a",
+      "packageSha256": "f577d1a644363b583ff38875b8253bec292605306bcd9156a42e34a411d87501",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "zerg"
+        ],
+        "existingFormatSupport": "verified",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/releases/zzzkbot-sb-1.md",
+      "observations": [
+        "x64 natural win with synchronized gameplay and saved history",
+        "x86 concurrent-instance gameplay and owned-process cleanup",
+        "signed staging archive readback and packaged-source rebuild"
+      ],
+      "limitations": [
+        "x86 evidence is concurrent-instance smoke, not a natural 1v1 result",
+        "Use separate app-owned histories; arbitrary imported histories and unbounded hostile inputs are not covered"
+      ]
+    },
+    {
+      "botId": "ualbertabot",
+      "releaseId": "ualbertabot-sb-3",
+      "archiveSha256": "e0666438fe54fbebd9ee1b59c4ed2576ff34d2cc1fccbe1c64bce8193ca1d0f7",
+      "sizeBytes": 1710587,
+      "manifestSha256": "03b2fdf4ae00c8f9e5f78b42d6eca28c84a644bc434759bf5dd3493878a95548",
+      "packageSha256": "210498be116e7a9c7b6a79e23517fa7b4105ec91135cd8f1c02466441333e945",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "terran"
+        ],
+        "existingFormatSupport": "verified",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/ualbertabot-source-review.md",
+      "observations": [
+        "fixed MarineRush configuration with StrategyIO and chat setters disabled",
+        "x86/x64 gameplay, synchronized instances and normal end callbacks",
+        "corresponding-source rebuild and unchanged configuration after play"
+      ],
+      "limitations": [
+        "One observer startup timeout was recorded; subsequent launches passed",
+        "Fixed packaged configuration only; no adaptive learning claim"
+      ]
+    },
+    {
+      "botId": "marine-hell",
+      "releaseId": "marine-hell-sb-4",
+      "archiveSha256": "777703249cd4cdebb45ae4ab936600cc7f58af7804aa6d2d6c6c81cecb2e8688",
+      "sizeBytes": 3784197,
+      "manifestSha256": "641d96e84f6735ece703f6a41628c37c9b5940ad736760875231909adae42ac0",
+      "packageSha256": "5c428a552a9d97d221bda9a6cd92c363321b9fd7500e646386ed8e4905d3dd05",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "terran"
+        ],
+        "existingFormatSupport": "verified",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/marine-hell-admission.md",
+      "observations": [
+        "source/JAR/dependency notice review and offline recompilation",
+        "x86/x64 production/combat and corrected native bunker loading",
+        "signed CDN installation, installed practice launch and clean shutdown"
+      ],
+      "limitations": [
+        "Requires x64 Java 21",
+        "Unusual/island/no-choke maps and forced-crash cases were not verified"
+      ]
+    },
+    {
+      "botId": "opprimobot",
+      "releaseId": "opprimobot-sb-1",
+      "archiveSha256": "c11c0b1733ba84b6fb635e118632a0b88fd52b53dcd4e50402c5ea01573dff99",
+      "sizeBytes": 16323772,
+      "manifestSha256": "732e1b55e24da7ff064b83d2980fb9dc60e9d736f7d1b85be64f3da82cefce92",
+      "packageSha256": "dda3588dabfbfe06319d762b70814c7df5a975a27459a081c0e3b09e96f5cf16",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "terran"
+        ],
+        "existingFormatSupport": "verified",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/opprimobot-admission.md",
+      "observations": [
+        "exact-source/dependency review and offline native rebuild",
+        "natural x86/x64 losses against ZZZKBot with matching simulation probes",
+        "signed staging installation, paired practice launch and process cleanup"
+      ],
+      "limitations": [
+        "Fresh bot process for every match; history/statistics/cache I/O remains disabled",
+        "Ordinary tested maps only; expensive path queries and late-game spells are not exhaustively covered"
+      ]
+    },
+    {
+      "botId": "infested-artosis",
+      "releaseId": "infested-artosis-sb-1",
+      "archiveSha256": "9e114acc51d37abf924e8cac1fb233ccd54cb335cc636ca1b23a7a9370200370",
+      "sizeBytes": 6882516,
+      "manifestSha256": "19685a465a99f2fe14b20268ce08f173acfd3ec6b3def2cb9380670a411d1709",
+      "packageSha256": "db9f1cd7e3650a52cdd212784737eaccbd7920b84fa6d76130b3285f9d86527b",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "zerg"
+        ],
+        "existingFormatSupport": "experimental",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/infested-artosis-admission.md",
+      "observations": [
+        "offline class inventory reproduction and bounded storage regressions",
+        "natural x64 loss after corrected Zerg morph/completion behavior; x86 paired gameplay",
+        "signed staging install, persistent isolated work/work-2 profiles, repeated launch and idle reset"
+      ],
+      "limitations": [
+        "Requires x64 Java 21 and corrected Zerg morph/completion bridge",
+        "1v1 remains experimental; one live command rejection was not classified",
+        "Teams, FFA, unusual maps and broader strategic progression remain unverified"
+      ]
+    },
+    {
+      "botId": "steamhammer",
+      "releaseId": "steamhammer-sb-1",
+      "archiveSha256": "e4a784d2db74db9867e89d70a7b04effa21a9a16b783bdc9ca6cf1450b1429cc",
+      "sizeBytes": 2284425,
+      "manifestSha256": "e5a302dd78fe53a1aab13037a0be6a0a421d91cbdb0b7d589d9a010d71fb61a2",
+      "packageSha256": "b8e8dbe69bee6edf1e76ac891facd344398bfd4753d83bbc1d238c0ac8cd0a7c",
+      "scope": {
+        "use": "local-practice",
+        "format": "one-v-one",
+        "selectableRaces": [
+          "terran",
+          "protoss",
+          "zerg"
+        ],
+        "existingFormatSupport": "experimental",
+        "mapEvidence": "Map coverage is limited to scenarios in the linked release report; broad map coverage is not claimed."
+      },
+      "evidence": "docs/steamhammer-admission.md",
+      "observations": [
+        "source/notice review, offline native rebuild and malformed-state regressions",
+        "final-build 1v1 progression/combat and normal concession callbacks; concurrent instance smoke",
+        "signed staging install, distinct histories/evaluators, repeated launch and idle reset"
+      ],
+      "limitations": [
+        "1v1 remains experimental; recorded final-build endings were concessions, not natural combat results",
+        "Terran x86 final-build evidence is a multi-player smoke; its 1v1 combat evidence uses x64",
+        "FFA stays incompatible after the observed Zerg production stall; teams/Random remain unverified",
+        "Requires frame-zero/mineral normalization and refinery compatibility fixes"
+      ]
+    }
+  ],
+  "withheld": [
+    {
+      "botId": "purplewave",
+      "releaseIds": [
+        "purplewave-sb-1",
+        "purplewave-sb-2",
+        "purplewave-sb-3",
+        "purplewave-sb-4"
+      ],
+      "reason": "sb.1-sb.3 lack the native libffi notice corrected in sb.4. The sb.4 package exposes all three races while its carried-forward dedicated game evidence is Protoss-only. The separately reviewed sb.6 package and approval proposal remain in PR #2; do not broaden or backport their evidence to these bytes.",
+      "followUp": "https://github.com/ShieldBattery/robotics-facility/pull/2"
+    }
+  ],
+  "excluded": [
+    {
+      "botId": "pluto",
+      "decision": "development-only",
+      "reason": "No production approval or catalog import is part of this review."
+    }
+  ],
+  "commonLimits": [
+    "Assigned races and ordinary local 1v1 practice only; no new Random, teams, FFA, unusual-map, human-rating or public-competition approval. Existing metadata is retained unchanged.",
+    "No OS sandbox, exhaustive syscall trace, all-command correctness or all-map certification is claimed.",
+    "Use a client with verified supervised release practice and existing native-command, Zerg morph/completion, frame-zero and mineral-normalization fixes; historical test DLLs are not a general runtime approval.",
+    "Package descriptors, archive digests, source pins, configuration, format support and runtime operands stay unchanged. Only releaseStatus is added outside the package.",
+    "A new signed staging revision must carry these approval fields before production promotion. Existing signed staging revision 12 does not gain approval from this source change. No signing, upload, publication or workflow dispatch is authorized or performed."
+  ],
+  "stagingReadback": {
+    "stagingRevision": 12,
+    "catalogEnvelopeSha256": "6968e7f21fbaaf9027cc482d02f08d03659dea0a4d50d469624b04da79a15c3a",
+    "catalogSignatureVerified": true,
+    "receiptSignatureVerified": true
+  },
+  "localProductionPreparation": {
+    "passed": true,
+    "releaseIds": [
+      "zzzkbot-sb-1",
+      "ualbertabot-sb-3",
+      "marine-hell-sb-4",
+      "opprimobot-sb-1",
+      "infested-artosis-sb-1",
+      "steamhammer-sb-1"
+    ],
+    "bytesUnchanged": true,
+    "descriptorsUnchanged": true,
+    "scope": "Local preparation of proposed approval metadata over the verified staging package set, with .invalid destination; no signing, upload or workflow dispatch; existing signed receipt has no approval flags, so final rollout needs a new signed staging revision"
+  }
+}

@@ -11,6 +11,9 @@ build instructions, and offline license/modification notices. See the
 [OpprimoBot](docs/opprimobot-admission.md),
 [Infested Artosis](docs/infested-artosis-admission.md), and
 [Steamhammer](docs/steamhammer-admission.md) admission records for exact scope.
+The [scoped production approvals](docs/releases/local-practice-production-approvals.md)
+review six exact releases for local practice; experimental capability labels remain
+explicit. PurpleWave updates and BananaBrain admission have separate review work.
 Human difficulty remains uncalibrated; supported races and formats are
 release-specific. The game bridge currently requires a ShieldBattery debug build.
 

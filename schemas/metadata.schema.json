@@ -669,6 +669,11 @@
                   "type": "object",
                   "additionalProperties": false,
                   "properties": {
+                    "releaseStatus": {
+                      "description": "Release-specific rollout approval, separate from source review and format support. Missing status is a candidate and is excluded from production.",
+                      "type": "string",
+                      "enum": ["candidate", "production-approved"]
+                    },
                     "package": {
                       "$ref": "#/$defs/package"
                     },

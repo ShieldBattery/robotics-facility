@@ -6,6 +6,33 @@ must pass the schema, source-review approval, and local-distribution approval ga
 Its HTTPS artifact URL must already serve the exact reviewed ZIP. The initial empty
 catalog deliberately fails publication. Synthetic packages exist only in tests.
 
+Each catalog release can carry `releaseStatus`: `candidate` or
+`production-approved`. Missing status means `candidate`. This is a separate gate
+from source review, distribution permission, and individual format test results.
+Staging is a publication channel, not a separate release approval status.
+Development clients show non-production releases with a **Dev only — hidden in
+production** badge. Production clients use the fixed production catalog URL,
+channel, and signing key; overrides and release-status badges are development-only.
+The publisher selects approved releases before production delivery. The client
+retains existing installations when a catalog entry disappears, including offline
+launch and uninstall access; publication approval is not package revocation.
+
+Maintainers approve an exact release by reviewing its package, declared race/format scope,
+installation, lifecycle, and saved-state evidence, then changing
+its catalog `releaseStatus` to `production-approved` through review. Approval must
+not be inferred from a bot name or a single `verified` format flag. Publish a new
+staging revision containing that approval before promoting it. Catalog metadata can
+change without rebuilding the immutable archive or embedded package descriptor.
+Add machine-readable evidence for new approvals in a separate
+`docs/releases/*-production-approvals.json` file with an `approvals` array. Use the
+[existing record](releases/local-practice-production-approvals.json) as a template.
+The [scoped local-practice review](releases/local-practice-production-approvals.md)
+approves six exact current releases while retaining experimental capability labels
+and documented limits. PurpleWave updates and BananaBrain admission remain separate;
+Pluto stays development-only. Entries without explicit approval are omitted from
+new production publications. Missing human difficulty calibration or an untested
+optional format does not by itself disqualify an otherwise reviewed local profile.
+
 ## Two phases
 
 `node tools/publish.ts prepare staging --revision 1` validates the catalog and ZIPs
@@ -22,8 +49,11 @@ Production uses `prepare production --revision 2 --staging-revision 1`, followed
 `production --revision 2 --staging-revision 1`. Preparation reads the immutable
 signed **`published/1.json` receipt** from the configured staging public base URL,
 verifies staging key ID/public key/channel/revision, and downloads its digest-addressed
-archives. It verifies every archive again and rewrites only delivery URLs and the
-catalog revision for production. Archives and embedded package descriptors are not
+archives for `production-approved` releases. Unapproved releases and bots with no
+approved releases are omitted before downloads; an empty result refuses publication.
+It verifies each retained archive again and rewrites only delivery URLs and the
+catalog revision for production. Signing and upload recheck approval, so a prepared
+bundle containing unapproved releases is rejected. Archives and embedded package descriptors are not
 rebuilt or modified. Do not use `catalogs/1.json` alone as proof of success: that
 snapshot may exist after a failed activation. Production signs using its own key.
 

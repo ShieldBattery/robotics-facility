@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { generateKeyPairSync } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
+import { glob, readFile } from 'node:fs/promises'
 import test from 'node:test'
 import yazl from 'yazl'
 import type { Catalog, Package } from './metadata.ts'
@@ -341,8 +341,9 @@ await test('revisions and release identities cannot be silently reused with diff
 })
 
 await test('production copies exact staged ZIP bytes and requires staged content-addressed URLs', async () => {
-  const f = await fixture(),
-    staged = await stage(f)
+  const f = await fixture()
+  f.release.releaseStatus = 'production-approved'
+  const staged = await stage(f)
   const promoted = await preparePublication({
     channel: 'production',
     nextRevision: 7,
@@ -372,6 +373,87 @@ await test('production copies exact staged ZIP bytes and requires staged content
   )
 })
 
+await test('production selects only approved releases from mixed staging catalog', async () => {
+  const f = await fixture()
+  f.release.releaseStatus = 'production-approved'
+  const staged = await stage(f)
+  const approved = staged.catalog.bots[0].releases[0]
+  const candidate = structuredClone(approved)
+  candidate.package.releaseId = 'candidate-2'
+  candidate.releaseStatus = 'candidate'
+  staged.catalog.bots[0].releases.push(candidate)
+  staged.catalog.bots.push({
+    bot: { ...staged.catalog.bots[0].bot, id: 'staging-only' },
+    releases: [{ ...candidate, package: { ...candidate.package, botId: 'staging-only' } }],
+  })
+  let downloads = 0
+  const promoted = await preparePublication({
+    channel: 'production',
+    nextRevision: 2,
+    inputCatalog: staged.catalog,
+    publicBaseUrl: productionBase,
+    stagingBaseUrl: stagingBase,
+    download: async () => {
+      downloads++
+      return f.bytes
+    },
+  })
+  assert.equal(downloads, 1)
+  assert.equal(promoted.catalog.bots.length, 1)
+  assert.equal(promoted.catalog.bots[0].releases.length, 1)
+  assert.equal(promoted.catalog.bots[0].releases[0].package.releaseId, 'test-1')
+  assert.equal(staged.catalog.bots.length, 2)
+  assert.ok(promoted.artifacts.get(approved.artifact.sha256)?.equals(f.bytes))
+})
+
+await test('staging is a publication channel, not a release approval status', async () => {
+  const f = await fixture()
+  Object.assign(f.release, { releaseStatus: 'staging' })
+  assert.throws(() => validate('catalog', f.catalog), /releaseStatus/)
+})
+
+await test('missing and candidate statuses never authorize production', async () => {
+  for (const releaseStatus of [undefined, 'candidate'] as const) {
+    const f = await fixture()
+    f.release.releaseStatus = releaseStatus
+    const staged = await stage(f)
+    await assert.rejects(
+      preparePublication({
+        channel: 'production',
+        nextRevision: 2,
+        inputCatalog: staged.catalog,
+        publicBaseUrl: productionBase,
+        stagingBaseUrl: stagingBase,
+        download: async () => {
+          throw new Error('Must not download excluded releases')
+        },
+      }),
+      /No approved releases/,
+    )
+    const k = keys()
+    assert.throws(
+      () =>
+        signCatalog(staged.catalog, {
+          channel: 'production',
+          keyId: k.keyId,
+          privateKey: k.privateKey,
+        }),
+      /production-approved/,
+    )
+    const store = storeFixture()
+    await assert.rejects(
+      publishPrepared({
+        prepared: { ...staged, channel: 'production' },
+        store,
+        publicBaseUrl: productionBase,
+        ...signing(k),
+      }),
+      /production-approved/,
+    )
+    assert.deepEqual(store.writes, [])
+  }
+})
+
 await test('object keys, URLs, and workflow input parsing constrain publication targets', () => {
   assert.equal(objectKey('catalog.json'), 'robotics-facility/catalog.json')
   for (const key of [
@@ -395,4 +477,62 @@ await test('object keys, URLs, and workflow input parsing constrain publication 
   )
   assert.throws(() => parsePublishArgs(['production', '--revision', '2']))
   assert.throws(() => parsePublishArgs(['staging', '--revision', '2', '--staging-revision', '1']))
+})
+
+type ProductionApproval = {
+  botId: string
+  releaseId: string
+  archiveSha256: string
+  sizeBytes: number
+  manifestSha256: string
+  packageSha256: string
+  scope: {
+    selectableRaces: Package['profile']['selectableRaces']
+    existingFormatSupport: Package['profile']['formats'][number]['support']
+  }
+}
+
+await test('catalog production approvals match release review records', async () => {
+  const catalog: unknown = JSON.parse(
+    await readFile(new URL('../catalog/catalog.json', import.meta.url), 'utf8'),
+  )
+  validate('catalog', catalog)
+  const reviewDir = new URL('../docs/releases/', import.meta.url)
+  const records: ProductionApproval[] = []
+  for await (const file of glob('*-production-approvals.json', { cwd: reviewDir })) {
+    const review: { approvals: ProductionApproval[] } = JSON.parse(
+      await readFile(new URL(file, reviewDir), 'utf8'),
+    )
+    records.push(...review.approvals)
+  }
+  const approved = catalog.bots
+    .flatMap(bot => bot.releases)
+    .filter(release => release.releaseStatus === 'production-approved')
+  for (const release of approved) {
+    const { botId, releaseId } = release.package
+    const matches = records.filter(entry => entry.botId === botId && entry.releaseId === releaseId)
+    assert.equal(
+      matches.length,
+      1,
+      `Expected one production approval record for ${botId}/${releaseId}`,
+    )
+    const [record] = matches
+    assert.equal(release.artifact.sha256, record.archiveSha256)
+    assert.equal(release.artifact.sizeBytes, record.sizeBytes)
+    assert.equal(release.artifact.manifestSha256, record.manifestSha256)
+    assert.equal(sha256(canonical(release.package)), record.packageSha256)
+    assert.deepEqual(release.package.profile.selectableRaces, record.scope.selectableRaces)
+    assert.equal(
+      release.package.profile.formats.find(format => format.id === 'one-v-one')?.support,
+      record.scope.existingFormatSupport,
+    )
+    assert.equal(release.package.permissions.localDistribution.status, 'approved')
+    assert.equal(release.package.sourceReview.status, 'approved')
+    if (botId === 'steamhammer' && releaseId === 'steamhammer-sb-1') {
+      assert.equal(
+        release.package.profile.formats.find(format => format.id === 'free-for-all')?.support,
+        'incompatible',
+      )
+    }
+  }
 })

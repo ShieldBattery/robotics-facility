@@ -53,6 +53,18 @@ function key(input: string | Buffer, privateKey = false) {
   if (result.asymmetricKeyType !== 'ed25519') throw new Error('Catalog key must be Ed25519')
   return result
 }
+
+function requireProductionApproval(catalog: Catalog, channel: Channel) {
+  if (
+    channel === 'production' &&
+    catalog.bots.some(bot =>
+      bot.releases.some(release => release.releaseStatus !== 'production-approved'),
+    )
+  ) {
+    throw new Error('Production catalogs require production-approved releases')
+  }
+}
+
 export function signCatalog(
   catalog: unknown,
   { channel, keyId, privateKey }: { channel: string; keyId: string; privateKey: string | Buffer },
@@ -60,6 +72,7 @@ export function signCatalog(
   channelName(channel)
   if (!/^[a-zA-Z0-9_-]+$/.test(keyId)) throw new Error('Invalid catalog key ID')
   validate('catalog', catalog)
+  requireProductionApproval(catalog, channel)
   const payload = Buffer.from(
     canonical({ purpose: 'shieldbattery-bot-catalog', channel, keyId, catalog }),
   )
@@ -168,6 +181,12 @@ export async function preparePublication({
   const catalog = input as Record<string, unknown>
   catalog.revision = revision(nextRevision)
   validate('catalog', catalog)
+  if (channel === 'production') {
+    catalog.bots = catalog.bots.flatMap(bot => {
+      const releases = bot.releases.filter(r => r.releaseStatus === 'production-approved')
+      return releases.length ? [{ ...bot, releases }] : []
+    })
+  }
   if (!catalog.bots.length)
     throw new Error('No approved releases to publish; the candidate catalog is empty')
   const artifacts = new Map<string, Buffer>()
@@ -213,6 +232,7 @@ export async function publishPrepared({
   channelName(channel)
   validate('catalog', catalog)
   revision(catalog.revision)
+  requireProductionApproval(catalog, channel)
   if (!catalog.bots.length) throw new Error('No approved releases to publish')
   // Recheck local bundle integrity; ZIP parsing happens in the credential-free preparation step.
   const objects = new Map<string, { bytes: Buffer; type: string }>()
