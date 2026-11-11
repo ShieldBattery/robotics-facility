@@ -1,0 +1,218 @@
+{
+  "scope": "Actual Electron IPC, exact installed sb.6 and signed loopback development trust. Review status remains pending; no public publication or production approval.",
+  "artifactSha256": "e19593287f154f2ba5447ed992a2d55904e53837a99a21352dbd643b37eed358",
+  "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+  "runs": [
+    {
+      "round": 1,
+      "finish": "Natural native result observed before supervised result-screen/session cleanup",
+      "priorSavedRows": 0,
+      "lastSnapshot": {
+        "frame": 12240,
+        "minerals": 151,
+        "gas": 266,
+        "ownUnits": 111
+      },
+      "loadedDllVerified": true,
+      "nativeEnd": {
+        "winner": true,
+        "frame": 12248
+      },
+      "opening": "PvT_bulldog",
+      "savedRows": 1,
+      "savedWinnerFrameAgree": true,
+      "priorRealRowsPreserved": true,
+      "commands": {
+        "accepted": 13963,
+        "rejected": 1,
+        "lastPeriodicSnapshot": {
+          "frame": 12240,
+          "units": 235,
+          "accepted": 13947,
+          "rejected": 1,
+          "minerals": 151
+        },
+        "firstPeriodicRejection": {
+          "frame": 12240,
+          "units": 235,
+          "accepted": 13947,
+          "rejected": 1,
+          "minerals": 151
+        },
+        "encoderRejectionMessages": [],
+        "nativeLogSha256": "f056897fc6773ede8f0dd896f20308fbb92c87dea7e948bad15d5763152cc598"
+      },
+      "naturalCompletion": true,
+      "engineResultBeforeCleanup": true
+    },
+    {
+      "round": 2,
+      "finish": "User-confirmed Terran concession during play",
+      "priorSavedRows": 1,
+      "lastSnapshot": {
+        "frame": 7200,
+        "minerals": 23,
+        "gas": 216,
+        "ownUnits": 42
+      },
+      "loadedDllVerified": true,
+      "nativeEnd": {
+        "winner": true,
+        "frame": 7297
+      },
+      "opening": "PvT_10/15gate",
+      "savedRows": 2,
+      "savedWinnerFrameAgree": true,
+      "priorRealRowsPreserved": true,
+      "commands": {
+        "accepted": 2730,
+        "rejected": 0,
+        "lastPeriodicSnapshot": {
+          "frame": 7200,
+          "units": 170,
+          "accepted": 2484,
+          "rejected": 0,
+          "minerals": 23
+        },
+        "firstPeriodicRejection": null,
+        "encoderRejectionMessages": [],
+        "nativeLogSha256": "6639b25dcf9e6603654dff3d8a545094b7d1af81d7a4846eab5bb21a7dae55bc"
+      },
+      "naturalCompletion": false,
+      "engineResultBeforeCleanup": true
+    },
+    {
+      "round": 3,
+      "finish": "Natural native result observed before supervised result-screen/session cleanup",
+      "priorSavedRows": 0,
+      "lastSnapshot": {
+        "frame": 6480,
+        "minerals": 438,
+        "gas": 278,
+        "ownUnits": 39
+      },
+      "loadedDllVerified": true,
+      "nativeEnd": {
+        "winner": true,
+        "frame": 6637
+      },
+      "opening": "PvT_4gategoon",
+      "savedRows": 1,
+      "savedWinnerFrameAgree": true,
+      "priorRealRowsPreserved": true,
+      "commands": {
+        "accepted": 2142,
+        "rejected": 0,
+        "lastPeriodicSnapshot": {
+          "frame": 6480,
+          "units": 165,
+          "accepted": 2024,
+          "rejected": 0,
+          "minerals": 438
+        },
+        "firstPeriodicRejection": null,
+        "encoderRejectionMessages": [],
+        "nativeLogSha256": "9aaaefbf98ae7db5e14ff06cf1fe2e24e53d468dda4d1caef56f59837abf3599"
+      },
+      "naturalCompletion": true,
+      "engineResultBeforeCleanup": true
+    }
+  ],
+  "complete": true,
+  "modifiedSignatureRejected": true,
+  "signedInstallViaActualElectronIpc": true,
+  "pendingDescriptorPreserved": true,
+  "modifiedZipRejected": true,
+  "mismatchedDescriptorRejected": true,
+  "failedInstallPreservedPackage": true,
+  "readableNotices": 7,
+  "activeResetRejected": true,
+  "malformedStaleReadFixture": true,
+  "actualHistoryReloadAndWritePrecedence": true,
+  "naturalMatches": 2,
+  "idleOfflineReset": true,
+  "resetNetworkRequests": 0,
+  "originalAiAndImmutablePackageUnchanged": true,
+  "replacementNaturalMatchRequired": false,
+  "classificationCorrection": "Original runner inferred natural completion from callback; user confirmed voluntary Terran exit in run 2. Result rows remain untouched.",
+  "cachedInstalledLaunchAfterReset": true,
+  "distinctOpeningsBeforeReset": true,
+  "savedResultSnapshotsBeforeReset": [
+    {
+      "sha256": "622e82611e2f6f8e001701a15776681aaf280fdf163c9b9387a471cbd4d686ed",
+      "rows": 1
+    },
+    {
+      "sha256": "b50569e0d5c0faf3266e62a743c3e5b4fe709b7b7efc00c1b3afba5a0e7d1068",
+      "rows": 2
+    }
+  ],
+  "savedResultSnapshotAfterReset": {
+    "sha256": "3e4ef565dc59c7ce51d91f3302a0e248a0010301f4ab590050b27e2dc57a1594",
+    "rows": 1
+  },
+  "freshSavedHistoryAfterResetVerified": true,
+  "signedFixtureScope": {
+    "artifactSha256": "e19593287f154f2ba5447ed992a2d55904e53837a99a21352dbd643b37eed358",
+    "normalPublisherRejectsPendingReview": true,
+    "ephemeralDevSignatureFixture": true,
+    "reviewMetadataUnchanged": true,
+    "sourceReview": "pending",
+    "distribution": "unreviewed",
+    "transport": "Loopback HTTP; genuine Ed25519 signature; no production TLS/CDN claim",
+    "published": false
+  },
+  "testedClient": {
+    "electronAppSource": "04dc6ee699b4cfbf91dc66a1d0b61d84ccfc2c89",
+    "electronMainSha256": "910afc057168b6ab397aa1b06b3cc57a00c6a29b8d5f93e4cafb55a7491818bb",
+    "bridgeSource": "07595bd56318a5ad4272004c4e3cffac2bd13722",
+    "dllSha256": "795bae04ef408bab42b6dc02f94aac6872ac0d75d4b77ef2e8b57d0ed7ad1a6d"
+  },
+  "map": {
+    "name": "Fighting Spirit 1.4",
+    "hash": "a55209a4ea0d368056b8e5c1be94092254610e744ad2186685c0387f8c08c4b9"
+  },
+  "opponent": "Passive controlled Terran; repeated same-opponent name",
+  "architecture": {
+    "bot": "x86",
+    "game": "x86_64"
+  },
+  "approval": {
+    "format": "experimental",
+    "sourceReview": "pending",
+    "localDistribution": "unreviewed",
+    "productionApproval": false,
+    "catalogAdmission": false
+  },
+  "limits": [
+    "Loopback development signature fixture over HTTP; no production keys, TLS/CDN delivery or publisher admission.",
+    "At least one command rejection lacks branch-level reason in existing bridge logs; exact counts retained.",
+    "Passive-control 1v1 on one map only; no human strength or broader race/map/format claim.",
+    "No new OS syscall trace or security sandbox certification.",
+    "Upstream source hosting and maintainer source/distribution/roster review remain unresolved."
+  ],
+  "physicallyOfflineReset": {
+    "catalogServerPhysicallyStopped": true,
+    "realRowsBeforeReset": 1,
+    "mutableReadAndWriteEmpty": true,
+    "immutablePackageUnchanged": true,
+    "originalAiFilesPreserved": 12,
+    "complete": true
+  },
+  "cleanup": {
+    "cdpListenerOpen": false,
+    "ownedElectronRunning": false,
+    "ownedNodeHarnesses": 0,
+    "ownedFixtureServerRunning": false
+  },
+  "validationDateLocal": "2026-10-28",
+  "timezone": "Europe/Paris",
+  "userConcessionCorrection": {
+    "affectedRound": 2,
+    "winnerCallbackFrame": 7297,
+    "userConfirmed": "Left Terran while still running",
+    "naturalCompletion": false,
+    "savedResultRowUnchanged": true
+  },
+  "requestedLocalValidationComplete": true
+}

@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-28",
+  "status": "experimental; production approval deferred",
+  "finding": "Reproduced expired native actor/target references rejected by existing lifetime guards. No gameplay or encoder defect demonstrated.",
+  "historicalEvent": {
+    "run": 1,
+    "firstCounterSnapshotFrame": 12240,
+    "payloadRecorded": false,
+    "exactCauseProven": false,
+    "note": "Original command cannot be reconstructed from counters. Reproductions establish a valid stale-reference mechanism, not the exact historical packet."
+  },
+  "instrumentation": {
+    "archiveUnchanged": true,
+    "fourDiagnosticProfilesAiMatchesOriginalArchive": true,
+    "sourceCommit": "b80edf953fcccb5c033c72b0f1c0b312ef62ba10",
+    "testedBase": "07595bd56318a5ad4272004c4e3cffac2bd13722",
+    "nativeLookupDependency": "da4fed681dc09bda7a21c0051f60cdad98cc7226",
+    "normalAcceptanceChecksUnchanged": true,
+    "lifetimeControlSourceSha256": "00eca2cb6d1475683b238c3942141b30491871b16e5409646977d68953388146",
+    "bridgeSourceFileSha256": "b003393504564427e60c8138b261b2d95ca97b4d1fa8b948483727b3b9feef01",
+    "diagnosticPatchSha256": "c1bab8491e0a16072caf4e1b3a0927c746eeac0270680c05b364b9e8dcf50caf"
+  },
+  "instrumentationScope": "Local debug-build, environment-opt-in, first 64 rejections per bridge. Logs reason and cached unit identity; acceptance rules and rejection counts unchanged.",
+  "runtime": {
+    "clientSource": "04dc6ee699b4cfbf91dc66a1d0b61d84ccfc2c89",
+    "electron": "44.9.3",
+    "map": "Fighting Spirit 1.4",
+    "mapHash": "a55209a4ea0d368056b8e5c1be94092254610e744ad2186685c0387f8c08c4b9",
+    "mode": "Two same-package Protoss bots and human observer, isolated local FFA lobby; bounded deliberate stops."
+  },
+  "reproductions": [
+    {
+      "scope": "Bounded same-package BananaBrain Protoss mirror with human observer. Opt-in diagnostics on tested bridge base; not natural-match or strength evidence.",
+      "architecture": "x64",
+      "artifactSha256": "e19593287f154f2ba5447ed992a2d55904e53837a99a21352dbd643b37eed358",
+      "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+      "rejections": [
+        {
+          "bot": 2,
+          "frame": 9886,
+          "reason": "target_native_missing",
+          "detail": "Some(UnitCommand { kind: 1, unit_index: 150, target_index: 152, x: 32000, y: 32032, extra: 0 }) actor_snapshot=Some((true, 3573, 66, 1, true)) target_snapshot=Some((true, 3592, 65, 0, true))"
+        }
+      ],
+      "complete": true,
+      "lastFrame": 10320,
+      "counts": [
+        {
+          "bot": 1,
+          "frame": 10320,
+          "accepted": 10729,
+          "rejected": 0
+        },
+        {
+          "bot": 2,
+          "frame": 10320,
+          "accepted": 13061,
+          "rejected": 1
+        }
+      ],
+      "loadedDiagnosticDllSha256": "bcfc2e215dc1cb5e1e8b34d868c0635f7bba21b81d9dbf25c902148c9689507a",
+      "firstRejectionFrame": 9886,
+      "countsAtFirstRejection": [
+        {
+          "bot": 1,
+          "frame": 9840,
+          "accepted": 6986,
+          "rejected": 0
+        },
+        {
+          "bot": 2,
+          "frame": 9840,
+          "accepted": 7962,
+          "rejected": 0
+        }
+      ],
+      "progressAfterRejection": true,
+      "stopScope": "Deliberate bounded stop after classification; not natural match",
+      "finalBridgeCounters": [
+        {
+          "bot": 1,
+          "accepted": 10920,
+          "rejected": 0,
+          "nativeLogSha256": "5de5ef4f8bd9063baa5e29030a883a70a4b3816427bb57a8eb136367e35b9255"
+        },
+        {
+          "bot": 2,
+          "accepted": 13393,
+          "rejected": 1,
+          "nativeLogSha256": "0748837dc3781b926e3f54aec256199dc424f777cfe366c1b58dd61532473093"
+        }
+      ]
+    },
+    {
+      "scope": "Bounded same-package BananaBrain Protoss mirror with human observer. Opt-in diagnostics on tested bridge base; not natural-match or strength evidence.",
+      "architecture": "x86",
+      "artifactSha256": "e19593287f154f2ba5447ed992a2d55904e53837a99a21352dbd643b37eed358",
+      "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+      "rejections": [
+        {
+          "bot": 1,
+          "frame": 4768,
+          "reason": "actor_native_missing",
+          "detail": "Some(UnitCommand { kind: 10, unit_index: 1, target_index: -1, x: 3799, y: 3937, extra: 0 }) actor_snapshot=Some((true, 3618, 64, 2, true)) target_snapshot=None"
+        }
+      ],
+      "complete": true,
+      "lastFrame": 5040,
+      "counts": [
+        {
+          "bot": 1,
+          "frame": 5040,
+          "accepted": 3422,
+          "rejected": 1
+        },
+        {
+          "bot": 2,
+          "frame": 5040,
+          "accepted": 2805,
+          "rejected": 0
+        }
+      ],
+      "loadedDiagnosticDllSha256": "efd95f64d32a444b106ba5b6225e962505d2e797f81bf1b935236a3c9a610c1e",
+      "firstRejectionFrame": 4768,
+      "countsAtFirstRejection": [
+        {
+          "bot": 1,
+          "frame": 4560,
+          "accepted": 2847,
+          "rejected": 0
+        },
+        {
+          "bot": 2,
+          "frame": 4560,
+          "accepted": 2004,
+          "rejected": 0
+        }
+      ],
+      "progressAfterRejection": true,
+      "stopScope": "Deliberate bounded stop after classification; not natural match",
+      "finalBridgeCounters": [
+        {
+          "bot": 1,
+          "accepted": 3470,
+          "rejected": 1,
+          "nativeLogSha256": "f97e8899312bb75a1904c34ced0883007cd6c3db87db09a54ef1d0061e0c88f0"
+        },
+        {
+          "bot": 2,
+          "accepted": 2865,
+          "rejected": 0,
+          "nativeLogSha256": "e723b42a6045b9a8ef63927b2cc311fe970adefb020793c1298e2b40317154df"
+        }
+      ]
+    }
+  ],
+  "nativeLifetimeControls": {
+    "architectures": [
+      "x64",
+      "x86"
+    ],
+    "layouts": [
+      "1700 legacy slots",
+      "1701 extended slots"
+    ],
+    "implementation": "Actual locked bw_dat dependency linked into synthetic native-memory fixtures",
+    "passed": [
+      "live ID resolves",
+      "dying unit rejected",
+      "freed slot rejected",
+      "reused slot rejects old ID",
+      "new generation ID resolves"
+    ],
+    "scope": "Synthetic controls, not gameplay results"
+  },
+  "excludedAttempt": "Initial x86 attempt stopped at frame 240 after module-audit mismatch; excluded from x86 validation. Corrected audit checked owned process architecture, actual module path and DLL hash before successful retry.",
+  "checks": {
+    "x64": {
+      "build": "build.bat debug",
+      "format": "cargo fmt --all -- --check",
+      "tests": {
+        "command": "cargo test --locked --all-targets --workspace --no-fail-fast --target x86_64-pc-windows-msvc",
+        "passed": 943,
+        "failed": 0
+      },
+      "clippy": "cargo clippy --locked --all-targets --workspace --target x86_64-pc-windows-msvc -- -D warnings",
+      "result": "passed"
+    },
+    "x86": {
+      "build": "build.bat debug x86",
+      "format": "cargo fmt --all -- --check",
+      "tests": {
+        "command": "cargo test --locked --all-targets --workspace --no-fail-fast --target i686-pc-windows-msvc",
+        "passed": 943,
+        "failed": 0
+      },
+      "clippy": "cargo clippy --locked --all-targets --workspace --target i686-pc-windows-msvc -- -D warnings",
+      "result": "passed"
+    },
+    "package": {
+      "metadata": "passed",
+      "sourceLockCandidatesCatalogValidation": "passed",
+      "descriptorArchiveEquality": "passed",
+      "recipeEntriesVerified": 29,
+      "pendingReview": true,
+      "experimentalOneVOne": true,
+      "productionApprovalAbsent": true
+    }
+  },
+  "cleanup": {
+    "cdpListenerOpen": false,
+    "ownedElectronRunning": false,
+    "ownedNodeHarnesses": 0,
+    "ownedDescendants": 0
+  },
+  "changes": "Diagnostic logging and evidence only. No bot bytes, AI files, recipe inputs, acceptance guards or approval metadata changed.",
+  "limits": [
+    "Original historical command unclassified",
+    "Expired-ID subtype (dying/freed/reused) not distinguished in live captures",
+    "Bounded mirror captures are not natural-match, strength or active-human validation",
+    "Production source hosting and maintainer source/distribution/roster approval remain open"
+  ],
+  "publication": {
+    "pushed": false,
+    "commentsPosted": false,
+    "merged": false,
+    "published": false
+  }
+}

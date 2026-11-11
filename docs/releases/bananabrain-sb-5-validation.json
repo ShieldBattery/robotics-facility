@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "build": {
+    "schemaVersion": 1,
+    "recipeRevision": "09a3008da5e07e3f1b2e8a0e879f7a1387828615",
+    "recipeSha256": "9f47fc7546fdb1b78397b2c7f983d6ca02409d008f1a53f89d83be05624dab8e",
+    "executable": "bin/BananaBrain.exe",
+    "executableSha256": "f4e88bba24eca90aa4251c94bc952ee9dc7a754ff7f040633f7aacbc7a2f6098",
+    "toolchain": {
+      "cmake": "cmake version 3.25.1-msvc1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "Win32",
+      "configuration": "Release",
+      "msvcRuntime": "static",
+      "compiler": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.35.32215/bin/Hostx64/x86/cl.exe",
+      "compilerId": "MSVC",
+      "compilerVersion": "19.35.32215.0",
+      "windowsSdkVersion": "10.0.22000.0"
+    },
+    "sources": [
+      {
+        "id": "bwapi",
+        "directory": "sources/bwapi",
+        "tree": "1e324bf1cf85fd8c033021eb4ce51997c43bc4f0",
+        "source": {
+          "id": "bwapi",
+          "repository": "https://github.com/bwapi/bwapi.git",
+          "revision": "7687da8abc4726f8366401f11ab648d421385793",
+          "patches": [
+            {
+              "path": "patches/bwapi/instance-discovery.patch",
+              "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+            }
+          ]
+        }
+      },
+      {
+        "id": "bananabrain",
+        "directory": "sources/bananabrain",
+        "tree": "b7b6e8ffca4c46bbc3d8490794ab64c9c6693e21",
+        "source": {
+          "id": "bananabrain",
+          "repository": "https://github.com/coin-au-carre/robotics-facility.git",
+          "revision": "f66d7336ca61a0a0a1a984fad55c162d942694e4",
+          "patches": [
+            {
+              "path": "patches/bananabrain/0001-isolate-storage.patch",
+              "sha256": "62917ef24f897ae585f531ce96f664faa47023228f238aa0598e6eb7f61e12e6"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "helperSha256": "197f9500a231c05d21109f7aa163dc51e9b66a51c3e939503c4e7827048d337c",
+  "originalAiFiles": [
+    {
+      "name": "Configuration.txt",
+      "sha256": "3e1053e5592c3f0b034401a05e2ed562d6cf5658e9fa233b89a9ec80d28d238f",
+      "sizeBytes": 17
+    },
+    {
+      "name": "OptimalMining_0a41f144c6134a2204f3d47d57cf2afcd8430841.txt",
+      "sha256": "aa9b351cc9513446b9e80975bc169ca0551cbf9cad5bbd20b0b4781e27fc7681",
+      "sizeBytes": 284505
+    },
+    {
+      "name": "OptimalMining_30f8396f0399403ddf60fc733ce99f393602575e.txt",
+      "sha256": "3fd702ef1a5862b8f237465c6991466237c8de9f59626f1e4a969f2b21619d0d",
+      "sizeBytes": 243264
+    },
+    {
+      "name": "OptimalMining_4176c3dd9e8cd11d3da1323b4c17e059d06a8fed.txt",
+      "sha256": "d16af15d08851e0c0e8fa4942850a273581b85c22f0217be564ed530d5b6a7bd",
+      "sizeBytes": 374262
+    },
+    {
+      "name": "OptimalMining_5e0bc3346c201ede3c92d6e970ffd4e8bab8b0cf.txt",
+      "sha256": "1833f43b622cdaf1f986ecd64fc2e5356994886ac1daa6a83ae70bd74b4aaead",
+      "sizeBytes": 325283
+    },
+    {
+      "name": "OptimalMining_630fc57ab58f4ac8a28d2b8dcd1cf524fd1566ec.txt",
+      "sha256": "9f56b98afc5a34bef1fe187ea7d885f1a96d6e7d26fc03cc0521795b0124084d",
+      "sizeBytes": 298525
+    },
+    {
+      "name": "OptimalMining_731138b5b844a4a0b4a4bb4e495969fd6659414c.txt",
+      "sha256": "9c12ddb3bed725193ddbcccf2bf4cacfa0ed9025553024d829ff7d2f76b675d2",
+      "sizeBytes": 340976
+    },
+    {
+      "name": "OptimalMining_ad870839912421dc3b4fd736a954bf770693ba9a.txt",
+      "sha256": "526868ad037e080a7e91315121dd867ccafac02db139cb97387353279a07f519",
+      "sizeBytes": 356637
+    },
+    {
+      "name": "OptimalMining_dbc596b6d00052f57e755b86bd3a8ff7db7a030a.txt",
+      "sha256": "ea8e5ee7c3384a12f2a39de2a447ab519c6e893e3be8abc2ad4bfdef1f00d1a1",
+      "sizeBytes": 342560
+    },
+    {
+      "name": "OptimalMining_e72a0a853545b77b39229a8c11d5c5624c09242b.txt",
+      "sha256": "5e85a74e87ad0bdfbeeedeb6a9ae9585dc9282d03d8c842fa12453732fa221f6",
+      "sizeBytes": 342988
+    },
+    {
+      "name": "OptimalMining_ed37fce47d1312e39a3a379c122382790e190cbd.txt",
+      "sha256": "f602731a7a1e564b1507bf69b2bf5cb50a632e50e7fb884465ad5088b5a5de78",
+      "sizeBytes": 311635
+    },
+    {
+      "name": "Results_McRaveZ.txt",
+      "sha256": "c45bc991e49c3eafdbb1135e03dff29092d767728914cddaab4a95e9b61041e9",
+      "sizeBytes": 9779
+    }
+  ],
+  "storageFaults": {
+    "passed": true,
+    "faults": [
+      "ERROR_DISK_FULL write",
+      "short write",
+      "ERROR_DISK_FULL flush",
+      "replacement denied"
+    ],
+    "crashBoundaries": [
+      "before atomic replacement",
+      "after atomic replacement"
+    ],
+    "concurrentProfiles": 2,
+    "savesPerProfile": 100,
+    "limitation": "Synthetic storage records and injected I/O failures; physical disk exhaustion and shared-profile writers are not tested."
+  },
+  "sourceAndLocalDistribution": "withdrawn proposal; unapproved",
+  "proposedReleaseId": "bananabrain-sb-5",
+  "offlineRebuild": {
+    "executableSha256": "37a6eb939180daac8c063ce8935de1dbc6d06aa4675ae98073e883d98a3b69d8",
+    "source": "extracted review ZIP only",
+    "networkBlockedAtOsLevel": false
+  },
+  "scope": {
+    "use": "local-practice",
+    "selectableRaces": [
+      "protoss"
+    ],
+    "gameArchitectures": [
+      "x86_64"
+    ],
+    "format": "one-v-one",
+    "existingFormatSupport": "experimental",
+    "map": "Fighting Spirit 1.4",
+    "publicCompetition": "unreviewed"
+  },
+  "gameplay": {
+    "appRevision": "04dc6ee699b4cfbf91dc66a1d0b61d84ccfc2c89",
+    "releaseDllIntegrationRevision": "07595bd56318a5ad4272004c4e3cffac2bd13722",
+    "loadedDllSha256": "795bae04ef408bab42b6dc02f94aac6872ac0d75d4b77ef2e8b57d0ed7ad1a6d",
+    "naturalPassiveTerran": {
+      "winner": true,
+      "frame": 8683,
+      "accepted": 3925,
+      "rejected": 2,
+      "savedFrame": 8683,
+      "savedWinner": true,
+      "rendererResultCaptured": false
+    },
+    "concurrent": [
+      {
+        "frame": 1200,
+        "units": 131,
+        "accepted": 57,
+        "rejected": 0,
+        "minerals": 96
+      },
+      {
+        "frame": 1200,
+        "units": 131,
+        "accepted": 59,
+        "rejected": 0,
+        "minerals": 96
+      }
+    ],
+    "forcedBotExit": {
+      "pairedFrames": 1200,
+      "terminatedOwnedBots": 1,
+      "supervisorStopPassed": true
+    },
+    "cleanupRemainingOwnedProcesses": 0
+  },
+  "runtimeSnapshot": {
+    "botCount": 1,
+    "tcpEndpoints": 0,
+    "udpEndpoints": 0,
+    "childNames": [
+      "conhost.exe"
+    ],
+    "fullSystemCallTrace": false
+  },
+  "installer": {
+    "passed": true,
+    "trust": "Ephemeral loopback HTTPS certificate and Ed25519 development key; production trust unchanged",
+    "publicDeliveryVerified": false,
+    "installedReleaseId": "bananabrain-sb-5",
+    "installedDigest": "c83f384e00d7c5ca61ccd5db5cc900d77379510cca47b775270773d71d245154",
+    "badSignatureRejected": true,
+    "badArchiveRejected": true,
+    "noticeCountReadable": 7,
+    "packageBytesUnchanged": true,
+    "reset": {
+      "idleOfflinePassed": true,
+      "networkRequests": 0,
+      "aiAssetsUnchanged": true,
+      "emptyMutableProfiles": true
+    },
+    "matches": [
+      {
+        "label": "installed-baseline",
+        "deliberatelyStopped": true,
+        "gameplay": [
+          {
+            "frame": 720,
+            "units": 130,
+            "accepted": 33,
+            "rejected": 0,
+            "minerals": 44
+          }
+        ],
+        "activeResetRejected": true,
+        "resultRowCounts": [
+          [
+            1
+          ],
+          []
+        ]
+      },
+      {
+        "label": "installed-reload",
+        "deliberatelyStopped": true,
+        "gameplay": [
+          {
+            "frame": 720,
+            "units": 130,
+            "accepted": 39,
+            "rejected": 0,
+            "minerals": 44
+          }
+        ],
+        "activeResetRejected": true,
+        "resultRowCounts": [
+          [
+            2
+          ],
+          []
+        ]
+      },
+      {
+        "label": "installed-concurrent",
+        "deliberatelyStopped": true,
+        "gameplay": [
+          {
+            "frame": 720,
+            "units": 130,
+            "accepted": 50,
+            "rejected": 0,
+            "minerals": 44
+          },
+          {
+            "frame": 720,
+            "units": 130,
+            "accepted": 38,
+            "rejected": 0,
+            "minerals": 44
+          }
+        ],
+        "activeResetRejected": true,
+        "resultRowCounts": [
+          [
+            1,
+            2
+          ],
+          [
+            1
+          ]
+        ]
+      }
+    ],
+    "reload": {
+      "sameOpponent": true,
+      "priorRows": 1,
+      "laterRows": 2,
+      "priorRowRetained": true,
+      "corruptReadIgnored": true,
+      "savedHashRetainedBeforeRestart": true
+    },
+    "remainingOwnedProcesses": 0
+  },
+  "reviewPackage": {
+    "releaseId": "bananabrain-sb-4",
+    "reviewOnly": true,
+    "archiveSha256": "845af610e6fef89c7bcb19499edecd58359cd702106018b30de5a1809556b268",
+    "sizeBytes": 3292765,
+    "manifestSha256": "6f497103bd5a08104d80b7c728676e7a412a686ceb2cf9553195d9f1cf3049ca"
+  },
+  "releaseId": "bananabrain-sb-5",
+  "reviewOnly": false,
+  "archiveSha256": "c83f384e00d7c5ca61ccd5db5cc900d77379510cca47b775270773d71d245154",
+  "sizeBytes": 3294521,
+  "manifestSha256": "09a01e8c6279dff9522989835a6210e7a572efdb67afa91f3a49ec188b4fdaa9",
+  "packagingRevision": "55f60b3",
+  "archiveDelta": {
+    "unchangedParentMembers": 294,
+    "changed": [
+      "package.json",
+      "source/BUILD.md"
+    ],
+    "added": [
+      "notices/ADMISSION.txt"
+    ],
+    "deleted": [],
+    "runtimeSourceAiAndOriginalNoticesIdentical": true
+  }
+}

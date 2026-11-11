@@ -1,0 +1,15 @@
+BananaBrain AIIDE 2025 — sb.6 experimental review candidate
+
+Human-opponent mode enables original UCB1 opening selection and glhf/gg chat.
+This changes runtime behavior from historical sb.5; its gameplay/admission does
+not establish approval for this candidate. Review-only package metadata remains
+pending/unreviewed. No production or public-competition approval is granted.
+
+Assigned Protoss experimental local 1v1 only. Random/Terran/Zerg assignments,
+x86 StarCraft, teams/FFA, human difficulty and exhaustive OS tracing are unverified.
+New source, patch, build and executable hashes are recorded in package.json and
+source/build-info.json. Original author AI bytes, licenses and tournament-permission
+condition remain unchanged. Source and offline build/relink materials are included.
+
+The exact source import still needs hosting on upstream source/bananabrain-aiide2025.
+Packaging does not upload a release or activate a signed catalog.

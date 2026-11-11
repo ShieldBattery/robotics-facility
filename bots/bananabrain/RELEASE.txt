@@ -1,0 +1,26 @@
+BananaBrain AIIDE 2025 — local review package
+
+Original bot: Johan de Jong. Includes the author's modified BWEM-community and
+original AI text data/configuration. Downstream changes are described below.
+The BananaBrain license requires written author permission for public StarCraft
+tournament entry. See BananaBrain-License.txt and BWEM-License.txt.
+
+Integration by ShieldBattery contributors, 2026-10-26: builds the sources as a Win32
+executable using ShieldBattery's existing single-match native host and static
+MSVC runtime. BWAPI 4.4 is built from source with ShieldBattery's existing
+isolated instance-discovery patch. No original compiled DLL is included.
+
+The storage patch validates bounded result/mining records, encodes unsafe opponent
+filename bytes, prefers write output over stale read inputs, fixes the shipped
+tournament=true configuration with drawing disabled, and atomically replaces saved files. Invalid
+files are ignored as a whole; oversized output or failed saves retain prior data.
+Original training data is retained. Human-opponent mode fixes human_opponent=true,
+selecting the author's UCB1 opening exploration and original glhf/gg chat. Storage format is unchanged
+for ordinary names; unsafe names use percent-encoded filenames without automatic
+migration. Shared Windows storage helper rejects reparse paths and hardlinked reads.
+
+Source, patches, native host and recorded build recipe are under source/.
+See source/BUILD.md and source/build-info.json for the exact committed recipe
+and recorded inputs. Earlier prototype/development build records are not used
+to package this release.
+Source/storage and distribution approval remain pending.

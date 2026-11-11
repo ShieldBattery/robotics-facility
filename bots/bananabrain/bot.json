@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "bot": {
+    "id": "bananabrain",
+    "name": "BananaBrain",
+    "description": "AIIDE 2025 Protoss bot using human-opponent opening selection and persistent opponent results. Experimental local practice; human difficulty uncalibrated.",
+    "authors": [
+      {
+        "name": "Johan de Jong"
+      }
+    ],
+    "homepage": "https://davechurchill.ca/starcraft/aiide/results/2025/",
+    "sourceUrl": "https://github.com/ShieldBattery/robotics-facility/tree/source/bananabrain-aiide2025",
+    "playStyleTags": [
+      "varied-openings"
+    ],
+    "humanSkill": "uncalibrated",
+    "externalRatings": []
+  },
+  "sourceIds": [
+    "bwapi",
+    "bananabrain"
+  ],
+  "profile": {
+    "selectableRaces": [
+      "protoss"
+    ],
+    "randomRace": "unverified",
+    "formats": [
+      {
+        "id": "one-v-one",
+        "support": "experimental",
+        "notes": "Protoss local practice tested on Fighting Spirit 1.4."
+      },
+      {
+        "id": "teams",
+        "support": "unverified",
+        "notes": "Not tested."
+      },
+      {
+        "id": "free-for-all",
+        "support": "unverified",
+        "notes": "Not tested."
+      }
+    ],
+    "mapConstraints": [
+      "Legacy SC:R unit limits required by the experimental bridge."
+    ],
+    "learning": {
+      "mode": "persistent",
+      "notes": "Original pretraining preserved; validated opponent results and mining data persist, preferring saved output over stale read inputs. Reset requires an idle profile and clearing read/write while preserving AI assets."
+    }
+  },
+  "license": {
+    "name": "BananaBrain License",
+    "sourceId": "bananabrain",
+    "path": "src/Source/License.txt",
+    "notes": "Includes a written-author-permission condition for public StarCraft tournaments. Separate original BWEM notice and LGPLv3 BWAPI notice included."
+  },
+  "permissions": {
+    "localDistribution": {
+      "status": "unreviewed",
+      "evidence": "New human-opponent runtime remains a review-only experimental candidate pending exact-package and gameplay review. Original license and public-tournament permission condition remain unchanged. docs/releases/bananabrain-sb-6.md"
+    },
+    "publicCompetition": {
+      "status": "unreviewed",
+      "evidence": "Written author permission required for public StarCraft tournament entry; not recorded."
+    }
+  },
+  "compatibility": {
+    "status": "unverified",
+    "bwapiVersion": "4.4.0",
+    "protocol": 10003,
+    "botArchitecture": "x86",
+    "gameArchitectures": [
+      "x86_64"
+    ],
+    "evidence": "docs/releases/bananabrain-sb-6.md",
+    "limitations": [
+      "Assigned Protoss, experimental local 1v1 only; random/Terran/Zerg assignments, teams/FFA and x86 StarCraft remain unverified.",
+      "Human-opponent mode changes opening selection to UCB1 and enables original glhf/gg chat. Historical sb.5 matches do not verify this new runtime.",
+      "Requires compatible ShieldBattery native bridge, accurate gathered-resource reporting, supervised local practice and separate writable profiles.",
+      "Fresh package/gameplay review and upstream hosting of exact source-import commit remain required. Human difficulty and public competition are unreviewed.",
+      "Shared-profile writers, physical disk exhaustion and exhaustive OS tracing are outside reviewed scope."
+    ]
+  },
+  "build": {
+    "status": "recipe-in-robotics-facility",
+    "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "revision": "4db55bff4aa33b5d1726d68a56db48ff6422beca",
+    "instructions": "bots/bananabrain/BUILD.md"
+  },
+  "sourceReview": {
+    "status": "pending",
+    "evidence": "Human-opponent configuration and corrected source inventory require current-package validation. Historical sb.5 evidence applies only to its recorded inputs. docs/releases/bananabrain-sb-6.md"
+  }
+}

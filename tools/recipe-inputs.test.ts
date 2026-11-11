@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import test from 'node:test'
 import ts from 'typescript'
+import { bananabrainRecipePaths as bananabrain } from './build-bananabrain.ts'
 import { recipePaths as infestedArtosis } from './build-infested-artosis.ts'
 import { recipePaths as marineHell } from './build-marine-hell.ts'
 import { opprimoRecipePaths as opprimo } from './build-opprimobot.ts'
@@ -46,6 +47,7 @@ function runtimeImports(file: string, contents: string): string[] {
 }
 
 for (const [bot, paths] of Object.entries({
+  bananabrain,
   zzzkbot,
   steamhammer,
   ualbertabot: ualberta,
@@ -69,6 +71,7 @@ for (const [bot, paths] of Object.entries({
         if (
           otherBot &&
           [
+            'bananabrain',
             'zzzkbot',
             'ualbertabot',
             'opprimobot',

@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "status": "experimental-review-only",
+  "archive": {
+    "releaseId": "bananabrain-sb-6",
+    "reviewOnly": true,
+    "archiveSha256": "e19593287f154f2ba5447ed992a2d55904e53837a99a21352dbd643b37eed358",
+    "sizeBytes": 3309477,
+    "manifestSha256": "2b6affc61bf72577cedd6ad9bf778bf22301231bebfdfe3c5d585a6d9dfc10e1",
+    "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+    "recipeRevision": "4db55bff4aa33b5d1726d68a56db48ff6422beca",
+    "recipeRepository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "sourceRevision": "f66d7336ca61a0a0a1a984fad55c162d942694e4",
+    "sourceRepository": "https://github.com/ShieldBattery/robotics-facility.git",
+    "patchSha256": "128a29f6fccda57ebaf9d3d8e0d9c6eb73365f74c31b7c702c38a35afd820cae",
+    "entries": 304,
+    "readmeIncludedAndOriginal": true,
+    "dsStoreEntries": 0,
+    "all12OriginalAiFilesIdentical": true,
+    "notices": 7,
+    "humanOpponent": true,
+    "tournamentHistory": true,
+    "profile": "experimental assigned Protoss local 1v1",
+    "sourceReview": "pending",
+    "localDistribution": "unreviewed",
+    "upstreamBranchHosted": false
+  },
+  "buildInfo": {
+    "schemaVersion": 1,
+    "recipeRevision": "4db55bff4aa33b5d1726d68a56db48ff6422beca",
+    "recipeSha256": "3d97a6c33c47d08bed9e39707b6ee3894e5457bba22e6546a5ed68e55fc2eaf3",
+    "executable": "bin/BananaBrain.exe",
+    "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+    "toolchain": {
+      "cmake": "cmake version 3.25.1-msvc1\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "Win32",
+      "configuration": "Release",
+      "msvcRuntime": "static",
+      "compiler": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.35.32215/bin/Hostx64/x86/cl.exe",
+      "compilerId": "MSVC",
+      "compilerVersion": "19.35.32215.0",
+      "windowsSdkVersion": "10.0.22000.0"
+    },
+    "sources": [
+      {
+        "id": "bwapi",
+        "directory": "sources/bwapi",
+        "tree": "1e324bf1cf85fd8c033021eb4ce51997c43bc4f0",
+        "source": {
+          "id": "bwapi",
+          "repository": "https://github.com/bwapi/bwapi.git",
+          "revision": "7687da8abc4726f8366401f11ab648d421385793",
+          "patches": [
+            {
+              "path": "patches/bwapi/instance-discovery.patch",
+              "sha256": "e35d406e61cef1c5ff28b2bd3202f3f41a1091c83d4b8dcc82236d946cc01ec0"
+            }
+          ]
+        }
+      },
+      {
+        "id": "bananabrain",
+        "directory": "sources/bananabrain",
+        "tree": "a7d996b825cb8d04e236c7aeb5c54c4b4823995e",
+        "source": {
+          "id": "bananabrain",
+          "repository": "https://github.com/ShieldBattery/robotics-facility.git",
+          "revision": "f66d7336ca61a0a0a1a984fad55c162d942694e4",
+          "patches": [
+            {
+              "path": "patches/bananabrain/0001-isolate-storage.patch",
+              "sha256": "128a29f6fccda57ebaf9d3d8e0d9c6eb73365f74c31b7c702c38a35afd820cae"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "offlineRebuild": {
+    "passed": true,
+    "executableSha256": "530cf81f2e4f3e05aa8a0129f5216c56b53122bfa2393ffd8f1c21fdcdcd89af",
+    "byteIdenticalBuildClaim": false,
+    "osNetworkIsolation": false
+  },
+  "checks": {
+    "metadata": true,
+    "typecheck": true,
+    "lintAndFormat": true,
+    "validate": true,
+    "toolingTests": 67,
+    "packagedStoragePolicy": true,
+    "packagedFaults": true,
+    "archiveAndDescriptor": true,
+    "committedRecipe": true
+  },
+  "syntheticPolicyTest": {
+    "winningRows": 12,
+    "originalOpenings": 3,
+    "rowsPerOpening": 4,
+    "reloaded": true,
+    "gameEvidence": false
+  },
+  "liveSmoke": {
+    "scope": "Two bounded local-game smoke runs with exact extracted sb.6 review executable. No account, public lobby, natural result or strength claim.",
+    "runs": [
+      {
+        "round": 1,
+        "finish": "deliberate bounded stop",
+        "targetFrame": 720,
+        "lastSnapshot": {
+          "frame": 720,
+          "minerals": 44,
+          "gas": 0,
+          "ownUnits": 8
+        },
+        "nativeEnd": {
+          "winner": false,
+          "frame": 759
+        },
+        "savedRows": 1,
+        "opening": "PvT_28nexus",
+        "savedWinnerFrameAgree": true
+      },
+      {
+        "round": 2,
+        "finish": "deliberate bounded stop",
+        "targetFrame": 720,
+        "lastSnapshot": {
+          "frame": 720,
+          "minerals": 44,
+          "gas": 0,
+          "ownUnits": 8
+        },
+        "nativeEnd": {
+          "winner": false,
+          "frame": 767
+        },
+        "savedRows": 2,
+        "opening": "PvT_dtdrop",
+        "savedWinnerFrameAgree": true
+      }
+    ],
+    "newNaturalMatch": false,
+    "distinctOpenings": true,
+    "savedStateReused": true,
+    "executableSha256": "bc5190ffc62c889e80e970a5fff1910b6ebc3da7c855006a682fe84ad571f795",
+    "rejections": "Not classified by this bounded native-host log",
+    "passed": true
+  },
+  "bridge": {
+    "sourceRevision": "07595bd56318a5ad4272004c4e3cffac2bd13722",
+    "loadedDllSha256": "795bae04ef408bab42b6dc02f94aac6872ac0d75d4b77ef2e8b57d0ed7ad1a6d",
+    "loadedModuleObserved": true,
+    "electronAppRevision": "04dc6ee699b4cfbf91dc66a1d0b61d84ccfc2c89",
+    "electronVersion": "44.9.3"
+  },
+  "map": {
+    "name": "Fighting Spirit 1.4",
+    "hash": "a55209a4ea0d368056b8e5c1be94092254610e744ad2186685c0387f8c08c4b9"
+  },
+  "limits": [
+    "Upstream source branch not hosted; exact local pristine seed used.",
+    "No signed-catalog installation or publication.",
+    "No naturally completed new-runtime match, human strength or command-rejection classification.",
+    "No physical disk exhaustion, shared-profile writer or exhaustive OS tracing."
+  ],
+  "productionApproval": false,
+  "pushed": false,
+  "commentsPosted": false,
+  "admissionFollowUp": {
+    "activeCatalogMatchesUpstreamMain": true,
+    "historicalSb5EntryWithheld": true,
+    "sourceImportStillOnForkOnly": true,
+    "sourceImportRemoteRevision": "f66d7336ca61a0a0a1a984fad55c162d942694e4",
+    "authorRecommendedBuildConfirmed": false,
+    "rosterDecision": "deferred",
+    "profileSeeding": {
+      "scope": "Actual ensureWorkingCopy function from inspected app source; exact extracted sb.6 work tree. Not an installed-catalog or gameplay test.",
+      "appSourceRevision": "04dc6ee699b4cfbf91dc66a1d0b61d84ccfc2c89",
+      "copiesMatchPackage": true,
+      "allSourceAndDestinationLinkCountsOne": true,
+      "distinctFileIds": true,
+      "files": 12,
+      "originalAiFiles": 12
+    }
+  }
+}

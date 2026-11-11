@@ -1,0 +1,372 @@
+diff --git a/src/Source/Configuration.cpp b/src/Source/Configuration.cpp
+index 35ea798..0d76de8 100644
+--- a/src/Source/Configuration.cpp
++++ b/src/Source/Configuration.cpp
+@@ -1,69 +1,8 @@
+ #include "BananaBrain.h"
+ 
++// Keep learning files from overriding the shipped gameplay configuration.
+ void Configuration::init()
+ {
+-	FILE *f;
+-	int err;
+-	
+-	err = fopen_s(&f, "bwapi-data\\read\\schnail.env", "r");
+-	if (err == 0) {
+-		human_opponent_ = true;
+-		fclose(f);
+-	}
+-	
+-	read_configuration_file("bwapi-data\\AI\\Configuration.txt");
+-	read_configuration_file("bwapi-data\\read\\Configuration.txt");
+-}
+-
+-void Configuration::read_configuration_file(const char* path)
+-{
+-	FILE *f;
+-	int err = fopen_s(&f, path, "r");
+-	if (err == 0) {
+-		while (true) {
+-			char line[1024];
+-			if (fgets(line, sizeof(line), f) == nullptr) break;
+-			char key[512];
+-			char value[512];
+-			int ret = sscanf_s(line, "%[^=]=%[^\n]\n", key, sizeof(key), value, sizeof(value));
+-			if (ret == 2) apply_key_value(key, value);
+-		}
+-		
+-		fclose(f);
+-	}
+-}
+-
+-void Configuration::apply_key_value(const char *key,const char* value)
+-{
+-	if (strcmp(key, "draw") == 0) {
+-		draw_enabled_ = (strcmp(value, "true") == 0);
+-	} else if (strcmp(key, "ucb1") == 0) {
+-		ucb1_ = (strcmp(value, "true") == 0);
+-	} else if (strcmp(key, "tournament") == 0) {
+-		tournament_ = (strcmp(value, "true") == 0);
+-	} else if (strcmp(key, "PvZ_opening") == 0) {
+-		PvZ_opening_ = value;
+-	} else if (strcmp(key, "PvT_opening") == 0) {
+-		PvT_opening_ = value;
+-	} else if (strcmp(key, "PvP_opening") == 0) {
+-		PvP_opening_ = value;
+-	} else if (strcmp(key, "PvU_opening") == 0) {
+-		PvU_opening_ = value;
+-	} else if (strcmp(key, "TvZ_opening") == 0) {
+-		TvZ_opening_ = value;
+-	} else if (strcmp(key, "TvT_opening") == 0) {
+-		TvT_opening_ = value;
+-	} else if (strcmp(key, "TvP_opening") == 0) {
+-		TvP_opening_ = value;
+-	} else if (strcmp(key, "TvU_opening") == 0) {
+-		TvU_opening_ = value;
+-	} else if (strcmp(key, "ZvZ_opening") == 0) {
+-		ZvZ_opening_ = value;
+-	} else if (strcmp(key, "ZvT_opening") == 0) {
+-		ZvT_opening_ = value;
+-	} else if (strcmp(key, "ZvP_opening") == 0) {
+-		ZvP_opening_ = value;
+-	} else if (strcmp(key, "ZvU_opening") == 0) {
+-		ZvU_opening_ = value;
+-	}
++    tournament_ = true;
++    human_opponent_ = true;
+ }
+diff --git a/src/Source/Configuration.h b/src/Source/Configuration.h
+index 2b14aae..ea15bb5 100644
+--- a/src/Source/Configuration.h
++++ b/src/Source/Configuration.h
+@@ -44,6 +44,4 @@ private:
+ 	std::string ZvP_opening_;
+ 	std::string ZvU_opening_;
+ 	
+-	void read_configuration_file(const char* path);
+-	void apply_key_value(const char *key,const char* value);
+ };
+diff --git a/src/Source/Results.cpp b/src/Source/Results.cpp
+index 9739023..3179c89 100644
+--- a/src/Source/Results.cpp
++++ b/src/Source/Results.cpp
+@@ -1,4 +1,5 @@
+ #include "BananaBrain.h"
++#include "storage.hpp"
+ 
+ void ResultStore::init()
+ {
+@@ -8,73 +9,59 @@ void ResultStore::init()
+ 	read_results();
+ }
+ 
++// Bound saved history independently from strategy lookback.
+ void ResultStore::init_filenames()
+ {
+-	sprintf_s(ai_filename_, sizeof(ai_filename_), "bwapi-data\\AI\\Results_%s.txt", determine_name().c_str());
+-	sprintf_s(read_filename_, sizeof(read_filename_), "bwapi-data\\read\\Results_%s.txt", determine_name().c_str());
+-	sprintf_s(write_filename_, sizeof(write_filename_), "bwapi-data\\write\\Results_%s.txt", determine_name().c_str());
++    const auto encoded = SbStorage::encode(determine_name());
++    ai_filename_[0] = read_filename_[0] = write_filename_[0] = 0;
++    if (encoded.empty()) return;
++    const std::string name = "Results_" + encoded + ".txt";
++    strcpy_s(ai_filename_, name.c_str());
++    strcpy_s(read_filename_, name.c_str());
++    strcpy_s(write_filename_, name.c_str());
+ }
+ 
+ void ResultStore::read_prepared_results()
+ {
+-	FILE *f;
+-	int err = fopen_s(&f, ai_filename_, "r");
+-	if (err == 0) read_file(f);
++    std::string data;
++    const auto status = SbStorage::read("AI", ai_filename_, data);
++    if (status == SbStorage::Read::Loaded) read_file(data);
++    else if (status == SbStorage::Read::Rejected) SbStorage::warn();
+ }
+ 
+ void ResultStore::read_results()
+ {
+-	FILE *f;
+-	int err = fopen_s(&f, read_filename_, "r");
+-	if (err != 0) err = fopen_s(&f, write_filename_, "r");
+-	if (err == 0) read_file(f);
++    std::string data;
++    const auto status = SbStorage::state(read_filename_, data);
++    if (status == SbStorage::Read::Loaded) read_file(data);
++    else if (status == SbStorage::Read::Rejected) SbStorage::warn();
+ }
+ 
+-void ResultStore::read_file(FILE *f)
++void ResultStore::read_file(const std::string& data)
+ {
+-	while (true) {
+-		char timestamp[512];
+-		int start_positions;
+-		int start_clock_position;
+-		int opponent_clock_position;
+-		char map[512];
+-		char strategy[512];
+-		char late_game_strategy[512];
+-		char opponent_strategy[512];
+-		int duration;
+-		int opponent_dark_templar_frame;
+-		int opponent_mutalisk_frame;
+-		int opponent_lurker_frame;
+-		int is_win;
+-		int ret = fscanf_s(f, "%[^,],%d,%d,%d,%[^,],%[^,],%[^,],%[^,],%d,%d,%d,%d,%d\n",
+-						   timestamp, sizeof(timestamp),
+-						   &start_positions, &start_clock_position, &opponent_clock_position,
+-						   map, sizeof(map),
+-						   strategy, sizeof(strategy),
+-						   late_game_strategy, sizeof(late_game_strategy),
+-						   opponent_strategy, sizeof(opponent_strategy),
+-						   &duration, &opponent_dark_templar_frame, &opponent_mutalisk_frame, &opponent_lurker_frame,
+-						   &is_win);
+-		if (ret == EOF) break;
+-		if (ret == 13) {
+-			Result result;
+-			result.timestamp = timestamp;
+-			result.start_positions = start_positions;
+-			result.start_clock_position = start_clock_position;
+-			result.opponent_clock_position = opponent_clock_position;
+-			result.map = map;
+-			result.strategy = strategy;
+-			result.late_game_strategy = late_game_strategy;
+-			result.opponent_strategy = opponent_strategy;
+-			result.duration = duration;
+-			result.opponent_dark_templar_frame = opponent_dark_templar_frame;
+-			result.opponent_mutalisk_frame = opponent_mutalisk_frame;
+-			result.opponent_lurker_frame = opponent_lurker_frame;
+-			result.is_win = (is_win != 0);
+-			results_.push_back(std::move(result));
+-		}
+-	}
+-	fclose(f);
++    std::vector<Result> loaded;
++    const bool ok = SbStorage::lines(data, [&](std::string_view line) {
++        std::array<std::string, 13> f;
++        if (!SbStorage::fields(line, f)) return false;
++        const int fields[] = {1, 2, 3, 8, 9, 10, 11, 12};
++        int n[8];
++        for (int i = 0; i < 8; ++i) {
++            const int low = (i == 1 || i == 2 || (i >= 4 && i <= 6)) ? -1 : 0;
++            const int high = i < 3 ? 12 : (i == 7 ? 1 : INT_MAX);
++            if (!SbStorage::integer(f[fields[i]], n[i], low, high)) return false;
++        }
++        Result result;
++        result.timestamp = f[0]; result.start_positions = n[0];
++        result.start_clock_position = n[1]; result.opponent_clock_position = n[2];
++        result.map = f[4]; result.strategy = f[5]; result.late_game_strategy = f[6];
++        result.opponent_strategy = f[7]; result.duration = n[3];
++        result.opponent_dark_templar_frame = n[4]; result.opponent_mutalisk_frame = n[5];
++        result.opponent_lurker_frame = n[6]; result.is_win = n[7] != 0;
++        loaded.push_back(std::move(result));
++        return true;
++    });
++    if (!ok) { SbStorage::warn(); return; }
++    results_.insert(results_.end(), loaded.begin(), loaded.end());
+ }
+ 
+ std::string ResultStore::pick_strategy(std::vector<std::string> strategies)
+@@ -256,21 +243,21 @@ void ResultStore::apply_result(const std::string& strategy,const std::string& la
+ 
+ void ResultStore::store()
+ {
+-	FILE *f;
+-	int err = fopen_s(&f, write_filename_, "w");
+-	if (err == 0) {
+-		for (auto it = results_.cbegin() + prepared_result_count_; it != results_.cend(); ++it) {
+-			const auto& result = *it;
+-			fprintf(f, "%s,%d,%d,%d,%s,%s,%s,%s,%d,%d,%d,%d,%d\n",
+-					result.timestamp.c_str(),
+-					result.start_positions, result.start_clock_position, result.opponent_clock_position,
+-					result.map.c_str(),
+-					result.strategy.c_str(), result.late_game_strategy.c_str(), result.opponent_strategy.c_str(),
+-					result.duration, result.opponent_dark_templar_frame, result.opponent_mutalisk_frame, result.opponent_lurker_frame,
+-					result.is_win ? 1 : 0);
+-		}
+-		fclose(f);
+-	}
++    std::string data;
++    size_t count = 0;
++    for (auto it = results_.cbegin() + prepared_result_count_; it != results_.cend(); ++it) {
++        const auto& r = *it;
++        const std::string row = SbStorage::csv(r.timestamp) + "," +
++            std::to_string(r.start_positions) + "," + std::to_string(r.start_clock_position) + "," +
++            std::to_string(r.opponent_clock_position) + "," + SbStorage::csv(r.map) + "," +
++            SbStorage::csv(r.strategy) + "," + SbStorage::csv(r.late_game_strategy) + "," +
++            SbStorage::csv(r.opponent_strategy) + "," + std::to_string(r.duration) + "," +
++            std::to_string(r.opponent_dark_templar_frame) + "," + std::to_string(r.opponent_mutalisk_frame) + "," +
++            std::to_string(r.opponent_lurker_frame) + "," + (r.is_win ? "1" : "0") + "\n";
++        if (++count > SbStorage::MaxRecords || data.size() + row.size() > SbStorage::MaxBytes) { SbStorage::warn(); return; }
++        data += row;
++    }
++    if (!SbStorage::write(write_filename_, data)) SbStorage::warn();
+ }
+ 
+ std::string ResultStore::determine_name()
+diff --git a/src/Source/Results.h b/src/Source/Results.h
+index dd5f38e..75f6341 100644
+--- a/src/Source/Results.h
++++ b/src/Source/Results.h
+@@ -41,10 +41,9 @@ private:
+ 	size_t prepared_result_count_;
+ 	
+ 	void init_filenames();
+-	void read_file();
+ 	void read_prepared_results();
+ 	void read_results();
+-	void read_file(FILE *f);
++	void read_file(const std::string& data);
+ 	
+ 	std::string pick_strategy_greedy(const std::vector<std::string>& strategies);
+ 	std::string pick_strategy_ucb1(const std::vector<std::string>& strategies);
+diff --git a/src/Source/Worker.cpp b/src/Source/Worker.cpp
+index 39b32d3..82c29ed 100644
+--- a/src/Source/Worker.cpp
++++ b/src/Source/Worker.cpp
+@@ -1,4 +1,5 @@
+ #include "BananaBrain.h"
++#include "storage.hpp"
+ 
+ WorkerAllocation::WorkerAllocation(const std::vector<std::pair<Unit,const BWEM::Base*>>& minerals,
+ 								   const std::vector<std::pair<Unit,const BWEM::Base*>>& refineries,
+@@ -2041,53 +2042,53 @@ bool WorkerManager::is_dangerous_unit(Unit enemy_unit)
+ 	});
+ }
+ 
++// Validate map-specific mining data before populating movement caches.
++namespace {
++std::string mining_filename()
++{
++    const std::string hash = Broodwar->mapHash();
++    if (hash.size() != 40 || hash.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos) return {};
++    return "OptimalMining_" + hash + ".txt";
++}
++}
+ void WorkerManager::init_optimal_mining_data()
+ {
+-	char filename[512];
+-	FILE *f;
+-	sprintf_s(filename, sizeof(filename), "bwapi-data\\read\\OptimalMining_%s.txt", Broodwar->mapHash().c_str());
+-	int err = fopen_s(&f, filename, "r");
+-	if (err != 0) {
+-		sprintf_s(filename, sizeof(filename), "bwapi-data\\write\\OptimalMining_%s.txt", Broodwar->mapHash().c_str());
+-		err = fopen_s(&f, filename, "r");
+-	}
+-	if (err != 0) {
+-		sprintf_s(filename, sizeof(filename), "bwapi-data\\AI\\OptimalMining_%s.txt", Broodwar->mapHash().c_str());
+-		err = fopen_s(&f, filename, "r");
+-	}
+-	if (err == 0) {
+-		while (true) {
+-			int mineral_x;
+-			int mineral_y;
+-			int position_x;
+-			int position_y;
+-			int velocity_x;
+-			int velocity_y;
+-			int ret = fscanf_s(f, "%d,%d,%d,%d,%d,%d", &mineral_x, &mineral_y, &position_x, &position_y, &velocity_x, &velocity_y);
+-			if (ret == EOF) break;
+-			if (ret == 6) {
+-				FastTilePosition mineral_position(mineral_x, mineral_y);
+-				WorkerPositionAndVelocity value = {FastPosition(position_x, position_y), velocity_x, velocity_y};
+-				optimal_mining_map_[mineral_position].insert(value);
+-			}
+-		}
+-		fclose(f);
+-	}
++    std::string data;
++    const auto status = SbStorage::state(mining_filename(), data, true);
++    if (status == SbStorage::Read::Missing) return;
++    if (status == SbStorage::Read::Rejected) { SbStorage::warn(); return; }
++    decltype(optimal_mining_map_) loaded;
++    const bool ok = SbStorage::lines(data, [&](std::string_view line) {
++        std::array<std::string, 6> f;
++        if (!SbStorage::fields(line, f)) return false;
++        int n[6];
++        for (int i = 0; i < 6; ++i) {
++            const int low = i >= 4 ? -10000 : 0;
++            const int high = i >= 4 ? 10000 : (i < 2 ? 255 : 8191);
++            if (!SbStorage::integer(f[i], n[i], low, high)) return false;
++        }
++        if (n[0] >= Broodwar->mapWidth() || n[1] >= Broodwar->mapHeight() ||
++            n[2] >= Broodwar->mapWidth() * 32 || n[3] >= Broodwar->mapHeight() * 32) return false;
++        const FastTilePosition mineral(n[0], n[1]);
++        loaded[mineral].insert({FastPosition(n[2], n[3]), n[4], n[5]});
++        return true;
++    });
++    if (!ok) { SbStorage::warn(); return; }
++    optimal_mining_map_.swap(loaded);
+ }
+ 
+ void WorkerManager::store_optimal_mining_data()
+ {
+-	char filename[512];
+-	FILE *f;
+-	sprintf_s(filename, sizeof(filename), "bwapi-data\\write\\OptimalMining_%s.txt", Broodwar->mapHash().c_str());
+-	int err = fopen_s(&f, filename, "w");
+-	if (err == 0) {
+-		for (auto& entry : optimal_mining_map_) {
+-			const auto& mineral_position = entry.first;
+-			for (auto& value : entry.second) {
+-				fprintf(f, "%d,%d,%d,%d,%d,%d\n", mineral_position.x, mineral_position.y, value.position.x, value.position.y, value.velocity_x, value.velocity_y);
+-			}
+-		}
+-		fclose(f);
+-	}
++    std::string data;
++    size_t count = 0;
++    for (const auto& entry : optimal_mining_map_) {
++        for (const auto& value : entry.second) {
++            const std::string row = std::to_string(entry.first.x) + "," + std::to_string(entry.first.y) + "," +
++                std::to_string(value.position.x) + "," + std::to_string(value.position.y) + "," +
++                std::to_string(value.velocity_x) + "," + std::to_string(value.velocity_y) + "\n";
++            if (++count > SbStorage::MaxRecords || data.size() + row.size() > SbStorage::MaxBytes) { SbStorage::warn(); return; }
++            data += row;
++        }
++    }
++    if (!SbStorage::write(mining_filename(), data)) SbStorage::warn();
+ }

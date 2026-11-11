@@ -12,7 +12,9 @@ build instructions, and offline license/modification notices. See the
 [Infested Artosis](docs/infested-artosis-admission.md), and
 [Steamhammer](docs/steamhammer-admission.md) admission records for exact scope.
 Human difficulty remains uncalibrated; supported races and formats are
-release-specific. The game bridge currently requires a ShieldBattery debug build.
+release-specific. [BananaBrain sb.6](docs/releases/bananabrain-sb-6.md) remains
+an experimental review-only candidate outside the active catalog; source hosting,
+current-package admission and further gameplay review remain required.
 
 Separate staging and production publishing Actions validate archives, sign catalogs,
 and publish to Spaces; they refuse empty/unapproved releases. See
