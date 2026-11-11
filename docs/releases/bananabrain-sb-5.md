@@ -34,10 +34,10 @@ Byte-identical builds across directories are not claimed.
 
 The proposed sb.5 package carries the same tested executable, patched source,
 original AI bytes, build record and existing license notices. Its new identity,
-review metadata, project modifier attribution, current BUILD instructions and
-additional admission notice are packaging changes. Earlier review archives stay
-immutable. Assembly used committed proposal metadata `55f60b3`. Exactly 294 parent members
-are byte-identical; only `package.json` and `source/BUILD.md` change and
+proposed review metadata, project modifier attribution, updated BUILD instructions
+and unapproved draft notice are packaging changes. Earlier review archives stay
+immutable. Assembly used committed proposal metadata `55f60b3`. Exactly 294 parent
+members are byte-identical; only `package.json` and `source/BUILD.md` change and
 `notices/ADMISSION.txt` is added. Nothing is removed. New ZIP SHA-256:
 `c83f384e00d7c5ca61ccd5db5cc900d77379510cca47b775270773d71d245154`
 (3,294,521 bytes, 297 entries). The [validation record](bananabrain-sb-5-validation.json)
@@ -159,26 +159,29 @@ author permission; none is recorded. Original Johan de Jong attribution stays in
 | Downstream changes/review | Original `notices/RELEASE.txt` plus new `notices/ADMISSION.txt` |
 
 The original RELEASE review notice is preserved verbatim, including its historical
-pending-review sentence. ADMISSION and the immutable descriptor contain the
-withdrawn proposal's review wording. The app must retain and display all notices
-offline, upstream authorship and project modification disclosures.
+pending-review sentence. The packaged `notices/ADMISSION.txt` and `package.json`
+claim source and local-distribution approval. Maintainers never granted that
+approval. Those files remain in the immutable sb.5 archive as historical evidence.
+The proposal required the app to retain and display all notices offline, including
+upstream authorship and project modification disclosures.
 
 Corresponding source is inside the same versioned ZIP as the executable, including
 patched bot/BWAPI sources, dependency headers, source-lock/patches and native build
 materials. Offline source rebuilding verifies a user can modify/relink the static
-BWAPI combined executable. Preserve modification/debugging rights and equivalent
-source access when publishing; a mutable upstream URL alone is insufficient.
+BWAPI combined executable. The proposed delivery terms required preserving
+modification and debugging rights and providing equivalent source access. A mutable
+upstream URL alone would have been insufficient.
 The evidence covers these exact inputs and the tested delivery arrangement.
 
 ## Client and delivery limits
 
-Use the reviewed SB native bridge and per-instance app-owned writable profiles.
+The proposal required the reviewed SB native bridge and per-instance app-owned
+writable profiles.
 [SB #1831](https://github.com/ShieldBattery/ShieldBattery/pull/1831) supplies accurate
 gathered resources; [SB #1838](https://github.com/ShieldBattery/ShieldBattery/pull/1838)
 supplies supervised release practice and fixed production catalog trust. The local
-integration used for gameplay is recorded above; it is not presented as a fresh
-build of every latest client PR. Do not ship an older integration merely because
-this bot ran on it.
+integration recorded above was the only client build covered by this gameplay
+evidence.
 
 Validation used an isolated local fixture. No public release upload, catalog
 signing, workflow dispatch or production promotion took place.
